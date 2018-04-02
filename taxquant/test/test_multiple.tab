@@ -1,0 +1,4 @@
+peptide	domain	phylum	class	order	family	genus	species	int1	int2	int3
+NOTISSREAL	bacteria	proteobacteria	epsilonproteobacteria	campylobacterales	helicobacteraceae	heliobacter	pylori	2000	5000	9000
+ISSNOTREALE	bacteria	firmicutes	clostridia	clostridiales	clostridiaceae	clostridium	difficile	7000	2000	1000
+ISSVERYNOTREALE	bacteria	firmicutes	clostridia	clostridiales	clostridiaceae			1000	3000	0

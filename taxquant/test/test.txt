@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo -e 'peptide\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecies\tintensity\n'\
+'NOTISSREAL\tbacteria\tproteobacteria\tepsilonproteobacteria\tcampylobacterales\thelicobacteraceae\theliobacter\tpylori\t1000\n'\
+'ISSNOTREALE\tbacteria\tfirmicutes\tclostridia\tclostridiales\tclostridiaceae\tclostridium\tdifficile\t5000\n'\
+'ISSVERYNOTREALE\tbacteria\tfirmicutes\tclostridia\tclostridiales\tclostridiaceae\t\t\t25.5'> test.tab
