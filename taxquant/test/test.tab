@@ -1,0 +1,4 @@
+peptide	superkingdom	phylum	class	order	family	genus	species	intensity
+NOTISSREAL	bacteria	proteobacteria	epsilonproteobacteria	campylobacterales	helicobacteraceae	heliobacter	pylori	2000
+ISSNOTREALE	bacteria	firmicutes	clostridia	clostridiales	clostridiaceae	clostridium	difficile	7000
+ISSVERYNOTREALE	bacteria	firmicutes	clostridia	clostridiales	clostridiaceae			1000
