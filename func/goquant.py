@@ -1,6 +1,7 @@
 import goatools
 import os
 import pandas as pd
+import numpy as np
 
 
 class ParentGoTerms:
@@ -11,37 +12,52 @@ class ParentGoTerms:
                   'molecular_function',
                   'cellular_component']
 
-
 class GoQuant:
-    def __init__(self, df, intcol):
-        self.df = df
+    def __init__(self, intcol, gocol, file):
+        if not isinstance(intcol, list):
+            self.intcol = [intcol]
+        else:
+            self.intcol = intcol
+        self.gocol = gocol
+        self.file = file
+        self.df = self.read_table()
         self.go = goatools.obo_parser.GODag(os.getcwd() + '/data/go-basic.obo')
-        self.intcol = intcol
+        self.unknown_gos = set()
         self.go_int = self.add_up_through_hierarchy()
+
+        if self.unknown_gos == set():
+            print("The following go terms were not found in the OBO file, and may be obsolete: ")
+            for i in self.unknown_gos:
+                print(i)
 
     def set_of_all_parents(self, terms):
         all_rents = set(terms)
         for i in set(terms):
-            all_rents.update(self.go[i].get_all_parents())
+            if i in self.go.keys():
+                all_rents.update(self.go[i].get_all_parents())
+            else:
+                if i != "unknown":
+                    self.unknown_gos.update([i])
         return all_rents
 
     def add_up_through_hierarchy(self):
         go_dict = dict()
         # iterate through rows and assign intensity to all parents of each go term
         for index, row in self.df.iterrows():
-            go_terms = row['go'].split(',')
+            go_terms = row[self.gocol].split(',')
             go_terms_parents = self.set_of_all_parents(go_terms)
             intensity = {x: row[x] for x in self.intcol}
             for term in go_terms_parents:
-                if term in go_dict.keys():
-                    current_term = go_dict[term]
-                    for k, v in intensity.items():
-                        current_term[k] += v
-                else:
-                    new_dict = dict()
-                    for k, v in intensity.items():
-                        new_dict[k] = v
-                    go_dict[term] = new_dict
+                if term in self.go.keys():
+                    if term in go_dict.keys():
+                        current_term = go_dict[term]
+                        for k, v in intensity.items():
+                            current_term[k] += v
+                    else:
+                        new_dict = dict()
+                        for k, v in intensity.items():
+                            new_dict[k] = v
+                        go_dict[term] = new_dict
         # convert back to data frame
         gos = list(go_dict.keys())
         namespace = [self.go[i].namespace for i in gos]
@@ -75,6 +91,27 @@ class GoQuant:
             sub_norm=pd.Series()
         return sub_norm
 
+    def read_table(self):
+        numeric_cols = {x: np.float64 for x in self.intcol}
+
+        # read in data
+        df = pd.read_table(self.file, sep="\t", index_col="peptide", dtype = numeric_cols)
+
+        # drop columns where all are NA
+        df.dropna(axis=1, how="all", inplace = True)
+
+        # change missing intensities to 0
+        df[self.intcol] = df[self.intcol].fillna(0)
+
+        # change missing go annotation to 'unknown', because nan compares false to itself
+        df.fillna('unknown', inplace=True)
+
+        return df
+
+
+
+
+
 # TODO
-# filereader
 # write out
+# add t.tests, fdr correction, etc. 
