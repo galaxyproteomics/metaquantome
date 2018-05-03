@@ -1,0 +1,16 @@
+refactor to minimize repeats:
+    - in general, use functions rather than classes.
+    - in progress
+
+shared code:
+    - filtering to minimum number of observations
+    - volcano plot (TODO)
+    - heatmap, especially for F+T (TODO)
+    - tax and func share almost everything
+
+other features:
+    - additional functional ontologies in functional analysis (EC numbers and COG categories)
+    - identification of functions/taxa/ft only present in one condition and not the other
+
+other todo:
+    - document functions

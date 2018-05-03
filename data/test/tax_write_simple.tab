@@ -1,0 +1,16 @@
+intensity	rank	member
+0.7	species	difficile
+0.2	species	pylori
+0.1	species	unknown
+0.2	order	campylobacterales
+0.8	order	clostridiales
+0.8	phylum	firmicutes
+0.2	phylum	proteobacteria
+0.7	genus	clostridium
+0.2	genus	heliobacter
+0.1	genus	unknown
+1.0	superkingdom	bacteria
+0.8	family	clostridiaceae
+0.2	family	helicobacteraceae
+0.8	class	clostridia
+0.2	class	epsilonproteobacteria
