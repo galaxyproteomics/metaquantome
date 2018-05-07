@@ -3,7 +3,6 @@ import numpy as np
 import scipy.stats as sps
 import statsmodels.sandbox.stats.multicomp as mc
 
-
 def define_intensity_columns(grp1_intcols, grp2_intcols):
     if not isinstance(grp1_intcols, list):
         grp1 = [grp1_intcols]
@@ -25,9 +24,10 @@ def define_intensity_columns(grp1_intcols, grp2_intcols):
     return all_intcols, dict_numeric_cols
 
 
-def read_data_table(file, dict_numeric_cols, all_intcols):
+def read_data_table(file, dict_numeric_cols, all_intcols, pep_colname="peptide"):
     # read in data
-    df = pd.read_table(file, sep="\t", index_col="peptide", dtype=dict_numeric_cols)
+    df = pd.read_table(file, sep="\t", index_col=pep_colname, dtype=dict_numeric_cols,
+                       na_values = ["", "0", "NA", "NaN"])
 
     # drop columns where all are NA
     df.dropna(axis=1, how="all", inplace=True)
@@ -42,11 +42,9 @@ def read_data_table(file, dict_numeric_cols, all_intcols):
     return df
 
 
-def write_out(df, outfile):
-    df.to_csv(outfile, sep="\t", index=False)
-
-
 def filter_min_observed(df, grp1_intcols, grp2_intcols, threshold):
+    if threshold == 0:
+        return df
     # filter to a minimum number of observed intensities per sample
     numNotNA1 = (df[grp1_intcols] > 0).apply(sum, axis=1) >= threshold
     numNotNA2 = (df[grp2_intcols] > 0).apply(sum, axis=1) >= threshold
@@ -55,18 +53,17 @@ def filter_min_observed(df, grp1_intcols, grp2_intcols, threshold):
     return filtered_df
 
 
-def test_norm_intensity(df, grp1_intcols, grp2_intcols, threshold, paired):
-    # filter to a minimum number of observed intensities per sample
-    filtered_df = filter_min_observed(df, grp1_intcols, grp2_intcols, threshold)
+def test_norm_intensity(df, grp1_intcols, grp2_intcols, paired):
 
     # add mean, sd; create dataframe
-    test_results = filtered_df.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols],
+    test_results = df.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols],
                                                                    x[grp2_intcols],
                                                                    equal_var=paired).pvalue, axis=1)
-    filtered_df['log2ratio_grp2_over_grp1'] = \
-        filtered_df.apply(
+    df['log2ratio_2over1'] = \
+        df.apply(
             lambda x: np.log2(np.mean(x[grp2_intcols]) / np.mean(x[grp1_intcols])),
         axis=1)
-    filtered_df['p'] = test_results
-    filtered_df['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
-    return filtered_df
+    df['p'] = test_results
+    df['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
+    df['id'] = df.index
+    return df

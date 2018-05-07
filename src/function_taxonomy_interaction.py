@@ -4,25 +4,21 @@ import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 import warnings
 import pandas as pd
-
+from src import common
 
 # TODO
-# add filtering
 # what to do about missing cog and missing taxon
 
 
-def function_taxonomy_interaction_analysis(file, cog_name, tax_name,
+def function_taxonomy_interaction_analysis(df, cog_name, tax_rank, all_intcols,
                                            sample1_colnames, sample2_colnames,
-                                           outfile=None,
-                                           testtype="modt", paired=False):
-
-    # read in file to pandas
-    pd_df = pd.read_table(file, na_values=["", "NA", "NaN"], sep='\t')
+                                           outfile, threshold,
+                                           testtype, paired):
 
     # take first cog
-    pd_df[cog_name] = pd_df[cog_name].str.split(',').str[0]
+    df[cog_name] = df[cog_name].str.split(',').str[0]
 
-    pd_df = pd_df.assign(ft=pd_df[cog_name] + '-' + pd_df[tax_name])
+    pd_df = df.assign(ft=df[cog_name] + '-' + df[tax_rank])
 
     # transform data frame to R
     pandas2ri.activate()
@@ -41,17 +37,17 @@ def function_taxonomy_interaction_analysis(file, cog_name, tax_name,
     peca_pandas = pandas2ri.ri2py_dataframe(peca_results)
     ft = peca_pandas.index
     # add cog description
-    peca_pandas['cogDescript'] = [cogCat[x] for x in ft.str.split('-').str[0].values]
+    peca_pandas['descript'] = [cogCat[x] for x in ft.str.split('-').str[0].values]
 
     # clearer column names, only keep important columns
-    peca_pandas.rename(index=str, columns={"slr": "log2ratio_2to1"}, inplace=True)
+    peca_pandas['id'] = peca_pandas.index
+    peca_pandas.rename(index=str, columns={"slr": "log2ratio_2over1",
+                                           "p.fdr": "corrected_p",
+                                           "function_taxon": "id"}, inplace=True)
     peca_pandas.drop(columns=['t', 'score'], inplace=True)
 
-    peca_pandas['function_taxon'] = peca_pandas.index
-    if outfile:
-        peca_pandas.to_csv(outfile, sep='\t', index=False,
-                           columns=['function_taxon', 'log2ratio_2to1', 'n', 'p', 'p.fdr', 'cogDescript'])
     return peca_pandas
+
 
 cogCat = {'A': 'RNA processing and modification',
           'B': 'Chromatin structure and dynamics',
