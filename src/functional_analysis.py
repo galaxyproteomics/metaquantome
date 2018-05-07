@@ -1,51 +1,59 @@
 import goatools
 from goatools import mapslim
 import pandas as pd
-import numpy as np
-import scipy.stats as sps
-import statsmodels.sandbox.stats.multicomp as mc
 import wget
 import os
 import shutil
 from src import common
-
+import definitions
 
 # TODO
 # print unknown go terms
 # support other functional terms (COG categories and E.C. numbers, for instance)
 
-def functional_analysis(gocol, file, grp1_intcols, grp2_intcols=None,
-                        test=False, threshold=2,
-                        outfile=None, ontology="GO",
-                        slim_down=False, paired=False,
-                        obo_path='data/go/go-basic.obo',
-                        slim_path='data/go/goslim_generic.obo'):
+
+def functional_analysis(df, go_colname,
+                        all_intcols,
+                        grp1_intcols,
+                        grp2_intcols,
+                        test,
+                        threshold,
+                        outfile,
+                        ontology,
+                        slim_down,
+                        paired,
+                        obo_path,slim_path,
+                        download_obo,
+                        overwrite_obo):
 
     # read gos
+    if not obo_path:
+        obo_path = os.path.join(definitions.DATA_DIR, 'go', 'go-basic.obo')
+    if not slim_path:
+        slim_path = os.path.join(definitions.DATA_DIR, 'go', 'goslim_generic.obo')
+
+    if download_obo:
+        update_go_obo_file(obo_path,slim_path,overwrite_obo)
+
     go_dag = goatools.obo_parser.GODag(os.path.join(os.getcwd(), obo_path))
-    go_dag_slim = goatools.obo_parser.GODag(os.path.join(os.getcwd(), slim_path))
 
-    # define intensity columns
-    all_intcols, dict_numeric_cols = common.define_intensity_columns(grp1_intcols, grp2_intcols)
-
-    # read in data
-    df = common.read_data_table(file, dict_numeric_cols, all_intcols)
+    if slim_down:
+        go_dag_slim = goatools.obo_parser.GODag(os.path.join(os.getcwd(), slim_path))
+    else:
+        go_dag_slim = None
 
     # add up through hierarchy
-    go_df = add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, gocol, all_intcols)
+    go_df = add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, go_colname, all_intcols)
 
     # differential expression
     if test:
         # need to drop root terms to avoid NaN propagation
         go_df.drop(root_GO_terms.values(), inplace=True, errors="ignore")
-        results = common.test_norm_intensity(go_df, grp1_intcols, grp2_intcols, threshold, paired)
+        results = common.test_norm_intensity(go_df, grp1_intcols, grp2_intcols, paired)
     else:
         results = go_df
 
-    if outfile:
-        common.write_out(results, outfile)
-    else:
-        return results
+    return results
 
 
 def add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, gocol, all_intcols):
@@ -73,6 +81,7 @@ def add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, gocol, all_intc
                     for k, v in intensity.items():
                         new_dict[k] = v
                     go_dict[term] = new_dict
+
     # convert back to data frame
     gos = list(go_dict.keys())
     namespace = [ref_go_dag[i].namespace for i in gos]
