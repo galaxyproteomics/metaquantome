@@ -10,9 +10,8 @@ from src import common
 # what to do about missing cog and missing taxon
 
 
-def function_taxonomy_interaction_analysis(df, cog_name, tax_rank, all_intcols,
-                                           sample1_colnames, sample2_colnames,
-                                           outfile, threshold,
+def function_taxonomy_interaction_analysis(df, cog_name, tax_rank,
+                                           sample1_colnames, sample2_colnames, threshold,
                                            testtype, paired):
 
     # take first cog
@@ -20,9 +19,12 @@ def function_taxonomy_interaction_analysis(df, cog_name, tax_rank, all_intcols,
 
     pd_df = df.assign(ft=df[cog_name] + '-' + df[tax_rank])
 
+    # filter to only samples with certain threshold value
+    df_filt = common.filter_min_observed(pd_df, sample1_colnames, sample2_colnames, threshold)
+
     # transform data frame to R
     pandas2ri.activate()
-    rdf = pandas2ri.py2ri(pd_df)
+    rdf = pandas2ri.py2ri(df_filt)
 
     # run peca
     peca = importr("PECA")
@@ -48,30 +50,32 @@ def function_taxonomy_interaction_analysis(df, cog_name, tax_rank, all_intcols,
 
     return peca_pandas
 
+# from ftp://ftp.ncbi.nih.gov/pub/COG/COG2014/data/fun2003-2014.tab
 
-cogCat = {'A': 'RNA processing and modification',
-          'B': 'Chromatin structure and dynamics',
-          'C': 'Energy production and conversion',
-          'D': 'Cell cycle control and mitosis',
-          'E': 'Amino acid metabolism and transport',
-          'F': 'Nucleotide metabolism and transport',
-          'G': 'Carbohydrate metabolism and transport',
-          'H': 'Coenzyme metabolism',
-          'I': 'Lipid metabolism',
-          'J': 'Translation',
+cogCat = {'J': 'Translation, ribosomal structure and biogenesis',
+          'A': 'RNA processing and modification',
           'K': 'Transcription',
-          'L': 'Replication and repair',
+          'L': 'Replication, recombination and repair',
+          'B': 'Chromatin structure and dynamics',
+          'D': 'Cell cycle control, cell division, chromosome partitioning',
+          'Y': 'Nuclear structure',
+          'V': 'Defense mechanisms',
+          'T': 'Signal transduction mechanisms',
           'M': 'Cell wall/membrane/envelope biogenesis',
           'N': 'Cell motility',
-          'O': 'Post-translational modification, protein turnover, chaperone functions',
-          'P': 'Inorganic ion transport and metabolism',
-          'Q': 'Secondary structure',
-          'T': 'Signal transduction',
-          'U': 'Intracellular trafficking and secretion',
-          'Y': 'Nuclear structure',
           'Z': 'Cytoskeleton',
-          'R': 'General Function Prediction only',
+          'W': 'Extracellular structures',
+          'U': 'Intracellular trafficking, secretion, and vesicular transport',
+          'O': 'Posttranslational modification, protein turnover, chaperones',
+          'X': 'Mobilome: prophages, transposons',
+          'C': 'Energy production and conversion',
+          'G': 'Carbohydrate transport and metabolism',
+          'E': 'Amino acid transport and metabolism',
+          'F': 'Nucleotide transport and metabolism',
+          'H': 'Coenzyme transport and metabolism',
+          'I': 'Lipid transport and metabolism',
+          'P': 'Inorganic ion transport and metabolism',
+          'Q': 'Secondary metabolites biosynthesis, transport and catabolism',
+          'R': 'General function prediction only',
           'S': 'Function unknown',
-          'nan': 'Function + taxa unknown'}
-
-
+          'unknown': 'unassigned function'}

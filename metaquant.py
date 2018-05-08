@@ -30,10 +30,6 @@ def metaquant(mode, file, sample1_colnames, sample2_colnames=None,
     # read in data
     df = common.read_data_table(file, dict_numeric_cols, all_intcols, pep_colname)
 
-    # filter
-    df_filt = common.filter_min_observed(df, grp1_intcols=sample1_colnames, grp2_intcols=sample2_colnames,
-                                         threshold=threshold)
-
     results = 0
     descript = []
     if mode == 'fn':
@@ -42,47 +38,46 @@ def metaquant(mode, file, sample1_colnames, sample2_colnames=None,
         descript = ['descript']
 
     if mode == 'fn':
-        results = functional_analysis(df=df_filt, go_colname=go_colname, all_intcols=all_intcols,
+        results = functional_analysis(df=df, go_colname=go_colname, all_intcols=all_intcols,
                                       grp1_intcols=sample1_colnames, grp2_intcols=sample2_colnames,
-                                      test=test, threshold=threshold, outfile=outfile,
+                                      test=test, threshold=threshold,
                                       ontology=ontology, slim_down=slim_down, paired=paired, obo_path=obo_path,
                                       slim_path=slim_path, download_obo=download_obo, overwrite_obo=overwrite_obo)
 
-
     if mode == 'tax':
-        results = taxonomy_analysis(df=df_filt, all_intcols=all_intcols,
+        results = taxonomy_analysis(df=df, all_intcols=all_intcols,
                                     sample1_colnames=sample1_colnames,
                                     sample2_colnames=sample2_colnames,
                                     test=test,
+                                    threshold=threshold,
                                     paired=paired)
 
     if mode == 'taxfn':
-        results = function_taxonomy_interaction_analysis(df=df_filt,
+        results = function_taxonomy_interaction_analysis(df=df,
                                                          cog_name=cog_colname,
                                                          tax_rank=tax_rank,
-                                                         all_intcols=all_intcols,
                                                          sample1_colnames=sample1_colnames,
                                                          sample2_colnames=sample2_colnames,
                                                          threshold=threshold,
-                                                         outfile=outfile,
                                                          testtype=test_type,
                                                          paired=paired)
 
     if outfile:
-        cols = []
+        cols = ['id']
+        if descript:
+            cols += descript
         # order of columns we want
         if mode == 'tax':
-            cols += ['member', 'rank']
+            cols += ['rank']
         if test:
-            cols += ['id', 'log2ratio_2over1', 'p', 'corrected_p']
+            cols += ['log2ratio_2over1', 'p', 'corrected_p']
+            if mode != 'taxfn':
+                cols += ['mean2', 'mean1'] + all_intcols
             df_to_write = results.sort_values(by='corrected_p', axis=0, ascending=True)
         else:
             df_to_write = results
-        if descript:
-            cols += descript
-        cols += all_intcols
 
-        df_to_write.to_csv(outfile, sep="\t", header=True, index=False, columns=cols)
+        df_to_write.to_csv(outfile, sep="\t", header=True, index=False, columns=cols, na_rep = "NA")
 
     return results
 
