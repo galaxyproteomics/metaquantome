@@ -24,10 +24,10 @@ def define_intensity_columns(grp1_intcols, grp2_intcols):
     return all_intcols, dict_numeric_cols
 
 
-def read_data_table(file, dict_numeric_cols, all_intcols, pep_colname="peptide"):
+def read_data_table(file, dict_numeric_cols, all_intcols, pep_colname):
     # read in data
     df = pd.read_table(file, sep="\t", index_col=pep_colname, dtype=dict_numeric_cols,
-                       na_values = ["", "0", "NA", "NaN"])
+                       na_values = ["", "0", "NA", "NaN"], low_memory=False)
 
     # drop columns where all are NA
     df.dropna(axis=1, how="all", inplace=True)
@@ -53,17 +53,27 @@ def filter_min_observed(df, grp1_intcols, grp2_intcols, threshold):
     return filtered_df
 
 
-def test_norm_intensity(df, grp1_intcols, grp2_intcols, paired):
+def test_norm_intensity(df, grp1_intcols, grp2_intcols, threshold, paired):
+
+    df_filt = filter_min_observed(df, grp1_intcols, grp2_intcols, threshold)
+
+    # change zeros back to NaN
+    df_filt.replace(0, np.nan, inplace=True)
 
     # add mean, sd; create dataframe
-    test_results = df.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols],
-                                                                   x[grp2_intcols],
+    test_results = df_filt.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols].dropna(),
+                                                                   x[grp2_intcols].dropna(),
                                                                    equal_var=paired).pvalue, axis=1)
-    df['log2ratio_2over1'] = \
-        df.apply(
-            lambda x: np.log2(np.mean(x[grp2_intcols]) / np.mean(x[grp1_intcols])),
-        axis=1)
-    df['p'] = test_results
-    df['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
-    df['id'] = df.index
-    return df
+
+    df_filt['mean2'] = df_filt.apply(lambda x: np.mean(x[grp2_intcols].dropna()), axis = 1)
+    df_filt['mean1'] = df_filt.apply(lambda x: np.mean(x[grp1_intcols].dropna()), axis = 1)
+
+    df_filt['log2ratio_2over1'] = \
+        df_filt.apply(
+            lambda x: np.log2(x['mean2']/x['mean1']), axis=1)
+
+    df_filt['p'] = test_results
+    df_filt['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
+    df_filt['id'] = df_filt.index
+
+    return df_filt

@@ -18,7 +18,6 @@ def functional_analysis(df, go_colname,
                         grp2_intcols,
                         test,
                         threshold,
-                        outfile,
                         ontology,
                         slim_down,
                         paired,
@@ -49,7 +48,7 @@ def functional_analysis(df, go_colname,
     if test:
         # need to drop root terms to avoid NaN propagation
         go_df.drop(root_GO_terms.values(), inplace=True, errors="ignore")
-        results = common.test_norm_intensity(go_df, grp1_intcols, grp2_intcols, paired)
+        results = common.test_norm_intensity(go_df, grp1_intcols, grp2_intcols, threshold, paired)
     else:
         results = go_df
 
