@@ -5,12 +5,12 @@ from src import common
 
 # TODO
 # write arg parser
-
+# checks on input, error handling
 
 def metaquant(mode, file, sample1_colnames, sample2_colnames=None,
               cog_colname="cog",
               go_colname="go",
-              tax_rank="genus",
+              lca_colname="lca",
               pep_colname="peptide",
               outfile=None, ontology="GO",
               slim_down=False, test=False,
@@ -37,6 +37,7 @@ def metaquant(mode, file, sample1_colnames, sample2_colnames=None,
     if mode == 'taxfn':
         descript = ['descript']
 
+
     if mode == 'fn':
         results = functional_analysis(df=df, go_colname=go_colname, all_intcols=all_intcols,
                                       grp1_intcols=sample1_colnames, grp2_intcols=sample2_colnames,
@@ -55,7 +56,7 @@ def metaquant(mode, file, sample1_colnames, sample2_colnames=None,
     if mode == 'taxfn':
         results = function_taxonomy_interaction_analysis(df=df,
                                                          cog_name=cog_colname,
-                                                         tax_rank=tax_rank,
+                                                         lca_colname=lca_colname,
                                                          sample1_colnames=sample1_colnames,
                                                          sample2_colnames=sample2_colnames,
                                                          threshold=threshold,
@@ -72,12 +73,18 @@ def metaquant(mode, file, sample1_colnames, sample2_colnames=None,
         if test:
             cols += ['log2ratio_2over1', 'p', 'corrected_p']
             if mode != 'taxfn':
-                cols += ['mean2', 'mean1'] + all_intcols
+                cols += ['mean2', 'mean1']
             df_to_write = results.sort_values(by='corrected_p', axis=0, ascending=True)
         else:
             df_to_write = results
 
-        df_to_write.to_csv(outfile, sep="\t", header=True, index=False, columns=cols, na_rep = "NA")
+        # in all cases by taxfn, we want the new intensity columns but we want them to be last
+        if mode != 'taxfn':
+            cols += all_intcols
+        else:
+            cols += ["n"]
+
+        df_to_write.to_csv(outfile, sep="\t", header=True, index=False, columns=cols, na_rep="NA")
 
     return results
 

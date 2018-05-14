@@ -1,37 +1,35 @@
 from rpy2.robjects.packages import importr
-from rpy2.robjects.lib.dplyr import (DataFrame, mutate)
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 import warnings
-import pandas as pd
-from src import common
-
-# TODO
-# what to do about missing cog and missing taxon
 
 
-def function_taxonomy_interaction_analysis(df, cog_name, tax_rank,
+def function_taxonomy_interaction_analysis(df, cog_name, lca_colname,
                                            sample1_colnames, sample2_colnames, threshold,
                                            testtype, paired):
 
     # take first cog
     df[cog_name] = df[cog_name].str.split(',').str[0]
 
-    pd_df = df.assign(ft=df[cog_name] + '-' + df[tax_rank])
+    pd_df = df.assign(ft=df[cog_name] + '-' + df[lca_colname])
 
-    # filter to only samples with certain threshold value
-    df_filt = common.filter_min_observed(pd_df, sample1_colnames, sample2_colnames, threshold)
+    # keep only intensity columns and ft
+    pd_df_int = pd_df[['ft'] + sample1_colnames + sample2_colnames]
+
+    # # filter to only samples with certain threshold value
+    # df_filt = common.filter_min_observed(pd_df_int, sample1_colnames, sample2_colnames, threshold)
 
     # transform data frame to R
     pandas2ri.activate()
-    rdf = pandas2ri.py2ri(df_filt)
+    rdf = pandas2ri.py2ri(pd_df_int)
 
     # run peca
     peca = importr("PECA")
     warnings.simplefilter('ignore')
+    # peca calculates ratios as 1 over 2, so we exchange the samples
     peca_results = peca.PECA_df(df=rdf, id="ft",
-                                samplenames1=ro.StrVector(sample1_colnames),
-                                samplenames2=ro.StrVector(sample2_colnames),
+                                samplenames2=ro.StrVector(sample1_colnames),
+                                samplenames1=ro.StrVector(sample2_colnames),
                                 test=testtype,
                                 paired=paired)
 

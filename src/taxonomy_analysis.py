@@ -66,4 +66,5 @@ def rel_abundance_rank(df, rank, all_intcols):
     # normalize to each sample
     rel_abundance = summed_abund / summed_abund.sum(axis=0)
     rel_abundance['rank'] = rank
+    rel_abundance['id'] = rel_abundance.index
     return rel_abundance
