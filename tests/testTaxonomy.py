@@ -16,7 +16,7 @@ class TestTaxonomy(unittest.TestCase):
     def testFullDf(self):
         datafile = os.path.join(DATA_DIR, 'test', 'taxonomy_unipept_results.tabular')
         trey = metaquant.metaquant('tax', file=datafile, sample1_colnames='intensity')
-        eik = trey.query("rank == 'genus' and member == 'Eikenella'")['intensity'].values[0]
+        eik = trey.query("rank == 'genus' and id == 'Eikenella'")['intensity'].values[0]
         self.assertAlmostEqual(eik, 0.0000337, places=3)
 
     def testWrite(self):
@@ -27,7 +27,7 @@ class TestTaxonomy(unittest.TestCase):
                                    sample1_colnames='intensity',
                                    outfile=outfile)
         written = pd.read_table(outfile)
-        self.assertEqual(written.query("member == 'clostridium'")['intensity'].values[0], 0.7)
+        self.assertEqual(written.query("id == 'clostridium'")['intensity'].values[0], 0.7)
 
     def testMultCols(self):
         datafile = os.path.join(DATA_DIR, 'test', 'taxonomy_test_multiple.tab')
@@ -48,11 +48,11 @@ class TestTaxonomy(unittest.TestCase):
                                    test=True,
                                    threshold=2,
                                    outfile=outfile)
-        self.assertEqual(trey.query("rank == 'phylum' and member == 'proteobacteria'")['int3'].values[0], 9/11)
+        self.assertEqual(trey.query("rank == 'phylum' and id == 'proteobacteria'")['int3'].values[0], 9/11)
 
         # fold change
         expected = np.log2(((9/11 + 2/3)/2)/((2/10 + 1/2)/2))
-        self.assertEqual(expected, trey[trey.member == "pylori"]['log2ratio_2over1'][0])
+        self.assertEqual(expected, trey[trey.id == "pylori"]['log2ratio_2over1'][0])
 
     def testTaxFiltering(self):
         """
