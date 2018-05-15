@@ -53,7 +53,7 @@ def filter_min_observed(df, grp1_intcols, grp2_intcols, threshold):
     return filtered_df
 
 
-def test_norm_intensity(df, grp1_intcols, grp2_intcols, threshold, paired):
+def test_norm_intensity(df, grp1_intcols, grp2_intcols, threshold, paired, log=False):
 
     df_filt = filter_min_observed(df, grp1_intcols, grp2_intcols, threshold)
 
@@ -68,9 +68,12 @@ def test_norm_intensity(df, grp1_intcols, grp2_intcols, threshold, paired):
     df_filt['mean2'] = df_filt.apply(lambda x: np.mean(x[grp2_intcols].dropna()), axis = 1)
     df_filt['mean1'] = df_filt.apply(lambda x: np.mean(x[grp1_intcols].dropna()), axis = 1)
 
-    df_filt['log2ratio_2over1'] = \
-        df_filt.apply(
-            lambda x: np.log2(x['mean2']/x['mean1']), axis=1)
+    if log:
+        df_filt['log2ratio_2over1'] = df_filt['mean2'] - df_filt['mean1']
+    else:
+        df_filt['log2ratio_2over1'] = \
+            df_filt.apply(
+                lambda x: np.log2(x['mean2'] / x['mean1']), axis=1)
 
     df_filt['p'] = test_results
     df_filt['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
