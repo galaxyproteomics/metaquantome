@@ -9,10 +9,10 @@ from src import common
 
 def metaquant(mode, file, sample1_colnames, sample2_colnames=None,
               cog_colname="cog",
-              go_colname="go",
+              func_colname="go",
               lca_colname="lca",
               pep_colname="peptide",
-              outfile=None, ontology="GO",
+              outfile=None, ontology="go",
               slim_down=False, test=False,
               test_type="modt",
               paired=False, threshold=0,
@@ -30,20 +30,29 @@ def metaquant(mode, file, sample1_colnames, sample2_colnames=None,
     # read in data
     df = common.read_data_table(file, dict_numeric_cols, all_intcols, pep_colname)
 
+    # change ontology to lowercase
+    lc_ontology = ontology.lower()
+
+    # descript column
+
     results = 0
     descript = []
     if mode == 'fn':
-        descript = ['name', 'namespace']
+        if lc_ontology == "go":
+            descript = ['name', 'namespace']
+        if lc_ontology == "cog":
+            descript = ['descript']
+
     if mode == 'taxfn':
         descript = ['descript']
 
 
     if mode == 'fn':
-        results = functional_analysis(df=df, go_colname=go_colname, all_intcols=all_intcols,
-                                      grp1_intcols=sample1_colnames, grp2_intcols=sample2_colnames,
-                                      test=test, threshold=threshold,
-                                      ontology=ontology, slim_down=slim_down, paired=paired, obo_path=obo_path,
-                                      slim_path=slim_path, download_obo=download_obo, overwrite_obo=overwrite_obo)
+        results = functional_analysis(df=df, func_colname=func_colname, all_intcols=all_intcols,
+                                      grp1_intcols=sample1_colnames, grp2_intcols=sample2_colnames, test=test,
+                                      threshold=threshold, ontology=lc_ontology, slim_down=slim_down, paired=paired,
+                                      obo_path=obo_path, slim_path=slim_path, download_obo=download_obo,
+                                      overwrite_obo=overwrite_obo)
 
     if mode == 'tax':
         results = taxonomy_analysis(df=df, all_intcols=all_intcols,
