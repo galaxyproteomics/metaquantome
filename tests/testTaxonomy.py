@@ -61,7 +61,7 @@ class TestTaxonomy(unittest.TestCase):
         datafile = os.path.join(DATA_DIR, 'test', 'taxonomy_unipept_small_3samps.tabular')
         sample1_colnames=['int737NS', 'int852NS', 'int867NS']
         sample2_colnames=['int737WS', 'int852WS', 'int867WS']
-        all_intcols, dict_numcols = metaquant.common.define_intensity_columns(sample1_colnames, sample2_colnames)
+        all_intcols, dict_numcols, grp1, grp2 = metaquant.common.define_intensity_columns(sample1_colnames, sample2_colnames)
 
         df = metaquant.common.read_data_table(datafile, dict_numcols, all_intcols, "peptide")
         expected_cols = {'superkingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'}
