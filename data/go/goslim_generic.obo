@@ -210,7 +210,8 @@ name: DNA binding transcription factor activity
 namespace: molecular_function
 alt_id: GO:0000130
 alt_id: GO:0001071
-def: "Interacting selectively and non-covalently with a specific DNA sequence (sometimes referred to as a motif) within the regulatory region of a gene in order to modulate transcription." [GOC:curators, GOC:txnOH]
+def: "A protein or a member of a complex that interacts selectively and non-covalently with a specific DNA sequence (sometimes referred to as a motif) within the regulatory region of a gene in order to modulate transcription. Regulatory regions include promoters (proximal and distal) and enhancers. Genes are transcriptional units, and include bacterial operons." [GOC:txnOH-2018]
+comment: Changed definition see https://github.com/geneontology/go-ontology/issues/15704
 subset: goslim_agr
 subset: goslim_chembl
 subset: goslim_generic
@@ -219,6 +220,7 @@ subset: goslim_mouse
 subset: goslim_plant
 subset: goslim_yeast
 subset: gosubset_prok
+synonym: "gene-specific transcription factor" EXACT []
 synonym: "nucleic acid binding transcription factor activity" NARROW []
 synonym: "sequence-specific DNA binding transcription factor activity" EXACT []
 synonym: "transcription factor activity" BROAD []
@@ -1034,7 +1036,6 @@ synonym: "Golgi ribbon" NARROW []
 xref: NIF_Subcellular:sao451912436
 xref: Wikipedia:Golgi_apparatus
 is_a: GO:0043226 ! organelle
-relationship: part_of GO:0005737 ! cytoplasm
 
 [Term]
 id: GO:0005811
@@ -1173,7 +1174,6 @@ xref: NIF_Subcellular:sao787716553
 xref: Wikipedia:Cilium
 is_a: GO:0043226 ! organelle
 relationship: has_part GO:0032991 ! protein-containing complex
-relationship: part_of GO:0005623 ! cell
 
 [Term]
 id: GO:0005975
@@ -1347,7 +1347,6 @@ xref: Reactome:REACT_96394 "Translation, Escherichia coli"
 xref: Wikipedia:Translation_(genetics)
 is_a: GO:0009058 ! biosynthetic process
 is_a: GO:0034641 ! cellular nitrogen compound metabolic process
-relationship: has_part GO:0022618 ! ribonucleoprotein complex assembly
 
 [Term]
 id: GO:0006457
@@ -3394,7 +3393,6 @@ synonym: "enzyme modulator" EXACT []
 synonym: "metalloenzyme regulator activity" NARROW []
 is_a: GO:0003674 ! molecular_function
 relationship: part_of GO:0008150 ! biological_process
-relationship: regulates GO:0003674 ! molecular_function
 
 [Term]
 id: GO:0030312

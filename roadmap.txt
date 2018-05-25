@@ -1,7 +1,14 @@
-other features:
+TODO
+HIGH PRIORITY
+change to ncbi taxid input, because it is unambiguous
+  - translate to names at final step
+  - build dataframe and then do rank-specific normalization, as before
+
+LOWER PRIORITY
     - additional functional ontologies in functional analysis (EC numbers and COG categories)
     - identification of functions/taxa/ft only present in one condition and not the other
-    - which matters more - taxonomy or function?
-
-other todo:
+    - write arg parser
+    - checks on input, error handling
     - document functions
+    - think more about TF
+    - which matters more - taxonomy or function?
