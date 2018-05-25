@@ -5,9 +5,8 @@ import warnings
 from src.cog import cogCat
 from src.cog import take_first_cog
 
-def function_taxonomy_interaction_analysis(df, cog_name, lca_colname,
-                                           sample1_colnames, sample2_colnames, threshold,
-                                           testtype, paired):
+
+def function_taxonomy_interaction_analysis(df, cog_name, lca_colname, samp_grps, testtype, paired):
 
     # take first cog
     df = take_first_cog(df, cog_name)
@@ -15,10 +14,12 @@ def function_taxonomy_interaction_analysis(df, cog_name, lca_colname,
     pd_df = df.assign(ft=df[cog_name] + '-' + df[lca_colname])
 
     # keep only intensity columns and ft
-    pd_df_int = pd_df[['ft'] + sample1_colnames + sample2_colnames]
+    pd_df_int = pd_df[['ft'] + samp_grps.all_intcols]
 
-    # # filter to only samples with certain threshold value
-    # df_filt = common.filter_min_observed(pd_df_int, sample1_colnames, sample2_colnames, threshold)
+    grp1 = samp_grps.grp_names[0]
+    grp2 = samp_grps.grp_names[1]
+    samples_in_grp1 = samp_grps.sample_names[grp1]
+    samples_in_grp2 = samp_grps.sample_names[grp2]
 
     # transform data frame to R
     pandas2ri.activate()
@@ -27,10 +28,10 @@ def function_taxonomy_interaction_analysis(df, cog_name, lca_colname,
     # run peca
     peca = importr("PECA")
     warnings.simplefilter('ignore')
-    # peca calculates ratios as 1 over 2, so we exchange the samples
+    # peca calculates ratios as 1 over 2
     peca_results = peca.PECA_df(df=rdf, id="ft",
-                                samplenames2=ro.StrVector(sample1_colnames),
-                                samplenames1=ro.StrVector(sample2_colnames),
+                                samplenames1=ro.StrVector(samples_in_grp1),
+                                samplenames2=ro.StrVector(samples_in_grp2),
                                 test=testtype,
                                 paired=paired)
 
@@ -42,7 +43,9 @@ def function_taxonomy_interaction_analysis(df, cog_name, lca_colname,
 
     # clearer column names, only keep important columns
     peca_pandas['id'] = peca_pandas.index
-    peca_pandas.rename(index=str, columns={"slr": "log2ratio_2over1",
+
+    fc_name = 'log2fc_' + grp1 + '_over_' + grp2
+    peca_pandas.rename(index=str, columns={"slr": fc_name,
                                            "p.fdr": "corrected_p",
                                            "function_taxon": "id"}, inplace=True)
     peca_pandas.drop(columns=['t', 'score'], inplace=True)

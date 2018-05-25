@@ -1,3 +1,3 @@
-id	descript	log2ratio_2over1	p	corrected_p	n
-J-Streptococcus	Translation, ribosomal structure and biogenesis	5.158134362191549	1.0840782959738692e-70	1.0840782959738692e-70	1.0
-M-Streptococcus	Cell wall/membrane/envelope biogenesis	-5.158134362191549	1.0840782959738692e-70	1.0840782959738692e-70	1.0
+id	descript	log2fc_samp1_over_samp2	p	corrected_p	n
+J-Streptococcus	Translation, ribosomal structure and biogenesis	-5.158134362191547	1.0840782959736535e-70	1.0840782959736535e-70	1.0
+M-Streptococcus	Cell wall/membrane/envelope biogenesis	5.158134362191549	1.0840782959735919e-70	1.0840782959736535e-70	1.0

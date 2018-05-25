@@ -13,15 +13,15 @@ class TestFunctionTaxInteraction(unittest.TestCase):
                                  lca_colname='genus',
                                  pep_colname="peptide",
                                  test=True,
-                                 sample1_colnames=['int1', 'int2', 'int3'],
-                                 sample2_colnames=['int4', 'int5', 'int6'],
+                                 sample_names={'samp1': ['int1', 'int2', 'int3'],
+                                               'samp2': ['int4', 'int5', 'int6']},
                                  outfile=outfile)
         cog1 = tf['id'][0]
         self.assertEqual(cog1, 'J-Streptococcus')
         self.assertTrue(all(tf['corrected_p'].le(0.05)))
-        # check that ratios are in right direction: M-Streptococcus should be down and J-Strep should be up
-        self.assertTrue(tf.loc['M-Streptococcus']['log2ratio_2over1'] < 0)
-        self.assertTrue(tf.loc['J-Streptococcus']['log2ratio_2over1'] > 0)
+        # check that ratios are in right direction: M-Streptococcus should be up and J-Strep should be down
+        self.assertTrue(tf.loc['M-Streptococcus']['log2fc_samp1_over_samp2'] > 0)
+        self.assertTrue(tf.loc['J-Streptococcus']['log2fc_samp1_over_samp2'] < 0)
 
 
 if __name__=='__main__':

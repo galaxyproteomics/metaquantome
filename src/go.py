@@ -1,7 +1,11 @@
+import goatools
 from goatools import mapslim
 import pandas as pd
 import wget
 import shutil
+import os
+import definitions
+
 
 NAMESPACES = ['biological_process',
               'molecular_function',
@@ -93,6 +97,26 @@ def normalize_by_namespace(namespace, go_df, all_intcols):
     else:
         sub_norm=pd.Series()
     return sub_norm
+
+
+def load_obos(obo_path=None, slim_path=None, slim_down=False, download_obo=False, overwrite_obo=False):
+    # read gos
+    if not obo_path:
+        obo_path = os.path.join(definitions.DATA_DIR, 'go', 'go-basic.obo')
+    if not slim_path:
+        slim_path = os.path.join(definitions.DATA_DIR, 'go', 'goslim_generic.obo')
+
+    if download_obo:
+        update_go_obo_file(obo_path, slim_path, overwrite_obo)
+
+    go_dag = goatools.obo_parser.GODag(os.path.join(os.getcwd(), obo_path))
+
+    if slim_down:
+        go_dag_slim = goatools.obo_parser.GODag(os.path.join(os.getcwd(), slim_path))
+    else:
+        go_dag_slim = None
+
+    return go_dag, go_dag_slim
 
 
 def update_go_obo_file(obo_path, slim_path, overwrite=True):

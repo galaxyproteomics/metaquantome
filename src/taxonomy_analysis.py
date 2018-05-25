@@ -1,14 +1,44 @@
 import pandas as pd
 from src import common
 
+FULL_TAXONOMIC_TREE = ["superkingdom",
+                       "kingdom",
+                       "subkingdom",
+                       "superphylum",
+                       "phylum",
+                       "subphylum",
+                       "superclass",
+                       "class",
+                       "subclass"
+                       "infraclass",
+                       "superorder",
+                       "order",
+                       "suborder",
+                       "infraorder",
+                       "parvorder",
+                       "superfamily",
+                       "family",
+                       "subfamily",
+                       "tribe",
+                       "subtribe",
+                       "genus",
+                       "subgenus",
+                       "species_group",
+                       "species_subgroup",
+                       "species",
+                       "subspecies",
+                       "varietas",
+                       "forma"]
 
-def taxonomy_analysis(df,
-                      all_intcols,
-                      sample1_colnames,
-                      sample2_colnames,
-                      test,
-                      threshold,
-                      paired):
+BASIC_TAXONOMY_TREE = ["phylum",
+                       "class",
+                       "order",
+                       "family",
+                       "genus",
+                       "species"]
+
+
+def taxonomy_analysis(df, samp_grps, test, threshold, paired):
 
     # remove unassigned taxa
     if "lca" in list(df):
@@ -17,55 +47,19 @@ def taxonomy_analysis(df,
         df_filt = df
 
     # determine which taxonomic ranks are in user-provided dataset
-    user_tax = set(basic_tax).intersection(set(df_filt))
+    user_tax = set(BASIC_TAXONOMY_TREE).intersection(set(df_filt))
 
     # add up through ranks
-    norm_intensity_all_ranks = pd.concat([rel_abundance_rank(df_filt, x, all_intcols) for x in user_tax])
+    norm_intensity_all_ranks = pd.concat([rel_abundance_rank(df_filt, x, samp_grps.all_intcols) for x in user_tax])
 
     # test
     if test:
-        results = common.test_norm_intensity(norm_intensity_all_ranks, sample1_colnames, sample2_colnames, threshold, paired)
+        results = common.test_norm_intensity(norm_intensity_all_ranks, samp_grps, threshold, paired)
     else:
-        results = common.calc_means(norm_intensity_all_ranks, sample1_colnames, sample2_colnames)
+        results = common.calc_means(norm_intensity_all_ranks, samp_grps)
 
     return results
 
-
-tax = ["superkingdom",
-       "kingdom",
-       "subkingdom",
-       "superphylum",
-       "phylum",
-       "subphylum",
-       "superclass",
-       "class",
-       "subclass"
-       "infraclass",
-       "superorder",
-       "order",
-       "suborder",
-       "infraorder",
-       "parvorder",
-       "superfamily",
-       "family",
-       "subfamily",
-       "tribe",
-       "subtribe",
-       "genus",
-       "subgenus",
-       "species_group",
-       "species_subgroup",
-       "species",
-       "subspecies",
-       "varietas",
-       "forma"]
-
-basic_tax = ["phylum",
-             "class",
-             "order",
-             "family",
-             "genus",
-             "species"]
 
 def rel_abundance_rank(df, rank, all_intcols):
     summed_abund = df.groupby(by=rank)[all_intcols].sum(axis=0)
