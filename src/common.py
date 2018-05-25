@@ -21,7 +21,7 @@ def define_intensity_columns(grp1_intcols, grp2_intcols):
 
     dict_numeric_cols = {x: np.float64 for x in all_intcols}
 
-    return all_intcols, dict_numeric_cols
+    return all_intcols, dict_numeric_cols, grp1, grp2
 
 
 def read_data_table(file, dict_numeric_cols, all_intcols, pep_colname):
@@ -65,18 +65,31 @@ def test_norm_intensity(df, grp1_intcols, grp2_intcols, threshold, paired, log=F
                                                                    x[grp2_intcols].dropna(),
                                                                    equal_var=paired).pvalue, axis=1)
 
-    df_filt['mean2'] = df_filt.apply(lambda x: np.mean(x[grp2_intcols].dropna()), axis = 1)
-    df_filt['mean1'] = df_filt.apply(lambda x: np.mean(x[grp1_intcols].dropna()), axis = 1)
-
-    if log:
-        df_filt['log2ratio_2over1'] = df_filt['mean2'] - df_filt['mean1']
-    else:
-        df_filt['log2ratio_2over1'] = \
-            df_filt.apply(
-                lambda x: np.log2(x['mean2'] / x['mean1']), axis=1)
+    df_filt = fold_change(
+        calc_means(df_filt, grp1_intcols, grp2_intcols)
+    )
 
     df_filt['p'] = test_results
     df_filt['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
     df_filt['id'] = df_filt.index
 
     return df_filt
+
+
+def calc_means(df, grp1_intcols, grp2_intcols):
+    if grp2_intcols:
+        if len(grp2_intcols) > 1:
+            df['mean2'] = df.apply(lambda x: np.mean(x[grp2_intcols].dropna()), axis=1)
+    if len(grp1_intcols) > 1:
+        df['mean1'] = df.apply(lambda x: np.mean(x[grp1_intcols].dropna()), axis=1)
+    return df
+
+
+def fold_change(df, log=False):
+    if log:
+        fc = df['mean2'] - df['mean1']
+    else:
+        fc = np.log2(df['mean2']/df['mean1'])
+
+    df['log2ratio_2over1'] = fc
+    return df

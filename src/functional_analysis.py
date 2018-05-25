@@ -8,11 +8,10 @@ from src import common
 import definitions
 from src.cog import cogCat
 from src.cog import take_first_cog
-import numpy as np
 
 # TODO
 # print unknown go terms
-# support other functional terms (COG categories and E.C. numbers, for instance)
+# add support for EC numbers
 
 
 def functional_analysis(df, func_colname, all_intcols, grp1_intcols, grp2_intcols, test, threshold, ontology, slim_down,
@@ -44,7 +43,7 @@ def functional_analysis(df, func_colname, all_intcols, grp1_intcols, grp2_intcol
             go_df.drop(root_GO_terms.values(), inplace=True, errors="ignore")
             results = common.test_norm_intensity(go_df, grp1_intcols, grp2_intcols, threshold, paired)
         else:
-            results = go_df
+            results = common.calc_means(go_df, grp1_intcols, grp2_intcols)
 
     elif ontology == "cog":
         cog_df = take_first_cog(df, func_colname)
@@ -56,7 +55,8 @@ def functional_analysis(df, func_colname, all_intcols, grp1_intcols, grp2_intcol
         if test:
             results = common.test_norm_intensity(rel_cog_sum, grp1_intcols, grp2_intcols, threshold, paired, log=False)
         else:
-            results = cog_sum_df
+            results = common.calc_means(cog_sum_df, grp1_intcols, grp2_intcols)
+
     else:
         raise ValueError("the desired ontology is not supported. " +
                          "Please use either GO (ontology = 'go') or COG (ontology = 'cog')")
@@ -108,6 +108,7 @@ def add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, gocol, all_intc
     for i in all_intcols:
         norm_name = i
         go_df[norm_name] = pd.concat([normalize_by_namespace(name, go_df, i) for name in namespaces])
+    go_df['id'] = go_df.index
     go_df['name'] = pd.Series([ref_go_dag.query_term(x).name for x in go_df.index], index=go_df.index)
     return go_df
 
@@ -117,7 +118,7 @@ def set_of_all_parents(terms, slim_down, go_dag, go_dag_slim):
     all_ancestors = set()
     if slim_down:
         for i in terms:
-            if i in go_dag_slim.keys():
+            if i in go_dag.keys():
                 # take all ancestors
                 all_ancestors.update(mapslim.mapslim(i, go_dag, go_dag_slim)[1])
             else:
