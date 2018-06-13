@@ -206,7 +206,7 @@ is_a: GO:0003674 ! molecular_function
 
 [Term]
 id: GO:0003700
-name: DNA binding transcription factor activity
+name: DNA-binding transcription factor activity
 namespace: molecular_function
 alt_id: GO:0000130
 alt_id: GO:0001071
@@ -220,8 +220,9 @@ subset: goslim_mouse
 subset: goslim_plant
 subset: goslim_yeast
 subset: gosubset_prok
-synonym: "gene-specific transcription factor" EXACT []
-synonym: "nucleic acid binding transcription factor activity" NARROW []
+synonym: "DNA binding transcription factor activity" EXACT []
+synonym: "gene-specific transcription factor activity" EXACT []
+synonym: "nucleic acid binding transcription factor activity" BROAD []
 synonym: "sequence-specific DNA binding transcription factor activity" EXACT []
 synonym: "transcription factor activity" BROAD []
 is_a: GO:0003674 ! molecular_function
@@ -1036,6 +1037,7 @@ synonym: "Golgi ribbon" NARROW []
 xref: NIF_Subcellular:sao451912436
 xref: Wikipedia:Golgi_apparatus
 is_a: GO:0043226 ! organelle
+relationship: part_of GO:0005737 ! cytoplasm
 
 [Term]
 id: GO:0005811
@@ -1347,6 +1349,8 @@ xref: Reactome:REACT_96394 "Translation, Escherichia coli"
 xref: Wikipedia:Translation_(genetics)
 is_a: GO:0009058 ! biosynthetic process
 is_a: GO:0034641 ! cellular nitrogen compound metabolic process
+relationship: has_part GO:0009058 ! biosynthetic process
+relationship: part_of GO:0008150 ! biological_process
 
 [Term]
 id: GO:0006457
@@ -3393,6 +3397,7 @@ synonym: "enzyme modulator" EXACT []
 synonym: "metalloenzyme regulator activity" NARROW []
 is_a: GO:0003674 ! molecular_function
 relationship: part_of GO:0008150 ! biological_process
+relationship: regulates GO:0003674 ! molecular_function
 
 [Term]
 id: GO:0030312
@@ -3607,6 +3612,7 @@ namespace: biological_process
 alt_id: GO:0048590
 def: "The increase in size or mass of an entire organism, a part of an organism or a cell." [GOC:bf, GOC:ma]
 comment: See also the biological process term 'cell growth ; GO:0016049'.
+subset: gocheck_do_not_annotate
 subset: goslim_chembl
 subset: goslim_generic
 subset: goslim_pir
