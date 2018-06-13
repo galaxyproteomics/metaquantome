@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo -e 'peptide\tlca\tintensity' > taxonomy_simple.tab
+echo -e 'NOTISSREAL\t210\t2000' >> taxonomy_simple.tab
+echo -e 'ISSNOTREALE\t1496\t7000' >> taxonomy_simple.tab
+echo -e 'ISSVERYNOTREALE\t31979\t1000' >> taxonomy_simple.tab

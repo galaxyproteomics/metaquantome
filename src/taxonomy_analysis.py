@@ -1,5 +1,6 @@
 import pandas as pd
 from src import common
+from src import phylo_tree
 
 FULL_TAXONOMIC_TREE = ["superkingdom",
                        "kingdom",
@@ -37,20 +38,23 @@ BASIC_TAXONOMY_TREE = ["phylum",
                        "genus",
                        "species"]
 
-
 def taxonomy_analysis(df, samp_grps, test, threshold, paired):
 
-    # remove unassigned taxa
-    if "lca" in list(df):
-        df_filt = df[df['lca'] != 'unknown']
-    else:
-        df_filt = df
+    # load ncbi database
+    ncbi = phylo_tree.load_ncbi()
 
-    # determine which taxonomic ranks are in user-provided dataset
-    user_tax = set(BASIC_TAXONOMY_TREE).intersection(set(df_filt))
+    # get lineage of lca, make df
+    lca = df['lca']
+
+    full_lineage = pd.concat(
+        [pd.DataFrame(phylo_tree.get_desired_ranks_from_lineage(BASIC_TAXONOMY_TREE, taxid, ncbi), index=[taxid]) for taxid in df['lca']]
+    )
+
+    # join to df with intensities
+    joined = df.join(full_lineage, on='lca')
 
     # add up through ranks
-    norm_intensity_all_ranks = pd.concat([rel_abundance_rank(df_filt, x, samp_grps.all_intcols) for x in user_tax])
+    norm_intensity_all_ranks = pd.concat([rel_abundance_rank(joined, x, samp_grps.all_intcols) for x in BASIC_TAXONOMY_TREE])
 
     # test
     if test:
@@ -58,11 +62,15 @@ def taxonomy_analysis(df, samp_grps, test, threshold, paired):
     else:
         results = common.calc_means(norm_intensity_all_ranks, samp_grps)
 
+    # translate ids back to names
+    results['id'] = phylo_tree.convert_taxid_to_name(results['id'], ncbi)
+
     return results
 
 
 def rel_abundance_rank(df, rank, all_intcols):
     summed_abund = df.groupby(by=rank)[all_intcols].sum(axis=0)
+
     # normalize to each sample
     rel_abundance = summed_abund / summed_abund.sum(axis=0)
     rel_abundance['rank'] = rank
