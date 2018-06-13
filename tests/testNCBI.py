@@ -6,7 +6,7 @@ from definitions import DATA_DIR
 
 class TestNCBI(unittest.TestCase):
     def testGoUpTree(self):
-        ncbi = phylo_tree.load_ncbi(True)
+        ncbi = phylo_tree.load_ncbi()
         # human
         human_ancestors = phylo_tree.get_desired_ranks_from_lineage({'order', 'species', 'genus'}, 9606, ncbi)
         self.assertDictEqual({'order': 9443, 'species' : 9606, 'genus': 9605}, human_ancestors)

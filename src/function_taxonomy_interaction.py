@@ -4,6 +4,34 @@ from rpy2.robjects import pandas2ri
 import warnings
 from src.cog import cogCat
 from src.cog import take_first_cog
+from src import stats
+
+def function_taxonomy_rel_abund(df, cog_name, lca_colname, samp_grps, test, threshold, paired):
+
+    # take first cog
+    df = take_first_cog(df, cog_name)
+
+    pd_df = df.assign(ft=df[cog_name] + '-' + df[lca_colname]).set_index("ft", drop=True)
+
+    # keep only intensity columns and ft
+    pd_df_int = pd_df[samp_grps.all_intcols]
+
+    # group by ft and add
+    grouped = pd_df_int.groupby(by='ft').sum(axis=1)
+
+    # rel abund
+    rel_abund = grouped / grouped.sum(axis=0)
+
+    # normalize taxonomy within each cog category
+
+    # test
+    if test:
+        results = stats.test_norm_intensity(rel_abund, samp_grps, threshold, paired)
+    else:
+        results = stats.calc_means(rel_abund, samp_grps)
+
+    return results
+
 
 
 def function_taxonomy_interaction_analysis(df, cog_name, lca_colname, samp_grps, testtype, paired):
@@ -51,3 +79,5 @@ def function_taxonomy_interaction_analysis(df, cog_name, lca_colname, samp_grps,
     peca_pandas.drop(columns=['t', 'score'], inplace=True)
 
     return peca_pandas
+
+

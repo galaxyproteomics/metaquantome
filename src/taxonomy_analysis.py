@@ -1,5 +1,5 @@
 import pandas as pd
-from src import common
+from src import stats
 from src import phylo_tree
 
 FULL_TAXONOMIC_TREE = ["superkingdom",
@@ -58,9 +58,9 @@ def taxonomy_analysis(df, samp_grps, test, threshold, paired):
 
     # test
     if test:
-        results = common.test_norm_intensity(norm_intensity_all_ranks, samp_grps, threshold, paired)
+        results = stats.test_norm_intensity(norm_intensity_all_ranks, samp_grps, threshold, paired)
     else:
-        results = common.calc_means(norm_intensity_all_ranks, samp_grps)
+        results = stats.calc_means(norm_intensity_all_ranks, samp_grps)
 
     # translate ids back to names
     results['id'] = phylo_tree.convert_taxid_to_name(results['id'], ncbi)
