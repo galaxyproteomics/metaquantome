@@ -1,7 +1,7 @@
 import goatools
 import os
 from src import go
-from src import common
+from src import stats
 import definitions
 from src.cog import cogCat
 from src.cog import take_first_cog
@@ -18,7 +18,8 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
         go_dag, go_dag_slim = go.load_obos(obo_path, slim_path, slim_down, download_obo, overwrite_obo)
 
         # add up through hierarchy
-        df_to_return = go.add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, func_colname, samp_grps.all_intcols)
+        df_to_return = go.add_up_through_hierarchy(df, slim_down,
+                                                   go_dag, go_dag_slim, func_colname, samp_grps.all_intcols)
         df_to_return.drop(go.ROOT_GO_TERMS.values(), inplace=True, errors="ignore")
 
     elif ontology == "cog":
@@ -36,9 +37,9 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
 
     # differential expression
     if test and samp_grps.ngrps == 2:
-        results = common.test_norm_intensity(df_to_return, samp_grps, threshold, paired, log=False)
+        results = stats.test_norm_intensity(df_to_return, samp_grps, threshold, paired, log=False)
     else:
-        results = common.calc_means(df_to_return, samp_grps)
+        results = stats.calc_means(df_to_return, samp_grps)
 
     return results
 

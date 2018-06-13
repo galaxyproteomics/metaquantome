@@ -1,14 +1,14 @@
 from src.function_taxonomy_interaction import function_taxonomy_interaction_analysis
 from src.functional_analysis import functional_analysis
 from src.taxonomy_analysis import taxonomy_analysis
-from src import common
+from src import io
 
-def metaquant(mode, file, sample_names,
-              cog_colname="cog",
-              func_colname="go",
-              lca_colname="lca",
-              pep_colname="peptide",
-              outfile=None, ontology="go",
+
+def metaquant(mode, sample_names,
+              int_file, pep_colname='peptide',
+              func_file=None, tax_file=None,
+              ontology='go', tax_colname=None,
+              outfile=None,
               slim_down=False, test=False,
               test_type="modt",
               paired=False, threshold=0,
@@ -17,22 +17,23 @@ def metaquant(mode, file, sample_names,
 
     # read in file
     # define object with sample groups, intensity columns, etc.
-    samp_grps = common.SampleGroups(sample_names)
-
-    # read in data
-    df = common.read_data_table(file, samp_grps, pep_colname)
+    samp_grps = io.SampleGroups(sample_names)
 
     # change ontology to lowercase
     lc_ontology = ontology.lower()
 
-    modes = ['fn', 'tax', 'taxfn', 'fnpred']
+    modes = ['fn', 'tax', 'taxfn']
     if mode == 'fn':
-        results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, test=test,
+        df = io.read_and_join_files(mode, pep_colname, samp_grps,
+                                    int_file=int_file, func_file=func_file, func_colname=ontology)
+        results = functional_analysis(df=df, func_colname=ontology, samp_grps=samp_grps, test=test,
                                       threshold=threshold, ontology=lc_ontology, slim_down=slim_down, paired=paired,
                                       obo_path=obo_path, slim_path=slim_path, download_obo=download_obo,
                                       overwrite_obo=overwrite_obo)
 
     elif mode == 'tax':
+        df = io.read_and_join_files(mode, pep_colname, samp_grps,
+                                    int_file=int_file, tax_file=tax_file, tax_colname=tax_colname)
         results = taxonomy_analysis(df=df, samp_grps=samp_grps, test=test, threshold=threshold, paired=paired)
 
     elif mode == 'taxfn':
@@ -86,6 +87,7 @@ def metaquant(mode, file, sample_names,
 
 def main():
     pass
+
 
 if __name__ == "__main__":
     main()

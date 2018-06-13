@@ -51,9 +51,9 @@ def convert_name_to_taxid(names, ncbi):
 
     for i in range(len(names)):
         if names[i] in translator.keys():
-            ids[i] = translator[names[i]][0] # always takes first id
+            ids[i] = translator[names[i]][0]  # always takes first id
         else:
-            ids[i] = 32644 #ncbi taxid for unassigned
+            ids[i] = 32644  # ncbi taxid for unassigned
 
     return ids
 

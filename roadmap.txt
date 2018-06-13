@@ -1,13 +1,13 @@
 TODO
 HIGH PRIORITY
-change to ncbi taxid input, because it is unambiguous
-  - translate to names at final step
-  - build dataframe and then do rank-specific normalization, as before
+    - remove proportionizing
+    - split input into three files: quant, function, taxonomy
+    - write arg parser
+
 
 LOWER PRIORITY
     - additional functional ontologies in functional analysis (EC numbers and COG categories)
     - identification of functions/taxa/ft only present in one condition and not the other
-    - write arg parser
     - checks on input, error handling
     - document functions
     - think more about TF

@@ -5,6 +5,7 @@ import wget
 import shutil
 import os
 import definitions
+from src.utils import safe_cast_to_list
 
 
 NAMESPACES = ['biological_process',
@@ -17,6 +18,8 @@ ROOT_GO_TERMS = {"biological_process":'GO:0008150',
 
 
 def add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, gocol, all_intcols):
+    # drop peptides without go annotation
+    df.dropna(axis=0, how='any', subset=safe_cast_to_list(gocol), inplace=True)
 
     # define the go ontology that is used to assign intensities to ancestors
     if slim_down:

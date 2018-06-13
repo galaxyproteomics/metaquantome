@@ -4,50 +4,61 @@ import pandas as pd
 import metaquant
 import os
 from definitions import DATA_DIR
-
+from tests.testutils import testfile
 
 class TestTaxonomy(unittest.TestCase):
     def testSingleBasic(self):
-        datafile = os.path.join(DATA_DIR, 'test', 'taxonomy_simple.tab')
-        trey = metaquant.metaquant('tax', file=datafile,
-                                   sample_names = {'samp1': ['intensity']})
-        self.assertEqual(trey.query("id == 'Helicobacter pylori'")['samp1_mean'].values, 0.2)
+        tax = testfile('simple_tax.tab')
+        int = testfile('simple_int.tab')
+        tax_df = metaquant.metaquant('tax', pep_colname='peptide',
+                                    tax_file=tax, int_file=int,
+                                    tax_colname='lca',
+                                    sample_names={'s1': ['int']}, test=False)
+        self.assertEqual(tax_df.query("id == 'Helicobacter pylori'")['int'].values, 1/3)
 
     def testWrite(self):
-        datafile = os.path.join(DATA_DIR, 'test', 'taxonomy_simple.tab')
-        outfile = os.path.join(DATA_DIR, 'test', 'taxonomy_write_simple.tab')
+        tax = testfile('simple_tax.tab')
+        int = testfile('simple_int.tab')
+        out = testfile('taxonomy_write_simple.tab')
 
-        metaquant.metaquant(mode='tax', file=datafile,
-                                   sample_names={'samp1': ['intensity']},
-                                   outfile=outfile)
-        written = pd.read_table(outfile)
-        self.assertEqual(written.query("id == 'Clostridioides'")['samp1_mean'].values[0], 0.7)
+        metaquant.metaquant(mode='tax', int_file=int, tax_file=tax,
+                            tax_colname='lca',
+                            sample_names={'samp1': ['int']},
+                            outfile=out)
+
+        written = pd.read_table(out)
+        self.assertEqual(written.query("id == 'Clostridioides'")['samp1_mean'].values[0], 2/3)
 
     def testMultCols(self):
-        datafile = os.path.join(DATA_DIR, 'test', 'taxonomy_test_multiple.tab')
-        outfile = os.path.join(DATA_DIR, 'test', 'taxonomy_write_multiple.tab')
+        tax=testfile('multiple_tax.tab')
+        int=testfile('multiple_int.tab')
 
-        samp_names = {'samp1': ['int1', 'int2'],
-                      'samp2': ['int3', 'int4']}
-        # without testing, make sure the different ranks sum to 1 in each group
-        trey = metaquant.metaquant('tax',file=datafile,
-                                   sample_names=samp_names,
-                                   test=False,
-                                   threshold=0)
-        self.assertTrue(np.isclose(trey[['int1', 'int2', 'int3', 'int4', 'rank']].groupby(by="rank").sum(axis=0),1.0).all())
+        tax_df = metaquant.metaquant('tax',
+                                     tax_file=tax,
+                                     tax_colname='lca',
+                                     int_file=int,
+                                     sample_names={'s1': ['int1', 'int2', 'int3']})
 
-        # analysing, writing to file
-        trey = metaquant.metaquant('tax',file=datafile,
-                                   sample_names=samp_names,
-                                   test=True,
-                                   threshold=2,
-                                   outfile=outfile)
-        self.assertEqual(trey.query("rank == 'phylum' and id == 'Proteobacteria'")['int3'].values[0], 9000/10100)
-        print(trey[trey.id == "Helicobacter pylori"]['log2fc_samp1_over_samp2'].values)
+        self.assertEqual(tax_df.query("rank == 'phylum' and id == 'Proteobacteria'")['int3'].values[0], 7/10)
 
-        # fold change
-        expected = [np.log2(((2/10 + 1/2)/2)/((9000/10100 + 2/3)/2))]
-        self.assertTrue(np.isclose(trey[trey.id == "Helicobacter pylori"]['log2fc_samp1_over_samp2'], expected))
+    def testTaxTTests(self):
+        tax=testfile('multiple_tax.tab')
+        int=testfile('int_ttest.tab')
+
+        tax_df = metaquant.metaquant('tax',
+                                     tax_file=tax,
+                                     tax_colname='lca',
+                                     int_file=int,
+                                     sample_names={'s1': ['int1', 'int2', 'int3'],
+                                                   's2': ['int4', 'int5', 'int6']},
+                                     test=True)
+
+        # make sure false is > 0.05 and trues are less than 0.05
+        self.assertTrue(tax_df['corrected_p'][210] > 0.05)
+        self.assertTrue(tax_df['corrected_p'][[1496,31979]].le(0.05).all())
+
+        # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae, divided by all phyla
+        self.assertEqual(tax_df['int1'][1239], 1020/1030)
 
 
 if __name__ == '__main__':
