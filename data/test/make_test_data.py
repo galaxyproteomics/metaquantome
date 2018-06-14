@@ -46,3 +46,12 @@ t_int = pd.DataFrame({'int1': [10, 20, 1000],
                       'int6': [30, 3000, 10]}, index=peptides)
 write_testfile(t_int, 'int_ttest.tab')
 
+
+# funtax interaction
+
+mult_ft_func = pd.DataFrame({'cog': ['C', 'N', 'C']}, index=peptides)
+write_testfile(mult_ft_func, 'mult_ft_func.tab')
+
+mult_ft_tax = pd.DataFrame({'lca': ['210', '1496', '210']}, index=peptides)
+write_testfile(mult_ft_tax, 'mult_ft_tax.tab')
+

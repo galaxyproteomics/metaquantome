@@ -29,15 +29,19 @@ def test_norm_intensity(df, samp_grps, threshold, paired, log=False):
 
     df_filt = filter_min_observed(df, grp1_intcols, grp2_intcols, threshold)
 
-    # change zeros back to NaN
+    # change any zeros back to NaN
     df_filt.replace(0, np.nan, inplace=True)
 
-    # add mean, sd; create dataframe
-    test_results = df_filt.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols].dropna(),
+    all_intcols = grp1_intcols + grp2_intcols
+
+    test_df = np.log2(df_filt[all_intcols])
+
+    # test, using logged df
+    test_results = test_df.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols].dropna(),
                                                                    x[grp2_intcols].dropna(),
                                                                    equal_var=paired).pvalue, axis=1)
 
-    df_means = fold_change(calc_means(df_filt, samp_grps), samp_grps, log)
+    df_means = fold_change(calc_means(df_filt, samp_grps), samp_grps, log=True)
 
     df_means['p'] = test_results
     df_means['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
@@ -53,9 +57,12 @@ def calc_means(df, samp_grps):
         samples_in_grp = samp_grps.sample_names[grp_name]
 
         if len(samples_in_grp) > 1:
-            df[samp_grps.mean_names[i]] = df.apply(lambda x: np.mean(x[samples_in_grp].dropna()), axis=1)
+            # calculate log of mean
+            df[samp_grps.mean_names[i]] = df.apply(lambda x: np.log2(np.mean(x[samples_in_grp].dropna())), axis=1)
+
         else:
-            df[samp_grps.mean_names[i]] = df[samples_in_grp]
+            # just log transform the single sample
+            df[samp_grps.mean_names] = np.log2(df[samples_in_grp])
 
     return df
 

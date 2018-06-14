@@ -1,4 +1,4 @@
-from src.function_taxonomy_interaction import function_taxonomy_interaction_analysis
+from src.function_taxonomy_interaction import function_taxonomy_analysis
 from src.functional_analysis import functional_analysis
 from src.taxonomy_analysis import taxonomy_analysis
 from src import io
@@ -37,8 +37,19 @@ def metaquant(mode, sample_names,
         results = taxonomy_analysis(df=df, samp_grps=samp_grps, test=test, threshold=threshold, paired=paired)
 
     elif mode == 'taxfn':
-        results = function_taxonomy_interaction_analysis(df=df, cog_name=cog_colname, lca_colname=lca_colname,
-                                                         samp_grps=samp_grps, testtype=test_type, paired=paired)
+        if ontology == 'cog':
+            cog_colname = 'cog'
+        else:
+            raise ValueError("Only cog is supported for ft interaction. Make sure you have a cog column, named 'cog'")
+
+        df = io.read_and_join_files(mode, pep_colname, samp_grps,
+                                    int_file=int_file,
+                                    tax_file=tax_file, tax_colname=tax_colname,
+                                    func_file=func_file, func_colname=cog_colname)
+        results = function_taxonomy_analysis(df=df, cog_name=cog_colname, lca_colname=tax_colname,
+                                             samp_grps=samp_grps, test=test, threshold=threshold,
+                                             paired=paired)
+
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
 
@@ -60,8 +71,8 @@ def metaquant(mode, sample_names,
         cols = ['id']
         if descript:
             cols += descript
-        if mode != 'taxfn':
-            cols += samp_grps.mean_names
+
+        cols += samp_grps.mean_names
 
         # order of columns we want
         if mode == 'tax':
@@ -73,12 +84,8 @@ def metaquant(mode, sample_names,
         else:
             df_to_write = results
 
-        # in all cases but taxfn, we want the new intensity columns but we want them to be last
-        if mode != 'taxfn':
-            cols += samp_grps.all_intcols
-
-        else:
-            cols += ["n"]
+        # we want the new intensity columns but we want them to be last
+        cols += samp_grps.all_intcols
 
         df_to_write.to_csv(outfile, sep="\t", header=True, index=False, columns=cols, na_rep="NA")
 

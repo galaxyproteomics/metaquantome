@@ -5,10 +5,7 @@ from src import stats
 import definitions
 from src.cog import cogCat
 from src.cog import take_first_cog
-
-# TODO
-# print unknown go terms
-# add support for EC numbers
+import numpy as np
 
 
 def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, slim_down, paired, obo_path, slim_path,
@@ -28,7 +25,11 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
             groupby(func_colname).\
             sum()
 
-        df_to_return = cog_sum_df / cog_sum_df.sum(axis = 0)
+        # sample normalization - not doing this now
+        # df_to_return = cog_sum_df / cog_sum_df.sum(axis = 0)
+
+        df_to_return = cog_sum_df
+
         df_to_return['descript'] = [cogCat[x] for x in df_to_return.index]
 
     else:
@@ -40,6 +41,12 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
         results = stats.test_norm_intensity(df_to_return, samp_grps, threshold, paired, log=False)
     else:
         results = stats.calc_means(df_to_return, samp_grps)
+
+    # take log of intensities for return
+    # replace zeros with nan
+    results[results == 0] = np.nan
+
+    results[samp_grps.all_intcols] = np.log2(results[samp_grps.all_intcols])
 
     return results
 

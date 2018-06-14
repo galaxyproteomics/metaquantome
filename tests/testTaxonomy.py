@@ -14,7 +14,7 @@ class TestTaxonomy(unittest.TestCase):
                                     tax_file=tax, int_file=int,
                                     tax_colname='lca',
                                     sample_names={'s1': ['int']}, test=False)
-        self.assertEqual(tax_df.query("id == 'Helicobacter pylori'")['int'].values, 1/3)
+        self.assertEqual(tax_df.query("id == 'Helicobacter pylori'")['int'].values, np.log2(100))
 
     def testWrite(self):
         tax = testfile('simple_tax.tab')
@@ -27,7 +27,7 @@ class TestTaxonomy(unittest.TestCase):
                             outfile=out)
 
         written = pd.read_table(out)
-        self.assertEqual(written.query("id == 'Clostridioides'")['samp1_mean'].values[0], 2/3)
+        self.assertAlmostEqual(written.query("id == 'Clostridioides'")['samp1_mean'].values[0], np.log2(200))
 
     def testMultCols(self):
         tax=testfile('multiple_tax.tab')
@@ -39,7 +39,7 @@ class TestTaxonomy(unittest.TestCase):
                                      int_file=int,
                                      sample_names={'s1': ['int1', 'int2', 'int3']})
 
-        self.assertEqual(tax_df.query("rank == 'phylum' and id == 'Proteobacteria'")['int3'].values[0], 7/10)
+        self.assertEqual(tax_df.query("rank == 'phylum' and id == 'Proteobacteria'")['int3'].values[0], np.log2(70))
 
     def testTaxTTests(self):
         tax=testfile('multiple_tax.tab')
@@ -55,10 +55,10 @@ class TestTaxonomy(unittest.TestCase):
 
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(tax_df['corrected_p'][210] > 0.05)
-        self.assertTrue(tax_df['corrected_p'][[1496,31979]].le(0.05).all())
+        self.assertTrue(tax_df['corrected_p'][[1496,1870884]].le(0.05).all())
 
         # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae, divided by all phyla
-        self.assertEqual(tax_df['int1'][1239], 1020/1030)
+        self.assertEqual(tax_df['int1'][1239], np.log2(1020))
 
 
 if __name__ == '__main__':

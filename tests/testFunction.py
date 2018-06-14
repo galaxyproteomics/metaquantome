@@ -2,6 +2,7 @@ import unittest
 import metaquant
 from src import go
 from tests.testutils import testfile
+import numpy as np
 
 
 class TestFunction(unittest.TestCase):
@@ -12,8 +13,8 @@ class TestFunction(unittest.TestCase):
         go_df = metaquant.metaquant('fn', pep_colname='peptide',
                                     func_file=func, int_file=int,
                                     ontology='go', sample_names={'s1': ['int']}, test=False)
-        self.assertEqual(go_df.loc["GO:0022610"]['int'], 2/3)
-        self.assertEqual(go_df.loc["GO:0008152"]['int'], 1 / 3)
+        self.assertEqual(go_df.loc["GO:0022610"]['int'], np.log2(200))
+        self.assertEqual(go_df.loc["GO:0008152"]['int'], np.log2(100))
 
     def testMultipleInt(self):
         func=testfile('multiple_func.tab')
@@ -23,10 +24,10 @@ class TestFunction(unittest.TestCase):
                                     int_file=int,
                                     ontology='go',
                                     sample_names={'s1': ['int1', 'int2', 'int3']})
-        print(go_df)
-        self.assertEqual(go_df.loc['GO:0008152']['int1'], 1/10)
-        self.assertEqual(go_df.loc['GO:0022610']['int2'], 3/10)
-        self.assertEqual(go_df.loc['GO:0000003']['int3'], 0)
+        self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
+        self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
+        # missing values (zeros, nans, NA's, etc) are turned into NaN's
+        self.assertTrue(np.isnan(go_df.loc['GO:0000003']['int3']))
 
     def testDA(self):
         func=testfile('multiple_func.tab')
@@ -38,6 +39,7 @@ class TestFunction(unittest.TestCase):
                                     sample_names={'s1': ['int1', 'int2', 'int3'],
                                                   's2': ['int4', 'int5', 'int6']},
                                     test=True)
+
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(go_df['corrected_p']['GO:0008152'] > 0.05)
         self.assertTrue(go_df['corrected_p'][['GO:0022610','GO:0000003','GO:0032505']].le(0.05).all())
@@ -69,8 +71,8 @@ class TestFunction(unittest.TestCase):
                                     int_file=int,
                                     ontology='cog',
                                     sample_names={'s1': ['int1', 'int2', 'int3']})
-        self.assertEqual(cog_df.loc["C"]['s1_mean'], (1/10+2/10+7/10)/3)
-        self.assertEqual(cog_df.loc["N"]['int2'], 3/10)
+        self.assertEqual(cog_df.loc["C"]['s1_mean'], np.log2((10+20+70)/3))
+        self.assertEqual(cog_df.loc["N"]['int2'], np.log2(30))
 
     def testCogTTest(self):
         func=testfile('multiple_func.tab')

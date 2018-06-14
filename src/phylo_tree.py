@@ -41,7 +41,9 @@ def get_desired_ranks_from_lineage(ranks2get, taxid, ncbi):
 
 def convert_taxid_to_name(taxid, ncbi):
     translator = ncbi.get_taxid_translator(taxid)
-    names = [translator[id] for id in taxid]
+
+    # id must be an integer, so cast
+    names = [translator[int(id)] for id in taxid]
     return names
 
 
