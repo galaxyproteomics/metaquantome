@@ -2,6 +2,7 @@ import pandas as pd
 from src import stats
 from src import phylo_tree
 import numpy as np
+import sys
 
 
 BASIC_TAXONOMY_TREE = ["phylum",
@@ -12,23 +13,30 @@ BASIC_TAXONOMY_TREE = ["phylum",
                        "species"]
 
 
-def taxonomy_analysis(df, samp_grps, test, threshold, paired):
+def taxonomy_analysis(df, samp_grps, test, threshold, paired, tax_colname='lca'):
+    # drop rows where tax is NaN
+    df.dropna(subset=[tax_colname], inplace=True)
+
+    # convert tax to character
 
     # load ncbi database
     ncbi = phylo_tree.load_ncbi()
 
-    # get lineage of lca, make df
-    lca = df['lca']
+    # taxids, remove missing, uniquify
+    lca = df[tax_colname].unique()
 
-    full_lineage = pd.concat(
-        [pd.DataFrame(
-            phylo_tree.get_desired_ranks_from_lineage(BASIC_TAXONOMY_TREE, taxid, ncbi),
-            index=[taxid]) for taxid in df['lca']
-        ]
-    )
+    # get full lineage for that taxid
+    lineages = [pd.DataFrame(
+        phylo_tree.get_desired_ranks_from_lineage(BASIC_TAXONOMY_TREE, taxid, ncbi),
+        index=[taxid]) for taxid in lca
+    ]
+
+    full_lineage = pd.concat(lineages)
 
     # join to df with intensities
-    joined = df.join(full_lineage, on='lca')
+    # df_tax = df.set_index(tax_colname)
+
+    joined = df.join(full_lineage, on=[tax_colname])
 
     # old - norm by rank
     # norm_intensity_all_ranks = pd.concat([rel_abundance_rank(joined, x, samp_grps.all_intcols) for x in BASIC_TAXONOMY_TREE])

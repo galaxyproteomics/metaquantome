@@ -33,20 +33,20 @@ def read_intensity_table(file, samp_grps, pep_colname):
 def read_taxonomy_table(file, pep_colname, tax_colname):
     # always read as character
     df = pd.read_table(file, sep="\t", index_col=pep_colname,
-                       na_values=MISSING_VALUES, dtype={'lca': object})
+                       na_values=MISSING_VALUES, dtype={tax_colname: object})
 
     # check for numeric characters, which indicates taxid
-    # if numeric, convert
-    if sniff_tax_names(df):
+    # keep as character until querying ncbi database
+    if sniff_tax_names(df, tax_colname):
         ncbi = phylo_tree.load_ncbi()
-        df['lca'] = phylo_tree.convert_name_to_taxid(df['lca'], ncbi)
+        df[tax_colname] = phylo_tree.convert_name_to_taxid(df[tax_colname], ncbi)
 
     return df
 
 
-def sniff_tax_names(df):
+def sniff_tax_names(df, tax_colname):
     pattern = re.compile(r'[0-9]')  # little bit faster to compile
-    is_numeric = df['lca'].str.contains(pattern)
+    is_numeric = df[tax_colname].str.contains(pattern)
     if is_numeric.any():
         return False # if any entries contain numbers, assume taxids (already converted missings to NA)
     else:
@@ -72,8 +72,8 @@ def read_function_table(file, pep_colname, ontology):
 
 
 def join_on_peptide(dfs):
-    # df_joined = reduce(lambda left,right: pd.merge(left, right), dfs)
-    df_joined = pd.concat(dfs, axis=1)
+    # join inner means that only peptides present in all dfs will be kept
+    df_joined = pd.concat(dfs, axis=1, join='inner')
     return df_joined
 
 

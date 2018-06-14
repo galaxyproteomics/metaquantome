@@ -1,6 +1,6 @@
 from ete3 import NCBITaxa
 import os
-
+import numpy as np
 
 def load_ncbi(update=False):
     ncbi = NCBITaxa()
@@ -24,7 +24,7 @@ def get_desired_ranks_from_lineage(ranks2get, taxid, ncbi):
 
     # assumes we have unique values for all relevant ranks (i.e., order)
     # which should be true
-    invert_dict = {v : k for k, v in ranks.items()}
+    invert_dict = {v: k for k, v in ranks.items()}
 
     # get ranks and taxids
     # if rank is not present in lineage, say is 'unknown'
@@ -54,6 +54,7 @@ def convert_name_to_taxid(names, ncbi):
     for i in range(len(names)):
         if names[i] in translator.keys():
             ids[i] = translator[names[i]][0]  # always takes first id
+
         else:
             ids[i] = 32644  # ncbi taxid for unassigned
 
