@@ -27,7 +27,7 @@ class TestIO(unittest.TestCase):
 
         dfs_joined = io.read_and_join_files('taxfn', pep_colname='peptide',
                                             int_file=int_in, samp_groups=samp_grps,
-                                            tax_file=taxin, func_file=funcin, tax_colname='lca', func_colname=['go'])
+                                            tax_file=taxin, func_file=funcin, tax_colname='lca', func_colname='go')
 
         self.assertSetEqual(set(dfs_joined), {'int1', 'int2', 'lca', 'go'})
 

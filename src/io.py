@@ -6,7 +6,7 @@ import numpy as np
 from io import StringIO
 
 
-MISSING_VALUES = ["", "0", "NA", "NaN"]
+MISSING_VALUES = ["", "0", "NA", "NaN", "0.0"]
 ONTOLOGIES = ['cog', 'go']
 
 

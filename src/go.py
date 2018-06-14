@@ -17,7 +17,7 @@ ROOT_GO_TERMS = {"biological_process":'GO:0008150',
                  "cellular_component":'GO:0005575'}
 
 
-def add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, gocol, all_intcols):
+def add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, gocol, all_intcols, norm_to_root=False):
     # drop peptides without go annotation
     df.dropna(axis=0, how='any', subset=safe_cast_to_list(gocol), inplace=True)
 
@@ -60,9 +60,10 @@ def add_up_through_hierarchy(df, slim_down, go_dag, go_dag_slim, gocol, all_intc
                          index=gos)
 
     # group by namespace, normalize to BP, MF, or CC
-    for i in all_intcols:
-        norm_name = i
-        go_df[norm_name] = pd.concat([normalize_by_namespace(name, go_df, i) for name in ROOT_GO_TERMS.keys()])
+    if norm_to_root:
+        for i in all_intcols:
+            norm_name = i
+            go_df[norm_name] = pd.concat([normalize_by_namespace(name, go_df, i) for name in ROOT_GO_TERMS.keys()])
     go_df['id'] = go_df.index
     go_df['name'] = pd.Series([ref_go_dag.query_term(x).name for x in go_df.index], index=go_df.index)
     return go_df
