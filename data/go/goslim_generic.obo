@@ -1349,7 +1349,7 @@ xref: Reactome:REACT_96394 "Translation, Escherichia coli"
 xref: Wikipedia:Translation_(genetics)
 is_a: GO:0009058 ! biosynthetic process
 is_a: GO:0034641 ! cellular nitrogen compound metabolic process
-relationship: has_part GO:0009058 ! biosynthetic process
+relationship: has_part GO:0022618 ! ribonucleoprotein complex assembly
 relationship: part_of GO:0008150 ! biological_process
 
 [Term]
@@ -3397,7 +3397,6 @@ synonym: "enzyme modulator" EXACT []
 synonym: "metalloenzyme regulator activity" NARROW []
 is_a: GO:0003674 ! molecular_function
 relationship: part_of GO:0008150 ! biological_process
-relationship: regulates GO:0003674 ! molecular_function
 
 [Term]
 id: GO:0030312
