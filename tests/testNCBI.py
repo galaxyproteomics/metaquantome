@@ -13,7 +13,7 @@ class TestNCBI(unittest.TestCase):
 
     def testTranslator(self):
         ncbi = phylo_tree.load_ncbi()
-        # has to be a list
+        # has to be a list or series
         ecoli = [562]
 
         # returns list
@@ -37,7 +37,7 @@ class TestNCBI(unittest.TestCase):
         name = ['Random nonsense']
 
         id = phylo_tree.convert_name_to_taxid(name, ncbi)
-        self.assertEqual(id, [32644])
+        self.assertEqual(id, [12908])
 
 
     def testRoot(self):
@@ -49,13 +49,13 @@ class TestNCBI(unittest.TestCase):
         self.assertEqual(id, [1])
 
     def testUnipeptResults(self):
+        # test a whole bunch of unipept name results
         ncbi = phylo_tree.load_ncbi()
 
         unipept_thaliana = os.path.join(DATA_DIR, 'test', 'unipept_a_thaliana_result.csv')
         with open(unipept_thaliana, mode = 'r') as f:
             f.readline() # ditch column header
             names = [elem.strip('\n') for elem in f.readlines()]
-
             ids = phylo_tree.convert_name_to_taxid(names, ncbi)
 
         # assure no unknown names (i.e., unipept names are reasonably well supported)

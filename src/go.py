@@ -103,15 +103,18 @@ def normalize_by_namespace(namespace, go_df, all_intcols):
     return sub_norm
 
 
-def load_obos(obo_path=None, slim_path=None, slim_down=False, download_obo=False, overwrite_obo=False):
+def load_obos(obo_path=None, slim_path=None, slim_down=False, update_obo=False):
     # read gos
     if not obo_path:
         obo_path = os.path.join(definitions.DATA_DIR, 'go', 'go-basic.obo')
     if not slim_path:
         slim_path = os.path.join(definitions.DATA_DIR, 'go', 'goslim_generic.obo')
 
-    if download_obo:
-        update_go_obo_file(obo_path, slim_path, overwrite_obo)
+    if update_obo or not os.path.exists(obo_path):
+        update_go_full(obo_path)
+
+    if slim_down and (not os.path.exists(slim_path) or update_obo):
+        update_go_slim(obo_path)
 
     go_dag = goatools.obo_parser.GODag(os.path.join(os.getcwd(), obo_path))
 
@@ -123,14 +126,11 @@ def load_obos(obo_path=None, slim_path=None, slim_down=False, download_obo=False
     return go_dag, go_dag_slim
 
 
-def update_go_obo_file(obo_path, slim_path, overwrite=True):
-    full_obo_url = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
+def update_go_slim(slim_path):
     slim_obo_url = 'http://www.geneontology.org/ontology/subsets/goslim_generic.obo'
-    full = wget.download(full_obo_url, out=obo_path)
-    slim = wget.download(slim_obo_url, out=slim_path)
-    if overwrite:
-        if os.path.exists(obo_path):
-            shutil.move(full, obo_path)
-        if os.path.exists(slim_path):
-            shutil.move(slim, slim_path)
+    wget.download(slim_obo_url, out=slim_path)
 
+
+def update_go_full(obo_path):
+    full_obo_url = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
+    wget.download(full_obo_url, out=obo_path)

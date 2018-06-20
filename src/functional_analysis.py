@@ -1,18 +1,15 @@
-import goatools
-import os
 from src import go
 from src import stats
-import definitions
 from src.cog import cogCat
 from src.cog import take_first_cog
 import numpy as np
 
 
 def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, slim_down, paired, obo_path, slim_path,
-                        download_obo, overwrite_obo):
+                        download_obo):
 
     if ontology == "go":
-        go_dag, go_dag_slim = go.load_obos(obo_path, slim_path, slim_down, download_obo, overwrite_obo)
+        go_dag, go_dag_slim = go.load_obos(obo_path, slim_path, slim_down, download_obo)
 
         # add up through hierarchy
         df_to_return = go.add_up_through_hierarchy(df, slim_down,
@@ -25,12 +22,9 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
             groupby(func_colname).\
             sum()
 
-        # sample normalization - not doing this now
-        # df_to_return = cog_sum_df / cog_sum_df.sum(axis = 0)
-
         df_to_return = cog_sum_df
 
-        df_to_return['descript'] = [cogCat[x] for x in df_to_return.index]
+        df_to_return['description'] = [cogCat[x] for x in df_to_return.index]
 
     else:
         raise ValueError("the desired ontology is not supported. " +
@@ -47,6 +41,12 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
     results[results == 0] = np.nan
 
     results[samp_grps.all_intcols] = np.log2(results[samp_grps.all_intcols])
+
+    # go term id numbers
+    if ontology == 'go':
+        results['go_id'] = results.index
+    if ontology == 'cog':
+        results['cog'] = results.index
 
     return results
 

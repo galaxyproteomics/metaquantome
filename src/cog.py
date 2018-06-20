@@ -1,8 +1,6 @@
 def take_first_cog(df, cog_name):
-
     # take first cog
     df[cog_name] = df[cog_name].str.split(',').str[0]
-
     return df
 
 

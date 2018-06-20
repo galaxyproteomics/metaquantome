@@ -1,4 +1,4 @@
-taxon_name	rank	samp1_mean	int
+taxon_name	rank	A_mean	int
 Proteobacteria	phylum	6.643856189774724	6.643856189774724
 Firmicutes	phylum	7.643856189774724	7.643856189774724
 Epsilonproteobacteria	class	6.643856189774724	6.643856189774724
