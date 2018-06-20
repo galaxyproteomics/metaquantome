@@ -55,10 +55,12 @@ def calc_means(df, samp_grps):
     for i in range(samp_grps.ngrps):
         grp_name = samp_grps.grp_names[i]
         samples_in_grp = samp_grps.sample_names[grp_name]
-
         if len(samples_in_grp) > 1:
-            # calculate log of mean
-            df[samp_grps.mean_names[i]] = df.apply(lambda x: np.log2(np.mean(x[samples_in_grp].dropna())), axis=1)
+            sample = df[samples_in_grp]
+            means = np.mean(sample, axis = 1)
+            means[means == 0] = np.nan
+            logs = np.log2(means)
+            df[samp_grps.mean_names[i]] = logs
 
         else:
             # just log transform the single sample

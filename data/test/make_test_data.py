@@ -55,3 +55,11 @@ write_testfile(mult_ft_func, 'mult_ft_func.tab')
 mult_ft_tax = pd.DataFrame({'lca': ['210', '1496', '210']}, index=peptides)
 write_testfile(mult_ft_tax, 'mult_ft_tax.tab')
 
+# sample information file
+samp_info = pd.DataFrame({'group': ['A', 'B'],
+                          'colnames': ['A1,A2', 'B1, B2'],
+                          })
+
+samp_info.to_csv(os.path.join(DATA_DIR, 'test', 'samp_info.tab'),
+                 sep='\t',
+                 columns=['group', 'colnames'], index=False)

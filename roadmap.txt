@@ -1,14 +1,13 @@
 TODO
 HIGH PRIORITY
-    - remove proportionizing
-    - split input into three files: quant, function, taxonomy
-    - write arg parser
+    - bioconda package
+    - galaxy wrapper
+    - checks on input, error handling
+    - document functions
 
 
 LOWER PRIORITY
     - additional functional ontologies in functional analysis (EC numbers and COG categories)
     - identification of functions/taxa/ft only present in one condition and not the other
-    - checks on input, error handling
-    - document functions
     - think more about TF
     - which matters more - taxonomy or function?

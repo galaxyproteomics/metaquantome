@@ -2,56 +2,44 @@ import unittest
 import numpy as np
 import pandas as pd
 import metaquant
-import os
-from definitions import DATA_DIR
 from tests.testutils import testfile
+
 
 class TestTaxonomy(unittest.TestCase):
     def testSingleBasic(self):
         tax = testfile('simple_tax.tab')
         int = testfile('simple_int.tab')
-        tax_df = metaquant.metaquant('tax', pep_colname='peptide',
-                                    tax_file=tax, int_file=int,
-                                    tax_colname='lca',
-                                    sample_names={'s1': ['int']}, test=False)
-        self.assertEqual(tax_df.query("id == 'Helicobacter pylori'")['int'].values, np.log2(100))
+        tax_df = metaquant.metaquant('tax', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide',
+                                     tax_file=tax, tax_colname='lca', test=False)
+        self.assertEqual(tax_df.query("taxon_name == 'Helicobacter pylori'")['int'].values, np.log2(100))
 
     def testWrite(self):
         tax = testfile('simple_tax.tab')
         int = testfile('simple_int.tab')
         out = testfile('taxonomy_write_simple.tab')
 
-        metaquant.metaquant(mode='tax', int_file=int, tax_file=tax,
-                            tax_colname='lca',
-                            sample_names={'samp1': ['int']},
+        metaquant.metaquant(mode='tax', sample_names={'samp1': ['int']}, int_file=int, tax_file=tax, tax_colname='lca',
                             outfile=out)
 
         written = pd.read_table(out)
-        self.assertAlmostEqual(written.query("id == 'Clostridioides'")['samp1_mean'].values[0], np.log2(200))
+        self.assertAlmostEqual(written.query("taxon_name == 'Clostridioides'")['samp1_mean'].values[0], np.log2(200))
 
     def testMultCols(self):
         tax=testfile('multiple_tax.tab')
         int=testfile('multiple_int.tab')
 
-        tax_df = metaquant.metaquant('tax',
-                                     tax_file=tax,
-                                     tax_colname='lca',
-                                     int_file=int,
-                                     sample_names={'s1': ['int1', 'int2', 'int3']})
+        tax_df = metaquant.metaquant('tax', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, tax_file=tax,
+                                     tax_colname='lca')
 
-        self.assertEqual(tax_df.query("rank == 'phylum' and id == 'Proteobacteria'")['int3'].values[0], np.log2(70))
+        self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0], np.log2(70))
 
     def testTaxTTests(self):
         tax=testfile('multiple_tax.tab')
         int=testfile('int_ttest.tab')
 
-        tax_df = metaquant.metaquant('tax',
-                                     tax_file=tax,
-                                     tax_colname='lca',
-                                     int_file=int,
-                                     sample_names={'s1': ['int1', 'int2', 'int3'],
-                                                   's2': ['int4', 'int5', 'int6']},
-                                     test=True)
+        tax_df = metaquant.metaquant('tax', sample_names={'s1': ['int1', 'int2', 'int3'],
+                                                          's2': ['int4', 'int5', 'int6']}, int_file=int, tax_file=tax,
+                                     tax_colname='lca', test=True)
 
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(tax_df['corrected_p'][210] > 0.05)
