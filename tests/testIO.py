@@ -1,7 +1,7 @@
 import unittest
-from src import io
+from metaquant import io
 import os
-from definitions import DATA_DIR
+from metaquant.definitions import DATA_DIR
 
 
 class TestIO(unittest.TestCase):
@@ -43,3 +43,6 @@ class TestIO(unittest.TestCase):
         # note that the order of all_intcols is random (so we compare sets)
         self.assertEqual(set(samp_grps.all_intcols), {'A1', 'A2', 'B1', 'B2'})
 
+
+if __name__=='__main__':
+    unittest.main()

@@ -1,7 +1,7 @@
 import unittest
-from src import phylo_tree
+from metaquant import phylo_tree
 import os
-from definitions import DATA_DIR
+from metaquant.definitions import DATA_DIR
 
 
 class TestNCBI(unittest.TestCase):
@@ -63,6 +63,5 @@ class TestNCBI(unittest.TestCase):
 
 
 
-
-
-
+if __name__=='__main__':
+    unittest.main()
