@@ -1,5 +1,5 @@
 import os
-from definitions import DATA_DIR
+from metaquant.definitions import DATA_DIR
 
 
 def testfile(name):

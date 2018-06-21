@@ -1,6 +1,6 @@
 import unittest
-import metaquant
-from src import go
+from metaquant.runner import metaquant
+from metaquant import go
 from tests.testutils import testfile
 import numpy as np
 
@@ -10,7 +10,7 @@ class TestFunction(unittest.TestCase):
         func=testfile('simple_func.tab')
         int=testfile('simple_int.tab')
 
-        go_df = metaquant.metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide',
+        go_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide',
                                     func_file=func, ontology='go', test=False)
         self.assertEqual(go_df.loc["GO:0022610"]['int'], np.log2(200))
         self.assertEqual(go_df.loc["GO:0008152"]['int'], np.log2(100))
@@ -19,7 +19,7 @@ class TestFunction(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
 
-        go_df = metaquant.metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, func_file=func,
+        go_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, func_file=func,
                                     ontology='go')
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
@@ -30,7 +30,7 @@ class TestFunction(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
 
-        go_df = metaquant.metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3'],
+        go_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3'],
                                                         's2': ['int4', 'int5', 'int6']}, int_file=int, func_file=func,
                                     ontology='go', test=True)
 
@@ -41,7 +41,7 @@ class TestFunction(unittest.TestCase):
     def testSlimDown(self):
         func=testfile('func_eggnog.tab')
         int=testfile('int_eggnog.tab')
-        go_df = metaquant.metaquant('fn', sample_names={'NS': ['int737NS', 'int852NS', 'int867NS'],
+        go_df = metaquant('fn', sample_names={'NS': ['int737NS', 'int852NS', 'int867NS'],
                                                         'WS': ['int737WS', 'int852WS', 'int867WS']}, int_file=int,
                                     func_file=func, ontology='go', slim_down=True, test=True, paired=True)
 
@@ -57,7 +57,7 @@ class TestFunction(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
 
-        cog_df = metaquant.metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, func_file=func,
+        cog_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, func_file=func,
                                      ontology='cog')
         self.assertEqual(cog_df.loc["C"]['s1_mean'], np.log2((10+20+70)/3))
         self.assertEqual(cog_df.loc["N"]['int2'], np.log2(30))
@@ -66,7 +66,7 @@ class TestFunction(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
 
-        cog_df = metaquant.metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3'],
+        cog_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3'],
                                                          's2': ['int4', 'int5', 'int6']}, int_file=int, func_file=func,
                                      ontology='cog', test=True)
         # make sure false is > 0.05 and trues are less than 0.05

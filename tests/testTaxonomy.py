@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import pandas as pd
-import metaquant
+from metaquant.runner import metaquant
 from tests.testutils import testfile
 
 
@@ -9,7 +9,7 @@ class TestTaxonomy(unittest.TestCase):
     def testSingleBasic(self):
         tax = testfile('simple_tax.tab')
         int = testfile('simple_int.tab')
-        tax_df = metaquant.metaquant('tax', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide',
+        tax_df = metaquant('tax', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide',
                                      tax_file=tax, tax_colname='lca', test=False)
         self.assertEqual(tax_df.query("taxon_name == 'Helicobacter pylori'")['int'].values, np.log2(100))
 
@@ -18,7 +18,7 @@ class TestTaxonomy(unittest.TestCase):
         int = testfile('simple_int.tab')
         out = testfile('taxonomy_write_simple.tab')
 
-        metaquant.metaquant(mode='tax', sample_names={'samp1': ['int']}, int_file=int, tax_file=tax, tax_colname='lca',
+        metaquant(mode='tax', sample_names={'samp1': ['int']}, int_file=int, tax_file=tax, tax_colname='lca',
                             outfile=out)
 
         written = pd.read_table(out)
@@ -28,7 +28,7 @@ class TestTaxonomy(unittest.TestCase):
         tax=testfile('multiple_tax.tab')
         int=testfile('multiple_int.tab')
 
-        tax_df = metaquant.metaquant('tax', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, tax_file=tax,
+        tax_df = metaquant('tax', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, tax_file=tax,
                                      tax_colname='lca')
 
         self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0], np.log2(70))
@@ -37,7 +37,7 @@ class TestTaxonomy(unittest.TestCase):
         tax=testfile('multiple_tax.tab')
         int=testfile('int_ttest.tab')
 
-        tax_df = metaquant.metaquant('tax', sample_names={'s1': ['int1', 'int2', 'int3'],
+        tax_df = metaquant('tax', sample_names={'s1': ['int1', 'int2', 'int3'],
                                                           's2': ['int4', 'int5', 'int6']}, int_file=int, tax_file=tax,
                                      tax_colname='lca', test=True)
 

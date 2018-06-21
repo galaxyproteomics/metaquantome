@@ -1,8 +1,6 @@
 import unittest
 import metaquant
-from definitions import DATA_DIR
-import os
-from src import stats
+from metaquant.runner import metaquant
 from tests.testutils import testfile
 import numpy as np
 
@@ -13,7 +11,7 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         int=testfile('int_ttest.tab')
         tax=testfile('multiple_tax.tab')
 
-        ft_df = metaquant.metaquant('taxfn', sample_names={'s1': ['int1', 'int2', 'int3'],
+        ft_df = metaquant('taxfn', sample_names={'s1': ['int1', 'int2', 'int3'],
                                                            's2': ['int4', 'int5', 'int6']}, int_file=int,
                                     func_file=func, tax_file=tax, ontology='cog', tax_colname='lca', test=True)
 
@@ -26,7 +24,7 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         int=testfile('int_ttest.tab')
         tax=testfile('mult_ft_tax.tab')
 
-        ft_df = metaquant.metaquant('taxfn', sample_names={'s1': ['int1', 'int2', 'int3'],
+        ft_df = metaquant('taxfn', sample_names={'s1': ['int1', 'int2', 'int3'],
                                                            's2': ['int4', 'int5', 'int6']}, int_file=int,
                                     func_file=func, tax_file=tax, ontology='cog', tax_colname='lca', test=True)
 
