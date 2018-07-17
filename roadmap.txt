@@ -1,9 +1,8 @@
 TODO
 HIGH PRIORITY
-    - bioconda package
-    - galaxy wrapper
-    - checks on input, error handling
-    - document functions
+    - stats
+    - improved logging
+    - databases
 
 
 LOWER PRIORITY

@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION='0.1.1'
+VERSION='0.1.2'
 URL='https://github.com/caleb-easterly/metaquant'
 AUTHOR = 'Caleb Easterly'
 AUTHOR_EMAIL = 'easte080@umn.edu'
@@ -34,5 +34,9 @@ setup(
     python_requires='>=3.5',
     entry_points={
         'console_scripts': ['metaquant=metaquant.__main__:main'],
+    },
+    project_urls={
+        "Bug Tracker": "https://github.com/caleb-easterly/metaquant/issues",
+        "Source Code": "https://github.com/caleb-easterly/metaquant",
     }
 )
