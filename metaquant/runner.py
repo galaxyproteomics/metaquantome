@@ -8,22 +8,29 @@ import logging
 import sys
 
 
-def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None, ontology='go',
-              tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, threshold=0, data_dir=None,
-              overwrite=False):
+def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None,
+              ontology='go', tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, threshold=0,
+              data_dir=None, overwrite=False):
+
     # initialize logger
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
 
     # define base data directory
     if not data_dir:
         data_dir = DATA_DIR
+    else:
+        if not os.path.isdir(data_dir):
+            raise NotADirectoryError('data_dir is not a directory or was not found.')
 
-    # read in file
     # define object with sample groups, intensity columns, etc.
     samp_grps = io.SampleGroups(sample_names)
 
+    if not os.path.exists(int_file):
+        raise FileNotFoundError('int_file does not exist. Please check filename')
+
     modes = ['fn', 'tax', 'taxfn']
     if mode == 'fn':
+        function_check(func_file, func_colname)
         df = io.read_and_join_files(mode, pep_colname, samp_grps,
                                     int_file=int_file, func_file=func_file, func_colname=func_colname)
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, test=test, threshold=threshold,
@@ -31,12 +38,15 @@ def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=
                                       overwrite=overwrite)
 
     elif mode == 'tax':
+        tax_check(tax_file, tax_colname)
         df = io.read_and_join_files(mode, pep_colname, samp_grps,
                                     int_file=int_file, tax_file=tax_file, tax_colname=tax_colname)
         results = taxonomy_analysis(df=df, samp_grps=samp_grps, test=test, threshold=threshold, paired=paired,
                                     data_dir=data_dir, tax_colname=tax_colname)
 
     elif mode == 'taxfn':
+        function_check(func_file, func_colname)
+        tax_check(tax_file, tax_colname)
         if ontology != 'cog':
             raise ValueError("Only cog is supported for ft interaction. " +
                              "Make sure you have a cog column and supply the column name to func_colname")
@@ -79,3 +89,19 @@ def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=
     return results
 
 
+def function_check(func_file, func_colname):
+    if not func_file:
+        raise IOError('Function tabular file not provided (--func_file)')
+    if not os.path.exists(func_file):
+        raise FileNotFoundError('func_file does not exist. Please check filename')
+    if not func_colname:
+        raise ValueError('func_colname=None. Please provide a function column name (--func_colname)')
+
+
+def tax_check(tax_file, tax_colname):
+    if not tax_file:
+        raise IOError('Taxonomy tabular file not provided (--tax_file)')
+    if not os.path.exists(tax_file):
+        raise FileNotFoundError('func_file does not exist. Please check filename')
+    if not tax_colname:
+        raise ValueError('tax_colname=None. Please provide a taxonomy column name (--tax_colname)')
