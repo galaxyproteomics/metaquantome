@@ -6,6 +6,7 @@ from metaquant.definitions import DATA_DIR
 import os
 import shutil
 import numpy as np
+import pandas as pd
 
 
 class TestEC(unittest.TestCase):
@@ -54,5 +55,18 @@ class TestEC(unittest.TestCase):
                           ontology='ec', test=False, overwrite=False, func_colname='ec')
         self.assertEqual(ec_df.loc['1.50.10000.-']['description'], 'unknown_ec')
 
+    def testExpandList(self):
+        peptide = ['AAYEEAEHAAK', 'AGVTK', 'FAKE']
+        df = pd.DataFrame({'EC': ['1.11.1.1,1.-.-.-,1.14.13.81', '2.3.1.234,1.2.1.-,4.2.1.9', '']},
+                          index=peptide)
+        print(ec.split_ec_list(df, 'EC'))
+
+    def testRealEC(self):
+        func=testfile('unipept_sample7_functional_clean.tab')
+        int=testfile('unipept_sample7_int_clean.tab')
+        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_file=func,
+                          ontology='ec', test=False, overwrite=False, func_colname='EC')
+        # make sure that all of the 1s have been filtered out
+        self.assertEqual(ec_df.query('id == "1.-.-.-"').size, 0)
 
 

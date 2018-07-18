@@ -105,3 +105,45 @@ def expand_ec(ecid):
             deepest_known += 1
     ec_dict = {LEVEL_NAMES[i]: '.'.join(split_ec[0:(i+1)] + ALL_UNKNOWN[(i+1):]) for i in range(deepest_known)}
     return pd.Series(ec_dict)
+
+
+# modified from https://github.com/cognoma/genes/blob/721204091a96e55de6dcad165d6d8265e67e2a48/2.process.py#L61-L95
+def tidy_split(df, column, sep='|', keep=False):
+    """
+    Split the values of a column and expand so the new DataFrame has one split
+    value per row.
+
+    Params
+    ------
+    df : pandas.DataFrame
+        dataframe with the column to split and expand
+    column : str
+        the column to split and expand
+    sep : str
+        the string used to split the column's values
+    keep : bool
+        whether to retain the presplit value as it's own row
+
+    Returns
+    -------
+    pandas.DataFrame
+        Returns a dataframe with the same columns as `df`.
+    """
+    indexes = list()
+    new_values = list()
+    for i, presplit in enumerate(df[column].astype(str)):
+        values = presplit.split(sep)
+        if keep and len(values) > 1:
+            indexes.append(i)
+            new_values.append(presplit)
+        for value in values:
+            indexes.append(i)
+            new_values.append(value)
+    new_df = df.iloc[indexes, :].copy()
+    new_df[column] = new_values
+    return new_df
+
+
+def split_ec_list(ec_df, func_colname):
+    new_df = tidy_split(ec_df, func_colname, sep=',', keep=False)
+    return new_df

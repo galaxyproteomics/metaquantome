@@ -37,7 +37,10 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
             os.mkdir(ec_db_path)
         ec.enzyme_database_handler(ec_db_path, overwrite)
 
-        ec_df = df['ec'].apply(ec.expand_ec).join(df)
+        # explode list columns
+        ec_df = ec.split_ec_list(df, func_colname)
+
+        ec_df = ec_df[func_colname].apply(ec.expand_ec).join(ec_df)
 
         # new - just add up through ranks
         ec_sum_df = pd.concat(
@@ -45,6 +48,8 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
 
         df_to_return = ec_sum_df
 
+        # rank doesn't have that much information
+        df_to_return.drop('rank', axis=1, inplace=True)
         ec_descript_dict = ec.load_combined_enzyme_class_ec_id(os.path.join(DATA_DIR, 'enzyme'))
         df_to_return['description'] =\
             [ec_descript_dict[x] if x in ec_descript_dict.keys() else 'unknown_ec' for x in df_to_return.index]
@@ -70,6 +75,8 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
         results['go_id'] = results.index
     if ontology == 'cog':
         results['cog'] = results.index
+    if ontology == 'ec':
+        results['ec'] = results.index
 
     return results
 

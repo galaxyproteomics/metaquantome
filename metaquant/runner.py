@@ -77,6 +77,8 @@ def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=
                 cols = ['go_id', 'name', 'namespace'] + int_cols
             if ontology == 'cog':
                 cols = ['cog', 'description'] + int_cols
+            if ontology == 'ec':
+                cols = ['ec', 'description'] + int_cols
 
         if mode == 'tax':
             cols = ['taxon_name', 'rank'] + int_cols
