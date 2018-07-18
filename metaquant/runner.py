@@ -3,11 +3,12 @@ from metaquant.functional_analysis import functional_analysis
 from metaquant.taxonomy_analysis import taxonomy_analysis
 from metaquant import io
 from metaquant.definitions import DATA_DIR
+import os
 import logging
 import sys
 
 
-def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_file=None, tax_file=None, ontology='go',
+def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None, ontology='go',
               tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, threshold=0, data_dir=None,
               overwrite=False):
     # initialize logger
@@ -24,8 +25,8 @@ def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_file=Non
     modes = ['fn', 'tax', 'taxfn']
     if mode == 'fn':
         df = io.read_and_join_files(mode, pep_colname, samp_grps,
-                                    int_file=int_file, func_file=func_file, func_colname=ontology)
-        results = functional_analysis(df=df, func_colname=ontology, samp_grps=samp_grps, test=test, threshold=threshold,
+                                    int_file=int_file, func_file=func_file, func_colname=func_colname)
+        results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, test=test, threshold=threshold,
                                       ontology=ontology, slim_down=slim_down, paired=paired, data_dir=data_dir,
                                       overwrite=overwrite)
 
@@ -36,16 +37,15 @@ def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_file=Non
                                     data_dir=data_dir, tax_colname=tax_colname)
 
     elif mode == 'taxfn':
-        if ontology == 'cog':
-            cog_colname = 'cog'
-        else:
-            raise ValueError("Only cog is supported for ft interaction. Make sure you have a cog column, named 'cog'")
+        if ontology != 'cog':
+            raise ValueError("Only cog is supported for ft interaction. " +
+                             "Make sure you have a cog column and supply the column name to func_colname")
 
         df = io.read_and_join_files(mode, pep_colname, samp_grps,
                                     int_file=int_file,
                                     tax_file=tax_file, tax_colname=tax_colname,
-                                    func_file=func_file, func_colname=cog_colname)
-        results = function_taxonomy_analysis(df=df, cog_name=cog_colname, lca_colname=tax_colname, samp_grps=samp_grps,
+                                    func_file=func_file, func_colname=func_colname)
+        results = function_taxonomy_analysis(df=df, cog_name=func_colname, lca_colname=tax_colname, samp_grps=samp_grps,
                                              test=test, threshold=threshold, paired=paired, data_dir=data_dir,
                                              overwrite=overwrite)
 

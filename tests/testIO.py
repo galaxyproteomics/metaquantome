@@ -14,7 +14,7 @@ class TestIO(unittest.TestCase):
 
     def testFunctionIn(self):
         funcin = os.path.join(DATA_DIR, 'test', 'multiple_func.tab')
-        df = io.read_function_table(funcin, 'peptide', 'go')
+        df = io.read_function_table(funcin, 'peptide', func_colname='go')
         self.assertEqual(df['go']['A'], 'GO:0008152')
 
     def testMerge(self):
@@ -26,7 +26,8 @@ class TestIO(unittest.TestCase):
 
         dfs_joined = io.read_and_join_files('taxfn', pep_colname='peptide',
                                             int_file=int_in, samp_groups=samp_grps,
-                                            tax_file=taxin, func_file=funcin, tax_colname='lca', func_colname='go')
+                                            tax_file=taxin, func_file=funcin, tax_colname='lca',
+                                            func_colname='go')
 
         self.assertSetEqual(set(dfs_joined), {'int1', 'int2', 'lca', 'go'})
 

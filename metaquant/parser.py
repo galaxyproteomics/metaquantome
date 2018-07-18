@@ -23,19 +23,22 @@ def parse_args_cli():
                              'to the peptide sequences. ')
     common.add_argument('--outfile', required=True,
                         help='Output file')
-
-    func = parser.add_argument_group('Function')
-    # function-specific
-    func.add_argument('--func_file', '-f',
-                      help='Path to file with function. The file must be tabular, with a peptide sequence column '+
-                           'and either a GO-term column (named "go") and/or a COG column (named "cog"). ')
-    func.add_argument('--ontology', choices=['go', 'cog', 'ec'],
-                      help='Which functional terms to use. This also corresponds to the column name in func_file')
-    func.add_argument('--data_dir',
+    common.add_argument('--data_dir',
                       help='Path to database directory. Pre-downloaded databases can be stored in a separate' +
                            ' directory and timestamped. '+
                            'Note that names of files within the directory cannot be changed. ' +
                            'The default is <metaquant_package_root>/data.')
+
+    # function-specific
+    func = parser.add_argument_group('Function')
+    func.add_argument('--func_file', '-f',
+                      help='Path to file with function. The file must be tabular, with a peptide sequence column '+
+                           'and either a GO-term column, COG column, or EC number column. The name of the functional'
+                           ' column should be given in --func_colname. Other columns will be ignored. ')
+    func.add_argument('--func_colname',
+                      help='Name of the functional column')
+    func.add_argument('--ontology', choices=['go', 'cog', 'ec'],
+                      help='Which functional terms to use.')
     func.add_argument('--slim_down', action='store_true',
                       help='Flag. If provided, terms are mapped from the full OBO to the slim OBO. ' +
                            'Terms not in the full OBO will be skipped.')
