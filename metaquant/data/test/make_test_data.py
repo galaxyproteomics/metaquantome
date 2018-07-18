@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 from metaquant.definitions import DATA_DIR
+import numpy as np
+import re
 
 
 def write_testfile(df, name):
@@ -69,3 +71,20 @@ samp_info = pd.DataFrame({'group': ['A', 'B'],
 samp_info.to_csv(os.path.join(DATA_DIR, 'test', 'samp_info.tab'),
                  sep='\t',
                  columns=['group', 'colnames'], index=False)
+
+# clean up unipept_sample7_functional.csv
+unipept_direct='unipept_sample7_functional.csv'
+uni = pd.read_csv(unipept_direct, index_col='peptide')
+uni = uni[['EC']]
+# converts sep within column to ',', removes parentheses
+uni.replace({'EC': {' \(\d{1,3}\%\)': '', ';':','}}, regex=True, inplace=True)
+
+# fake intensities
+uni['int'] = np.random.lognormal(10, 1, uni.size)
+# set anything with 1 as top level category to 0, for testing
+uni.loc[uni.EC.str.contains(r'^1|,1',na=False), 'int'] = 0
+
+uni.to_csv(os.path.join(DATA_DIR, 'test', 'unipept_sample7_functional_clean.tab'), sep='\t', columns=['EC'],
+           index_label="peptide")
+uni.to_csv(os.path.join(DATA_DIR, 'test', 'unipept_sample7_int_clean.tab'), sep='\t', columns=['int'],
+           index_label="peptide")

@@ -9,7 +9,7 @@ from metaquant.definitions import DATA_DIR
 
 
 MISSING_VALUES = ["", "0", "NA", "NaN", "0.0"]
-ONTOLOGIES = ['cog', 'go']
+ONTOLOGIES = ['cog', 'go', 'ec']
 
 
 def read_intensity_table(file, samp_grps, pep_colname):
@@ -19,10 +19,10 @@ def read_intensity_table(file, samp_grps, pep_colname):
                        na_values=MISSING_VALUES,
                        low_memory=False)
 
-    # drop columns where all are NA...which sometimes happens for whatever reason
-    df.dropna(axis=1, how="all", inplace=True)
+    # drop rows where all intensities are NA
+    df.dropna(axis=0, how="all", inplace=True)
 
-    # change missing intensities to 0, for arithmetic (changed back to NA for export)
+    # change remaining missing intensities to 0, for arithmetic (changed back to NA for export)
     values = {x: 0 for x in samp_grps.all_intcols}
     df.fillna(values, inplace=True)
 
@@ -73,7 +73,11 @@ def read_function_table(file, pep_colname, func_colname):
     """
     df = pd.read_table(file, sep="\t", index_col=pep_colname,
                        na_values=MISSING_VALUES)
+
     df_new = df[[func_colname]]
+
+    # drop nas
+    df_new.dropna(inplace=True, axis=0)
     return(df_new)
 
 
