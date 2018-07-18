@@ -64,22 +64,17 @@ def sniff_tax_names(df, tax_colname):
         return True # else names
 
 
-def read_function_table(file, pep_colname, ontology):
+def read_function_table(file, pep_colname, func_colname):
     """
 
     :param file:
     :param pep_colname:
-    :param func_names: must be *list* of function names
     :return:
     """
     df = pd.read_table(file, sep="\t", index_col=pep_colname,
                        na_values=MISSING_VALUES)
-
-    # make sure that ontology is supported
-    if ontology not in set(df):
-        raise ValueError('function columns do not have correct names, "go" and/or "cog"')
-
-    return(df)
+    df_new = df[[func_colname]]
+    return(df_new)
 
 
 def join_on_peptide(dfs):
@@ -91,7 +86,8 @@ def join_on_peptide(dfs):
 def read_and_join_files(mode, pep_colname,
                   samp_groups, int_file,
                   tax_file=None, func_file=None,
-                  tax_colname=None, func_colname=None):
+                  func_colname=None,
+                  tax_colname=None):
 
     # intensity
     int = read_intensity_table(int_file, samp_groups, pep_colname)

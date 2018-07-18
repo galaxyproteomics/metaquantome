@@ -40,7 +40,7 @@ class TestEC(unittest.TestCase):
         int=testfile('simple_int.tab')
 
         ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_file=func,
-                          ontology='ec', test=False, overwrite=False)
+                          ontology='ec', test=False, overwrite=False, func_colname='ec')
         # leaf of tree
         self.assertEqual(ec_df.loc['3.4.21.70']['int'], np.log2(200))
 
@@ -51,7 +51,7 @@ class TestEC(unittest.TestCase):
         func=testfile('unk_ec.tab')
         int=testfile('simple_int.tab')
         ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_file=func,
-                          ontology='ec', test=False, overwrite=False)
+                          ontology='ec', test=False, overwrite=False, func_colname='ec')
         self.assertEqual(ec_df.loc['1.50.10000.-']['description'], 'unknown_ec')
 
 
