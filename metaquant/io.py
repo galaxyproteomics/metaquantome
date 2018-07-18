@@ -1,10 +1,11 @@
 import pandas as pd
 import itertools
-from metaquant import phylo_tree
+from metaquant import taxonomy_database
 import re
 import numpy as np
 import json
 import os
+from metaquant.definitions import DATA_DIR
 
 
 MISSING_VALUES = ["", "0", "NA", "NaN", "0.0"]
@@ -48,8 +49,8 @@ def read_taxonomy_table(file, pep_colname, tax_colname):
     # if is name, convert to taxid
     # keep as character until querying ncbi database
     if sniff_tax_names(df_tax, tax_colname):
-        ncbi = phylo_tree.load_ncbi()
-        df_tax[tax_colname] = phylo_tree.convert_name_to_taxid(df_tax[tax_colname], ncbi)
+        ncbi = taxonomy_database.ncbi_database_handler(DATA_DIR)
+        df_tax[tax_colname] = taxonomy_database.convert_name_to_taxid(df_tax[tax_colname], ncbi)
 
     return df_tax
 

@@ -11,9 +11,9 @@ import numpy as np
 class TestEC(unittest.TestCase):
     def testDownloadAndConversion(self):
         # make tmp dir for testing download
-        tmp_dir = os.path.join(DATA_DIR, 'test_data_dwnld')
+        tmp_dir = os.path.join(DATA_DIR, 'tmp_test_data_dwnld')
         os.mkdir(tmp_dir)
-        enzyme_db = ec.enzyme_database_handler(False, tmp_dir)
+        enzyme_db = ec.enzyme_database_handler(tmp_dir, False)
         expected_contents = [os.path.join(tmp_dir, file)
                              for file in ['enzclass.txt', 'enzyme.dat', 'ec_id.json', 'enzclass.json']]
         for content in expected_contents:
@@ -39,11 +39,20 @@ class TestEC(unittest.TestCase):
         func=testfile('simple_ec.tab')
         int=testfile('simple_int.tab')
 
-        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide',
-                                    func_file=func, ontology='ec', test=False, obo_path='data/enzyme', update_obo=False)
+        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_file=func,
+                          ontology='ec', test=False, overwrite=False)
         # leaf of tree
         self.assertEqual(ec_df.loc['3.4.21.70']['int'], np.log2(200))
 
         # internal node - check that we are adding up the hierarchy
         self.assertEqual(ec_df.loc['3.4.-.-']['int'], np.log2(100+200))
+
+    def testUnknownEC(self):
+        func=testfile('unk_ec.tab')
+        int=testfile('simple_int.tab')
+        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_file=func,
+                          ontology='ec', test=False, overwrite=False)
+        self.assertEqual(ec_df.loc['1.50.10000.-']['description'], 'unknown_ec')
+
+
 

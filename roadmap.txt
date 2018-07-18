@@ -1,12 +1,12 @@
 TODO
 HIGH PRIORITY
     - stats
-    - improved logging
-    - databases
-
+    - specify ontology and functional column name
 
 LOWER PRIORITY
-    - additional functional ontologies in functional analysis (EC numbers and COG categories)
-    - identification of functions/taxa/ft only present in one condition and not the other
     - think more about TF
     - which matters more - taxonomy or function?
+
+DONE
+    - add handling if description is not found in database (EC)
+

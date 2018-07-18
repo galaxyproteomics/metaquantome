@@ -9,12 +9,13 @@ from metaquant.definitions import DATA_DIR
 import os
 
 
-def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, slim_down, paired, obo_path, slim_path,
-                        download_obo):
+def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, slim_down, paired, data_dir, overwrite):
 
     if ontology == "go":
-        go_dag, go_dag_slim = go.load_obos(obo_path, slim_path, slim_down, download_obo)
-
+        go_db_path = os.path.join(data_dir, 'go')
+        if not os.path.exists(go_db_path):
+            os.mkdir(go_db_path)
+        go_dag, go_dag_slim = go.go_database_handler(go_db_path, slim_down, overwrite)
         # add up through hierarchy
         df_to_return = go.add_up_through_hierarchy(df, slim_down,
                                                    go_dag, go_dag_slim, func_colname, samp_grps.all_intcols)
@@ -31,13 +32,16 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
         df_to_return['description'] = [cogCat[x] for x in df_to_return.index]
 
     elif ontology == "ec":
-        ec.enzyme_database_handler(download_obo, os.path.join(DATA_DIR, 'enzyme'))
+        ec_db_path = os.path.join(data_dir, 'enzyme')
+        if not os.path.exists(ec_db_path):
+            os.mkdir(ec_db_path)
+        ec.enzyme_database_handler(ec_db_path, overwrite)
 
         ec_df = df['ec'].apply(ec.expand_ec).join(df)
 
         # new - just add up through ranks
         ec_sum_df = pd.concat(
-            [ec.abundance_level(ec_df, x, samp_grps.all_intcols, norm_to_rank=False) for x in ec.LEVEL_NAMES])
+            [stats.group_and_sum_by_rank(ec_df, x, samp_grps.all_intcols, norm_to_rank=False) for x in ec.LEVEL_NAMES])
 
         df_to_return = ec_sum_df
 

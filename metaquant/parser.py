@@ -29,19 +29,19 @@ def parse_args_cli():
     func.add_argument('--func_file', '-f',
                       help='Path to file with function. The file must be tabular, with a peptide sequence column '+
                            'and either a GO-term column (named "go") and/or a COG column (named "cog"). ')
-    func.add_argument('--ontology', choices=['go', 'cog'],
+    func.add_argument('--ontology', choices=['go', 'cog', 'ec'],
                       help='Which functional terms to use. This also corresponds to the column name in func_file')
-    func.add_argument('--obo_path',
-                      help='Path to full obo. If obo_path does not exist, the file will be downloaded.')
-    func.add_argument('--slim_path',
-                      help='Path to generic slim obo. If slim_path does not exist, the file will be downloaded.')
+    func.add_argument('--data_dir',
+                      help='Path to database directory. Pre-downloaded databases can be stored in a separate' +
+                           ' directory and timestamped. '+
+                           'Note that names of files within the directory cannot be changed. ' +
+                           'The default is <metaquant_package_root>/data.')
     func.add_argument('--slim_down', action='store_true',
                       help='Flag. If provided, terms are mapped from the full OBO to the slim OBO. ' +
                            'Terms not in the full OBO will be skipped.')
-    func.add_argument('--update_obo', action='store_true',
-                      help='Flag. If provided, the most recent OBO file is downloaded to obo_path, and if slim_down, '+
-                           'the most recent generic slim is downloaded as well. '+
-                           'Caution: will overwrite anything at these locations.')
+    func.add_argument('--overwrite', action='store_true',
+                      help='Flag. If provided, the most relevant databases (GO and/or EC) are downloaded to data_dir, '+
+                           'overwriting any previously downloaded databases at these locations.')
 
     # taxonomy-specific
     tax = parser.add_argument_group('Taxonomy')

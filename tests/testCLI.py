@@ -21,7 +21,3 @@ class TestCLI(unittest.TestCase):
         tax_df = pd.read_csv(out, sep='\t')
 
         self.assertAlmostEqual(tax_df.query("taxon_name == 'Helicobacter pylori'")['int'].values[0], np.log2(100), places=5)
-
-    class TestConsole(unittest.TestCase):
-        def test_basic(self):
-            main()
