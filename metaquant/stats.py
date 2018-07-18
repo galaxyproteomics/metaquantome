@@ -3,6 +3,21 @@ import scipy.stats as sps
 import statsmodels.sandbox.stats.multicomp as mc
 
 
+def group_and_sum_by_rank(df, rank, all_intcols, norm_to_rank=False):
+    # sum intensities in each rank
+    summed_abund = df.groupby(by=rank)[all_intcols].sum(axis=0)
+
+    # normalize to each sample - not currently done
+    if norm_to_rank:
+        return_df = summed_abund / summed_abund.sum(axis=0)
+    else:
+        return_df = summed_abund
+
+    return_df['rank'] = rank
+    return_df['id'] = return_df.index
+    return return_df
+
+
 def filter_min_observed(df, grp1_intcols, grp2_intcols, threshold):
     if threshold == 0:
         return df

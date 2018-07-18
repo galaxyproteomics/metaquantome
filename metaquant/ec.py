@@ -5,23 +5,13 @@ import json
 import re
 import pandas as pd
 import logging
-import sys
-
-
-# TODO:
-# move logging to runner
-# unify with GO term download
-# add handling if description is not found in database
-# more tests
-# move rel abundance to stats.py, generify
 
 
 LEVEL_NAMES = ['ec0', 'ec1', 'ec2', 'ec3']
 ALL_UNKNOWN = ['-']*4
 
 
-def enzyme_database_handler(overwrite, data_dir):
-    logging.basicConfig(level=logging.DEBUG, format='%(message)s', stream = sys.stderr)
+def enzyme_database_handler(data_dir, overwrite):
 
     dat_path = os.path.join(data_dir, 'enzyme.dat')
     class_path = os.path.join(data_dir, 'enzclass.txt')
@@ -115,18 +105,3 @@ def expand_ec(ecid):
             deepest_known += 1
     ec_dict = {LEVEL_NAMES[i]: '.'.join(split_ec[0:(i+1)] + ALL_UNKNOWN[(i+1):]) for i in range(deepest_known)}
     return pd.Series(ec_dict)
-
-
-def abundance_level(df, level, all_intcols, norm_to_rank=False):
-    # sum intensities in each rank
-    summed_abund = df.groupby(by=level)[all_intcols].sum(axis=0)
-
-    # normalize to each sample - not currently done
-    if norm_to_rank:
-        return_df = summed_abund / summed_abund.sum(axis=0)
-    else:
-        return_df = summed_abund
-
-    return_df['level'] = level
-    return_df['id'] = return_df.index
-    return return_df

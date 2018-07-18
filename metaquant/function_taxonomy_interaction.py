@@ -2,10 +2,10 @@ from metaquant.cog import cogCat
 from metaquant.cog import take_first_cog
 from metaquant import stats
 import numpy as np
-from metaquant import phylo_tree
+from metaquant import taxonomy_database
 
 
-def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, threshold, paired):
+def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, threshold, paired, data_dir, overwrite):
 
     # take first cog
     df = take_first_cog(df, cog_name)
@@ -36,11 +36,11 @@ def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, thres
     taxids = results[lca_colname]
 
     # get ranks
-    ncbi = phylo_tree.load_ncbi()
+    ncbi = taxonomy_database.ncbi_database_handler(data_dir)
     taxid_to_rank_dict = ncbi.get_rank(taxids)
     results['rank'] = [taxid_to_rank_dict[int(elem)] for elem in taxids]
 
-    results['taxon_name'] = phylo_tree.convert_taxid_to_name(taxids, ncbi)
+    results['taxon_name'] = taxonomy_database.convert_taxid_to_name(taxids, ncbi)
 
     return results
 

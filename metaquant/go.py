@@ -3,8 +3,8 @@ from goatools import obo_parser
 import pandas as pd
 import wget
 import os
-from metaquant import definitions
 from metaquant.utils import safe_cast_to_list
+import logging
 
 
 NAMESPACES = ['biological_process',
@@ -102,19 +102,23 @@ def normalize_by_namespace(namespace, go_df, all_intcols):
     return sub_norm
 
 
-def load_obos(obo_path=None, slim_path=None, slim_down=False, update_obo=False):
+def go_database_handler(data_dir, slim_down=False, overwrite=False):
+
+    obo_path = os.path.join(data_dir, 'go-basic.obo')
+    slim_path = os.path.join(data_dir, 'goslim_generic.obo')
+
+    if (os.path.exists(obo_path) or os.path.exists(slim_path)) and not overwrite:
+        logging.info('Using GO files in ' + data_dir)
+    else:
+        full_obo_url = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
+        logging.info('Downloading full GO obo file from ' + full_obo_url + ' to ' + obo_path)
+        wget.download(full_obo_url, out=obo_path)
+
+        slim_obo_url = 'http://www.geneontology.org/ontology/subsets/goslim_generic.obo'
+        logging.info('Downloading generic slim GO obo file from ' + slim_obo_url + ' to ' + slim_path)
+        wget.download(slim_obo_url, out=slim_path)
+
     # read gos
-    if not obo_path:
-        obo_path = os.path.join(definitions.DATA_DIR, 'go-basic.obo')
-    if not slim_path:
-        slim_path = os.path.join(definitions.DATA_DIR, 'goslim_generic.obo')
-
-    if update_obo or not os.path.exists(obo_path):
-        update_go_full(obo_path)
-
-    if slim_down and (not os.path.exists(slim_path) or update_obo):
-        update_go_slim(slim_path)
-
     go_dag = obo_parser.GODag(obo_path)
 
     if slim_down:
@@ -123,13 +127,3 @@ def load_obos(obo_path=None, slim_path=None, slim_down=False, update_obo=False):
         go_dag_slim = None
 
     return go_dag, go_dag_slim
-
-
-def update_go_slim(slim_path):
-    slim_obo_url = 'http://www.geneontology.org/ontology/subsets/goslim_generic.obo'
-    wget.download(slim_obo_url, out=slim_path)
-
-
-def update_go_full(obo_path):
-    full_obo_url = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
-    wget.download(full_obo_url, out=obo_path)

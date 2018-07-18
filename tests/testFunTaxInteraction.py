@@ -12,8 +12,8 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         tax=testfile('multiple_tax.tab')
 
         ft_df = metaquant('taxfn', sample_names={'s1': ['int1', 'int2', 'int3'],
-                                                           's2': ['int4', 'int5', 'int6']}, int_file=int,
-                                    func_file=func, tax_file=tax, ontology='cog', tax_colname='lca', test=True)
+                                                 's2': ['int4', 'int5', 'int6']}, int_file=int, func_file=func,
+                          tax_file=tax, ontology='cog', tax_colname='lca', test=True)
 
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(ft_df.loc[(ft_df['taxon_name'] == 'Helicobacter pylori') & (ft_df['cog'] == 'C')]['corrected_p'].ge(0.05).all())
@@ -25,8 +25,8 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         tax=testfile('mult_ft_tax.tab')
 
         ft_df = metaquant('taxfn', sample_names={'s1': ['int1', 'int2', 'int3'],
-                                                           's2': ['int4', 'int5', 'int6']}, int_file=int,
-                                    func_file=func, tax_file=tax, ontology='cog', tax_colname='lca', test=True)
+                                                 's2': ['int4', 'int5', 'int6']}, int_file=int, func_file=func,
+                          tax_file=tax, ontology='cog', tax_colname='lca', test=True)
 
         # we expect the C-Helicobacter pylori pair to be the log of the mean intensity
         # {'int1': [10, 20, 1000],

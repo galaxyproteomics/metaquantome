@@ -15,6 +15,9 @@ write_testfile(func, 'simple_func.tab')
 ec = pd.DataFrame({'ec': ['3.4.11.-', '3.4.21.70']}, index=['A', 'B'])
 write_testfile(ec, 'simple_ec.tab')
 
+unk_ec = pd.DataFrame({'ec': ['1.50.10000.-', '3.4.21.70']}, index=['A', 'B'])
+write_testfile(unk_ec, 'unk_ec.tab')
+
 int = pd.DataFrame({'int': ['100', '200']}, index=['A', 'B'])
 write_testfile(int, 'simple_int.tab')
 
