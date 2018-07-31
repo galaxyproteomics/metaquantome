@@ -21,8 +21,8 @@ class TestFunction(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
 
-        go_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3']}, func_colname='go',
-                          int_file=int, func_file=func, ontology='go')
+        go_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, func_colname='go',
+                          func_file=func, ontology='go')
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
@@ -33,19 +33,18 @@ class TestFunction(unittest.TestCase):
         int=testfile('int_ttest.tab')
 
         go_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3'],
-                                              's2': ['int4', 'int5', 'int6']}, int_file=int, func_file=func,
-                          func_colname='go', ontology='go', test=True)
-
+                                              's2': ['int4', 'int5', 'int6']}, int_file=int, func_colname='go',
+                          func_file=func, ontology='go', test=True, paired=False, parametric=True)
         # make sure false is > 0.05 and trues are less than 0.05
-        self.assertTrue(go_df['corrected_p']['GO:0008152'] > 0.05)
-        self.assertTrue(go_df['corrected_p'][['GO:0022610','GO:0000003','GO:0032505']].le(0.05).all())
+        self.assertTrue(go_df['p']['GO:0008152'] > 0.05)
+        self.assertTrue(go_df['p'][['GO:0022610','GO:0000003','GO:0032505']].le(0.05).all())
 
     def testSlimDown(self):
         func=testfile('func_eggnog.tab')
         int=testfile('int_eggnog.tab')
         go_df = metaquant('fn', sample_names={'NS': ['int737NS', 'int852NS', 'int867NS'],
-                                              'WS': ['int737WS', 'int852WS', 'int867WS']}, int_file=int, func_file=func,
-                          func_colname='go', ontology='go', slim_down=True, test=True, paired=True)
+                                              'WS': ['int737WS', 'int852WS', 'int867WS']}, int_file=int,
+                          func_colname='go', func_file=func, ontology='go', slim_down=True, test=True, paired=True)
 
         # test that all go terms are in slim
         # load slim
@@ -60,8 +59,8 @@ class TestFunction(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
 
-        cog_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, func_file=func,
-                           func_colname='cog', ontology='cog')
+        cog_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3']}, int_file=int, func_colname='cog',
+                           func_file=func, ontology='cog')
         self.assertEqual(cog_df.loc["C"]['s1_mean'], np.log2((10+20+70)/3))
         self.assertEqual(cog_df.loc["N"]['int2'], np.log2(30))
 
@@ -70,11 +69,11 @@ class TestFunction(unittest.TestCase):
         int=testfile('int_ttest.tab')
 
         cog_df = metaquant('fn', sample_names={'s1': ['int1', 'int2', 'int3'],
-                                               's2': ['int4', 'int5', 'int6']}, int_file=int, func_file=func,
-                           func_colname='cog', ontology='cog', test=True)
+                                               's2': ['int4', 'int5', 'int6']}, int_file=int, func_colname='cog',
+                           func_file=func, ontology='cog', test=True, paired=False, parametric=True)
         # make sure false is > 0.05 and trues are less than 0.05
-        self.assertTrue(cog_df['corrected_p']['C'] > 0.05)
-        self.assertTrue(cog_df['corrected_p'][['N','D']].le(0.05).all())
+        self.assertTrue(cog_df['p']['C'] > 0.05)
+        self.assertTrue(cog_df['p'][['N','D']].le(0.05).all())
 
 
 if __name__ == '__main__':

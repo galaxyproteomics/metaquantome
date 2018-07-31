@@ -9,7 +9,8 @@ from metaquant.definitions import DATA_DIR
 import os
 
 
-def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, slim_down, paired, data_dir, overwrite):
+def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, slim_down, paired, parametric, data_dir,
+                        overwrite):
 
     if ontology == "go":
         go_db_path = os.path.join(data_dir, 'go')
@@ -60,7 +61,7 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
 
     # differential expression
     if test and samp_grps.ngrps == 2:
-        results = stats.test_norm_intensity(df_to_return, samp_grps, threshold, paired, log=False)
+        results = stats.test_norm_intensity(df_to_return, samp_grps, threshold, paired, parametric, log=False)
     else:
         results = stats.calc_means(df_to_return, samp_grps)
 

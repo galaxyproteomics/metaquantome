@@ -5,7 +5,8 @@ import numpy as np
 from metaquant import taxonomy_database
 
 
-def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, threshold, paired, data_dir, overwrite):
+def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, threshold, paired, parametric, data_dir,
+                               overwrite):
 
     # take first cog
     df = take_first_cog(df, cog_name)
@@ -18,7 +19,7 @@ def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, thres
 
     # test
     if test:
-        results = stats.test_norm_intensity(grouped, samp_grps, threshold, paired)
+        results = stats.test_norm_intensity(grouped, samp_grps, threshold, paired, parametric)
     else:
         results = stats.calc_means(grouped, samp_grps)
 

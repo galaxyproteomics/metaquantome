@@ -74,7 +74,7 @@ def read_function_table(file, pep_colname, func_colname):
     df = pd.read_table(file, sep="\t", index_col=pep_colname,
                        na_values=MISSING_VALUES)
 
-    df_new = df[[func_colname]]
+    df_new = df[[func_colname]].copy()
 
     # drop nas
     df_new.dropna(inplace=True, axis=0)

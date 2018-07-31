@@ -12,7 +12,7 @@ BASIC_TAXONOMY_TREE = ["phylum",
                        "species"]
 
 
-def taxonomy_analysis(df, samp_grps, test, threshold, paired, data_dir, tax_colname='lca', overwrite=False):
+def taxonomy_analysis(df, samp_grps, test, threshold, paired, parametric, data_dir, tax_colname='lca', overwrite=False):
 
     # load ncbi database
     ncbi = taxonomy_database.ncbi_database_handler(data_dir)
@@ -35,7 +35,7 @@ def taxonomy_analysis(df, samp_grps, test, threshold, paired, data_dir, tax_coln
 
     # test
     if test and samp_grps.ngrps == 2:
-        results = stats.test_norm_intensity(intensity_all_ranks, samp_grps, threshold, paired)
+        results = stats.test_norm_intensity(intensity_all_ranks, samp_grps, threshold, paired, parametric)
     else:
         results = stats.calc_means(intensity_all_ranks, samp_grps)
 

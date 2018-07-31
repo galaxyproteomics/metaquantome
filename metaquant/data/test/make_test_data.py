@@ -46,12 +46,12 @@ mult_tax = pd.DataFrame({'lca': ['210', '1496', '1870884']}, index=peptides)
 write_testfile(mult_tax, 'multiple_tax.tab')
 
 # t-testing: 6 samples, intensities very different
-t_int = pd.DataFrame({'int1': [10, 20, 1000],
+t_int = pd.DataFrame({'int1': [12, 20, 1000],
                       'int2': [20, 30, 1200],
                       'int3': [15, 20, 900],
-                      'int4': [30, 3500, 12],
+                      'int4': [12, 3500, 12],
                       'int5': [21, 2000, 13],
-                      'int6': [30, 3000, 10]}, index=peptides)
+                      'int6': [10, 3000, 10]}, index=peptides)
 write_testfile(t_int, 'int_ttest.tab')
 
 

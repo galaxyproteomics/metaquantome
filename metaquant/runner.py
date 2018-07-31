@@ -9,8 +9,8 @@ import sys
 
 
 def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None,
-              ontology='go', tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, threshold=0,
-              data_dir=None, overwrite=False):
+              ontology='go', tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, parametric=False,
+              threshold=0, data_dir=None, overwrite=False):
 
     # initialize logger
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
@@ -33,16 +33,16 @@ def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=
         function_check(func_file, func_colname)
         df = io.read_and_join_files(mode, pep_colname, samp_grps,
                                     int_file=int_file, func_file=func_file, func_colname=func_colname)
-        results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, test=test, threshold=threshold,
-                                      ontology=ontology, slim_down=slim_down, paired=paired, data_dir=data_dir,
-                                      overwrite=overwrite)
+        results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, test=test,
+                                      threshold=threshold, ontology=ontology, slim_down=slim_down, paired=paired,
+                                      parametric=parametric, data_dir=data_dir, overwrite=overwrite)
 
     elif mode == 'tax':
         tax_check(tax_file, tax_colname)
         df = io.read_and_join_files(mode, pep_colname, samp_grps,
                                     int_file=int_file, tax_file=tax_file, tax_colname=tax_colname)
         results = taxonomy_analysis(df=df, samp_grps=samp_grps, test=test, threshold=threshold, paired=paired,
-                                    data_dir=data_dir, tax_colname=tax_colname)
+                                    parametric=parametric, data_dir=data_dir, tax_colname=tax_colname)
 
     elif mode == 'taxfn':
         function_check(func_file, func_colname)
@@ -56,8 +56,8 @@ def metaquant(mode, sample_names, int_file, pep_colname='peptide', func_colname=
                                     tax_file=tax_file, tax_colname=tax_colname,
                                     func_file=func_file, func_colname=func_colname)
         results = function_taxonomy_analysis(df=df, cog_name=func_colname, lca_colname=tax_colname, samp_grps=samp_grps,
-                                             test=test, threshold=threshold, paired=paired, data_dir=data_dir,
-                                             overwrite=overwrite)
+                                             test=test, threshold=threshold, paired=paired, parametric=parametric,
+                                             data_dir=data_dir, overwrite=overwrite)
 
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
