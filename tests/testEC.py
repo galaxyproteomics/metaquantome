@@ -40,8 +40,8 @@ class TestEC(unittest.TestCase):
         func=testfile('simple_ec.tab')
         int=testfile('simple_int.tab')
 
-        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_file=func,
-                          ontology='ec', test=False, overwrite=False, func_colname='ec')
+        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_colname='ec',
+                          func_file=func, ontology='ec', test=False, overwrite=False)
         # leaf of tree
         self.assertEqual(ec_df.loc['3.4.21.70']['int'], np.log2(200))
 
@@ -51,8 +51,8 @@ class TestEC(unittest.TestCase):
     def testUnknownEC(self):
         func=testfile('unk_ec.tab')
         int=testfile('simple_int.tab')
-        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_file=func,
-                          ontology='ec', test=False, overwrite=False, func_colname='ec')
+        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_colname='ec',
+                          func_file=func, ontology='ec', test=False, overwrite=False)
         self.assertEqual(ec_df.loc['1.50.10000.-']['description'], 'unknown_ec')
 
     def testExpandList(self):
@@ -64,8 +64,8 @@ class TestEC(unittest.TestCase):
     def testRealEC(self):
         func=testfile('unipept_sample7_functional_clean.tab')
         int=testfile('unipept_sample7_int_clean.tab')
-        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_file=func,
-                          ontology='ec', test=False, overwrite=False, func_colname='EC')
+        ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_colname='EC',
+                          func_file=func, ontology='ec', test=False, overwrite=False)
         # make sure that all of the 1s have been filtered out
         self.assertEqual(ec_df.query('id == "1.-.-.-"').size, 0)
 

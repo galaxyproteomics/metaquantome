@@ -40,11 +40,10 @@ class TestTaxonomy(unittest.TestCase):
 
         tax_df = metaquant('tax', sample_names={'s1': ['int1', 'int2', 'int3'],
                                                 's2': ['int4', 'int5', 'int6']}, int_file=int, tax_file=tax,
-                           tax_colname='lca', test=True)
-
+                           tax_colname='lca', test=True, paired=False, parametric=False)
         # make sure false is > 0.05 and trues are less than 0.05
-        self.assertTrue(tax_df['corrected_p'][210] > 0.05)
-        self.assertTrue(tax_df['corrected_p'][[1496,1870884]].le(0.05).all())
+        self.assertTrue(tax_df['p'][210] > 0.05)
+        self.assertTrue(tax_df['p'][[1496,1870884]].le(0.05).all())
 
         # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae, divided by all phyla
         self.assertEqual(tax_df['int1'][1239], np.log2(1020))

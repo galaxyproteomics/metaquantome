@@ -29,9 +29,10 @@ def filter_min_observed(df, grp1_intcols, grp2_intcols, threshold):
     return filtered_df
 
 
-def test_norm_intensity(df, samp_grps, threshold, paired, log=False):
+def test_norm_intensity(df, samp_grps, threshold, paired, parametric, log=False):
     """
 
+    :param parametric:
     :param df:
     :param samp_grps: is a SampleGroups() object
     :param threshold:
@@ -52,9 +53,20 @@ def test_norm_intensity(df, samp_grps, threshold, paired, log=False):
     test_df = np.log2(df_filt[all_intcols])
 
     # test, using logged df
-    test_results = test_df.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols].dropna(),
+    if parametric:
+        # test, using logged df
+        test_results = test_df.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols].dropna(),
                                                                    x[grp2_intcols].dropna(),
                                                                    equal_var=paired).pvalue, axis=1)
+    else:
+        if paired:
+            test_results = test_df.apply(lambda x: sps.wilcoxon(x[grp1_intcols].dropna(),
+                                                                x[grp2_intcols].dropna()).pvalue,
+                                         axis=1)
+        else:
+            test_results = test_df.apply(lambda x: sps.ranksums(x[grp1_intcols].dropna(),
+                                                                x[grp2_intcols].dropna()).pvalue,
+                                         axis=1)
 
     df_means = fold_change(calc_means(df_filt, samp_grps), samp_grps, log=True)
 
