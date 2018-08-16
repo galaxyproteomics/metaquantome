@@ -3,13 +3,7 @@ from metaquant import stats
 from metaquant import taxonomy_database
 import numpy as np
 
-
-BASIC_TAXONOMY_TREE = ["phylum",
-                       "class",
-                       "order",
-                       "family",
-                       "genus",
-                       "species"]
+from metaquant.taxonomy_database import BASIC_TAXONOMY_TREE
 
 
 def taxonomy_analysis(df, samp_grps, test, threshold, paired, parametric, data_dir, tax_colname='lca', overwrite=False):
@@ -22,16 +16,17 @@ def taxonomy_analysis(df, samp_grps, test, threshold, paired, parametric, data_d
 
     # get full lineage for each unique taxid
     lineages = [pd.DataFrame(
-        taxonomy_database.get_desired_ranks_from_lineage(BASIC_TAXONOMY_TREE, taxid, ncbi),
+        taxonomy_database.map_id_to_desired_ranks(BASIC_TAXONOMY_TREE, taxid, ncbi),
         index=[taxid]) for taxid in lca
     ]
-    full_lineage = pd.concat(lineages)
+    full_lineage = pd.concat(lineages, sort=False)
 
     # map lineages to df with intensity
     joined = df.join(full_lineage, on=[tax_colname])
 
     # new - just add up through ranks
-    intensity_all_ranks = pd.concat([stats.group_and_sum_by_rank(joined, x, samp_grps.all_intcols, norm_to_rank=False) for x in BASIC_TAXONOMY_TREE])
+    intensity_all_ranks = pd.concat([stats.group_and_sum_by_rank(joined, x, samp_grps.all_intcols, norm_to_rank=False) for x in
+                                     BASIC_TAXONOMY_TREE])
 
     # test
     if test and samp_grps.ngrps == 2:

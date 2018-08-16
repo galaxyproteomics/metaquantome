@@ -4,9 +4,12 @@ from metaquant.definitions import DATA_DIR
 import os
 import metaquant.taxonomy_database as td
 import shutil
+from tests.testutils import testfile
+import pandas as pd
+from metaquant.definitions import DATA_DIR
 
 
-class TestNCBI(unittest.TestCase):
+class TestTaxonomyDatabase(unittest.TestCase):
     def testDownloadTaxonomy(self):
         # make tmp dir for testing download
         tmp_dir = os.path.join(DATA_DIR, 'tmp_test_tax_dwnld')
@@ -16,11 +19,23 @@ class TestNCBI(unittest.TestCase):
         shutil.rmtree(tmp_dir)
         self.assertTrue(1760 in lineage)
 
-    def testGoUpTree(self):
+    def testMapToRanks(self):
         ncbi = taxonomy_database.ncbi_database_handler(DATA_DIR)
-        # human
-        human_ancestors = taxonomy_database.get_desired_ranks_from_lineage({'order', 'species', 'genus'}, 9606, ncbi)
-        self.assertDictEqual({'order': 9443, 'species' : 9606, 'genus': 9605}, human_ancestors)
+        # human genus
+        # we don't want to get species back, because that's lower in the hierarchy
+        human_ancestors = td.map_id_to_desired_ranks({'order', 'species', 'genus'}, 9605, ncbi)
+        self.assertDictEqual({'order': 9443, 'genus': 9605}, human_ancestors)
+
+    def testRealRankNamesMap(self):
+        # take all taxids from unipept sample 7
+        # just make sure that there aren't any ranks returned by unipept that are
+        # not contained in FULL_TAXONOMY_TREE
+        tax = testfile('unipept_sample7_taxonomy.tab')
+        df = pd.read_csv(tax, sep='\t')
+        ncbi = td.ncbi_database_handler(DATA_DIR)
+        num_ids = td.convert_name_to_taxid(df['lca'], ncbi)
+        for i in num_ids:
+            td.map_id_to_desired_ranks(td.BASIC_TAXONOMY_TREE, i, ncbi)
 
     def testTranslator(self):
         ncbi = taxonomy_database.ncbi_database_handler(DATA_DIR)

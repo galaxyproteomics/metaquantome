@@ -74,12 +74,13 @@ samp_info.to_csv(os.path.join(DATA_DIR, 'test', 'samp_info.tab'),
 
 # clean up unipept_sample7_functional.csv
 unipept_direct='unipept_sample7_functional.csv'
-uni = pd.read_csv(unipept_direct, index_col='peptide')
-uni = uni[['EC']]
+uni_raw = pd.read_csv(unipept_direct, index_col='peptide')
+uni = uni_raw[['EC']].copy()
 # converts sep within column to ',', removes parentheses
 uni.replace({'EC': {' \(\d{1,3}\%\)': '', ';':','}}, regex=True, inplace=True)
 
 # fake intensities
+np.random.seed(101)
 uni['int'] = np.random.lognormal(10, 1, uni.size)
 # set anything with 1 as top level category to 0, for testing
 uni.loc[uni.EC.str.contains(r'^1|,1',na=False), 'int'] = 0
@@ -87,4 +88,8 @@ uni.loc[uni.EC.str.contains(r'^1|,1',na=False), 'int'] = 0
 uni.to_csv(os.path.join(DATA_DIR, 'test', 'unipept_sample7_functional_clean.tab'), sep='\t', columns=['EC'],
            index_label="peptide")
 uni.to_csv(os.path.join(DATA_DIR, 'test', 'unipept_sample7_int_clean.tab'), sep='\t', columns=['int'],
+           index_label="peptide")
+
+# make lca table for testing filtering
+uni_raw.to_csv(os.path.join(DATA_DIR, 'test', 'unipept_sample7_taxonomy.tab'), sep='\t', columns=['lca'],
            index_label="peptide")

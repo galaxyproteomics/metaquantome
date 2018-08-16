@@ -5,13 +5,14 @@ from metaquant.runner import metaquant
 from tests.testutils import testfile
 
 
-class TestTaxonomy(unittest.TestCase):
+class TestTaxonomyAnalysis(unittest.TestCase):
 
     def testSingleBasic(self):
         tax = testfile('simple_tax.tab')
         int = testfile('simple_int.tab')
         tax_df = metaquant('tax', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', tax_file=tax,
                            tax_colname='lca', test=False)
+        print(tax_df)
         self.assertEqual(tax_df.query("taxon_name == 'Helicobacter pylori'")['int'].values, np.log2(100))
 
     def testWrite(self):

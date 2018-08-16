@@ -5,6 +5,45 @@ import logging
 import warnings
 
 
+BASIC_TAXONOMY_TREE = ["phylum",
+                       "class",
+                       "order",
+                       "family",
+                       "genus",
+                       "species"]
+FULL_TAXONOMY_TREE = ['no rank',
+                      'superkingdom',
+                      'kingdom',
+                      'subkingdom',
+                      'superphylum',
+                      'phylum',
+                      'subphylum',
+                      'superclass',
+                      'class',
+                      'subclass',
+                      'infraclass',
+                      'superorder',
+                      'order',
+                      'suborder',
+                      'infraorder',
+                      'parvorder',
+                      'superfamily',
+                      'family',
+                      'subfamily',
+                      'tribe',
+                      'subtribe',
+                      'genus',
+                      'subgenus',
+                      'species group',
+                      'species subgroup',
+                      'species',
+                      'subspecies',
+                      'varietas',
+                      'forma']
+
+NUMERIC_RANK = {FULL_TAXONOMY_TREE[i]: i for i in range(len(FULL_TAXONOMY_TREE))}
+
+
 def ncbi_database_handler(data_dir):
     with warnings.catch_warnings(): # turning off ResourceWarnings (unclosed file) from ete3
         warnings.simplefilter('ignore')
@@ -25,11 +64,13 @@ def ncbi_database_handler(data_dir):
     return ncbi
 
 
-def get_desired_ranks_from_lineage(ranks2get, taxid, ncbi):
+def map_id_to_desired_ranks(ranks2get, taxid, ncbi):
 
-    taxid = handle_nan_taxid(taxid)
+    clean_taxid = handle_nan_taxid(taxid)
+    rank_of_query = ncbi.get_rank([clean_taxid])[clean_taxid] # needs to be list
+    num_rank_of_query = NUMERIC_RANK[rank_of_query]
 
-    lineage = ncbi.get_lineage(taxid)
+    lineage = ncbi.get_lineage(clean_taxid)
     ranks = ncbi.get_rank(lineage)
 
     # flip the dict so we have rank: id, rather than id: rank
@@ -42,11 +83,13 @@ def get_desired_ranks_from_lineage(ranks2get, taxid, ncbi):
     lineage_ranks = invert_dict.keys()
     rt_dict = dict()
     for rank in ranks2get:
-        if rank in lineage_ranks:
-            rt_dict[rank] = invert_dict[rank]
-        else:
-            rt_dict[rank] = 12908  # ncbi taxid for unclassified
-
+        num_rank_of_rank2get = NUMERIC_RANK[rank]
+        # must be above taxid in hierarchy
+        if num_rank_of_rank2get <= num_rank_of_query:
+            if rank in lineage_ranks:
+                rt_dict[rank] = invert_dict[rank]
+            else:
+                rt_dict[rank] = 12908  # ncbi taxid for unclassified
     return rt_dict
 
 
@@ -95,4 +138,16 @@ def convert_name_to_taxid(names, ncbi):
             ids[i] = 12908  # ncbi taxid for unclassified
 
     return ids
+
+
+def expand_sample_taxonomy(sample_set, ncbi):
+    '''
+    Expand sample set to include ancestors
+    :param sample_set: set of all taxids explicitly provided
+    :param ncbi: NCBITaxa() object
+    :return: set of all taxids, with all ancestors
+    '''
+    expanded_sample_set = sample_set
+
+    # for each term, get all ranks above it.
 
