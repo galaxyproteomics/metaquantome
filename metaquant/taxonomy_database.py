@@ -58,7 +58,8 @@ class NCBITaxonomyDb:
     def __init__(self, data_dir):
         self.ncbi = self._ncbi_database_handler(data_dir)
 
-    def handle_nan_taxid(self, taxid):
+    @staticmethod
+    def handle_nan_taxid(taxid):
         # replace nan's with 'unidentified'
         # only nan if not character
         if isinstance(taxid, str):
@@ -69,7 +70,8 @@ class NCBITaxonomyDb:
 
         return taxid
 
-    def _ncbi_database_handler(self, data_dir):
+    @staticmethod
+    def _ncbi_database_handler(data_dir):
         with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
             warnings.simplefilter('ignore')
             ncbi_db_path = os.path.join(data_dir, 'ncbi')
@@ -120,7 +122,6 @@ class NCBITaxonomyDb:
         """
         Expand sample set to include ancestors
         :param sample_set: set of all taxids explicitly provided
-        :param ncbi: NCBITaxa() object
         :return: set of all taxids, with all ancestors
         """
 
@@ -138,9 +139,9 @@ class NCBITaxonomyDb:
         relevant_ranks = {k for k, v in ranks.items() if v in desired_ranks}
         return relevant_ranks
 
-    def get_children(self, id):
+    def get_children(self, taxid):
         # get the rank of the query, as a number
-        query_rank = self.ncbi.get_rank([id])[id]
+        query_rank = self.ncbi.get_rank([taxid])[taxid]
 
         # get number of query rank
         num_query_rank = NUMERIC_RANK[query_rank]
@@ -152,24 +153,24 @@ class NCBITaxonomyDb:
             return set()
 
         # get all descendants of query
-        desc = self.ncbi.get_descendant_taxa(id, intermediate_nodes=True)
+        desc = self.ncbi.get_descendant_taxa(taxid, intermediate_nodes=True)
 
         # get ranks of all descendants
         desc_ranks = self.ncbi.get_rank(desc)
 
         # filter all descendants by rank
-        immed_children = {k for k,v in desc_ranks.items() if v == child_rank_char}
+        immed_children = {k for k, v in desc_ranks.items() if v == child_rank_char}
         return immed_children
 
-    def get_descendants(self, id):
-        all_descendants = self.ncbi.get_descendant_taxa(id, intermediate_nodes=True)
+    def get_descendants(self, taxid):
+        all_descendants = self.ncbi.get_descendant_taxa(taxid, intermediate_nodes=True)
 
         # only return those in BASIC_TAXONOMY_TREE
         relevant_descendants = self.filter_to_desired_ranks(all_descendants, desired_ranks=BASIC_TAXONOMY_TREE)
         return relevant_descendants
 
-    def get_parents(self, id):
-        clean_taxid = self.handle_nan_taxid(id)
+    def get_parents(self, taxid):
+        clean_taxid = self.handle_nan_taxid(taxid)
         rank_of_query = self.ncbi.get_rank([clean_taxid])[clean_taxid]  # needs to be list
         num_query_rank = NUMERIC_RANK[rank_of_query]
 
@@ -177,7 +178,7 @@ class NCBITaxonomyDb:
         # we want the *largest* numerical rank that is above the query rank
         try:
             lower_list = [v < num_query_rank for v in BASIC_NUMERIC_RANK]
-            rev_lower_list = lower_list[::-1] # reverse, so the first occurence of True is now the lowest rank
+            rev_lower_list = lower_list[::-1]  # reverse, so the first occurence of True is now the lowest rank
             # get the index of the first occurence of True, then subtract it from BASIC_TAXONOMY_TREE
             parent_rank = len(BASIC_TAXONOMY_TREE) - rev_lower_list.index(True) - 1
             parent_rank_char = BASIC_TAXONOMY_TREE[parent_rank]
@@ -185,26 +186,26 @@ class NCBITaxonomyDb:
             return set()
 
         # get full lineage of query
-        lineage = self.ncbi.get_lineage(id)
+        lineage = self.ncbi.get_lineage(taxid)
 
         # get only parents
         parents = self.filter_to_desired_ranks(lineage, [parent_rank_char])
         return parents
 
-    def get_ancestors(self, id):
-        clean_taxid = self.handle_nan_taxid(id)
+    def get_ancestors(self, taxid):
+        clean_taxid = self.handle_nan_taxid(taxid)
         rank_of_query = self.ncbi.get_rank([clean_taxid])[clean_taxid]  # needs to be list
         num_query_rank = NUMERIC_RANK[rank_of_query]
 
         # which ranks are more general?
         try:
             ancestor_rank_char = [BASIC_TAXONOMY_TREE[i] for
-                                  i,v in enumerate(BASIC_NUMERIC_RANK) if v < num_query_rank]
+                                  i, v in enumerate(BASIC_NUMERIC_RANK) if v < num_query_rank]
         except ValueError:  # if rank is phylum (none higher in BASIC_NUMERIC_RANK)
             return set()
 
         # get full lineage of query
-        lineage = self.ncbi.get_lineage(id)
+        lineage = self.ncbi.get_lineage(taxid)
 
         # get only ancestors
         ancestors = self.filter_to_desired_ranks(lineage, ancestor_rank_char)
@@ -213,23 +214,21 @@ class NCBITaxonomyDb:
     def convert_taxid_to_name(self, taxids):
         """
         :param taxids: a list or Series of taxids
-        :param ncbi: a NCBITaxa object, from ete3
         :return: list of ncbi names
         """
         # fill nans with unassigned taxid
-        safe_taxids = [self.handle_nan_taxid(id) for id in taxids]
+        safe_taxids = [self.handle_nan_taxid(tid) for tid in taxids]
 
         translator = self.ncbi.get_taxid_translator(safe_taxids)
 
         # id must be an integer, so cast from string
-        names = [translator[int(id)] for id in safe_taxids]
+        names = [translator[int(tid)] for tid in safe_taxids]
         return names
 
     def convert_name_to_taxid(self, names):
         """
 
         :param names: a list or series of taxon names (as strings)
-        :param ncbi: a NCBITaxa object from ete3 package
         :return: list of ncbi taxonomy ids
         """
         translator = self.ncbi.get_name_translator(names)
@@ -246,21 +245,20 @@ class NCBITaxonomyDb:
 
 # the following two are for all 4 database types
 # todo: move to sample set file
-def number_of_children(id, db, dbtype, expanded_sample_set):
+def number_of_children(taxid, db, dbtype, expanded_sample_set):
     """
     get number of children within sample set
-    :param id:
+    :param taxid:
     :param db:
     :param dbtype:
     :param expanded_sample_set: set of all taxa in sample, with all ancestors
     :return: the number of children for the id node
     """
     if dbtype == 'ncbi':
-        int_taxid = int(id)
-        if id in {1, 2, 2759, 2157}:  # root, bacteria, eukaryota, or archaea
+        if taxid in {1, 2, 2759, 2157}:  # root, bacteria, eukaryota, or archaea
             return np.inf
         else:
-            children = db.get_children(id)
+            children = db.get_children(taxid)
             nchildren = len(children.intersection(expanded_sample_set))
             return nchildren
 
