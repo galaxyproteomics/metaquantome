@@ -3,7 +3,6 @@ import Bio.ExPASy.Enzyme as Enz
 import os
 import json
 import re
-import pandas as pd
 import logging
 from metaquant.Term import Term
 

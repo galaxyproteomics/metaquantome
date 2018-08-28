@@ -1,5 +1,5 @@
 import unittest
-from metaquant.ec import ECDatabase
+from metaquant.EnzymeDb import EnzymeDb
 from metaquant.definitions import DATA_DIR
 import os
 import shutil
@@ -7,14 +7,14 @@ import shutil
 
 class TestEC(unittest.TestCase):
     TEST_DIR = os.path.join(DATA_DIR, 'test', 'ec_cache')  # downloaded 8/28/18
-    ec = ECDatabase(TEST_DIR)
+    ec = EnzymeDb(TEST_DIR)
 
     def testEnzymeDatabaseHandler(self):
         # make tmp dir for testing download
         tmp_dir = os.path.join(DATA_DIR, 'tmp_test_data_dwnld')
         os.mkdir(tmp_dir)
         try:
-            enzyme_db = ECDatabase(tmp_dir, False)
+            enzyme_db = EnzymeDb(tmp_dir, False)
             expected_contents = [os.path.join(tmp_dir, file)
                                  for file in ['enzclass.txt', 'enzyme.dat', 'ec_id.json', 'enzclass.json']]
             for content in expected_contents:

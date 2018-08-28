@@ -1,6 +1,6 @@
 import unittest
 import os
-import metaquant.taxonomy_database as td
+import metaquant.NCBITaxonomyDb as td
 import shutil
 from tests.testutils import testfile
 import pandas as pd

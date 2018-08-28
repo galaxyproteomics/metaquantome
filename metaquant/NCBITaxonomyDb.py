@@ -53,8 +53,6 @@ BASIC_NUMERIC_RANK = [NUMERIC_RANK[i] for i in BASIC_TAXONOMY_TREE]
 
 
 class NCBITaxonomyDb:
-    # todo: implement get all ancestors
-
     def __init__(self, data_dir):
         self.ncbi = self._ncbi_database_handler(data_dir)
 
