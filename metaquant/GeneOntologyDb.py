@@ -41,28 +41,72 @@ class GeneOntologyDb:
             go_dag_slim = None
         return go_dag, go_dag_slim
 
-    def map_to_slim(self):
-        # todo figure out how to implement this with get_* as written
-        # maybe want the ancestor that is closest to the original term by path?
-        pass
+    def map_set_to_slim(self, sample_set):
+        """
+        Maps a set of GO terms to the generic GO slim.
+        For each term, the closest ancestor contained within the GO slim is reported.
+        The return type is a dict, to account for multiple terms mapping to the same slim
+        :param sample_set: set of all GO terms reported by the annotation tool
+        :return: dictionary where the keys are the members of sample_set and the values are the mapped-to slim terms
+        """
+        mapper = dict()
+        for id in sample_set:
+            mapper[id] = self.map_id_to_slim(id)
+        return mapper
+
+    def map_id_to_slim(self, goid):
+        # first, check that term is in full GO. if not, return empty set
+        if not self._safe_query_go(goid):
+            return set()
+        # first, see if term is in slim
+        slim_ids = self.goslim.keys()
+        if goid in slim_ids:
+            return goid
+        # if not in slim, get closest ancestor that is in slim. if there is a tie,
+        # select term that is first alphabetically (todo: could change this)
+        # this should always finish because each of BP, CC, and MF are in slim
+        closest_in_slim = None
+        ancestor_set = self.get_parents(goid)
+        while not closest_in_slim:
+            potential_closest = set()
+            # get term parents
+            ancestors = list(ancestor_set)
+            in_slim = [id in slim_ids for id in ancestors]
+            for i in range(0, len(in_slim)):
+                if in_slim[i]:
+                    potential_closest.update(safe_cast_to_list(ancestors[i]))
+            # no potential closest
+            if len(potential_closest) == 0:
+                # new ancestors are the parents of the old ancestors
+                parents_of_new_ancestors = set()
+                for term in ancestors:
+                    parents_of_new_ancestors.update(self.get_parents(term))
+                ancestor_set = parents_of_new_ancestors
+                continue
+            # one or more potential closest
+            else:
+                potential_ancestors_list = list(potential_closest)
+                first_alpha = sorted(potential_ancestors_list)[0]
+                closest_in_slim = first_alpha
+        return closest_in_slim
 
     def _safe_query_go(self, goid):
         if goid in self.gofull.keys():
-            return True, self.gofull[goid]
+            return self.gofull[goid]
         else:
-            return False, set()
+            return None
 
     def get_children(self, goid):
-        is_in_go, term = self._safe_query_go(goid)
-        if is_in_go:
+        term = self._safe_query_go(goid)
+        if term:
             children = {child.id for child in term.children}
             return children
         else:
             return set()
 
     def get_descendants(self, goid):
-        is_in_go, term = self._safe_query_go(goid)
-        if is_in_go:
+        term = self._safe_query_go(goid)
+        if term:
             children = set(term.children)
             descendants = children.copy()
             while len(children) > 0:
@@ -76,16 +120,16 @@ class GeneOntologyDb:
             return set()
 
     def get_parents(self, goid):
-        is_in_go, term = self._safe_query_go(goid)
-        if is_in_go:
+        term = self._safe_query_go(goid)
+        if term:
             parents = {parent.id for parent in term.parents}
             return parents
         else:
             return set()
 
     def get_ancestors(self, goid):
-        is_in_go, term = self._safe_query_go(goid)
-        if is_in_go:
+        term = self._safe_query_go(goid)
+        if term:
             parents = set(term.parents)
             ancestors = parents.copy()
             while len(parents) > 0:
@@ -113,7 +157,7 @@ class GeneOntologyDb:
 #     go_dict = dict()
 #
 #     # iterate through rows and assign intensity to all parents of each go term
-#     # todo: keep track of number of peptides here
+#     # keep track of number of peptides here
 #     for index, row in df.iterrows():
 #         go_terms = row[gocol].split(',')
 #         go_terms_parents, unknown_gos = set_of_all_parents(go_terms, slim_down, go_dag, go_dag_slim)
