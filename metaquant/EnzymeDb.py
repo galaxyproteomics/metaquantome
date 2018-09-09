@@ -7,7 +7,7 @@ import logging
 from metaquant.Term import Term
 
 
-class ECDatabase:
+class EnzymeDb:
     LEVEL_NAMES = ['ec0', 'ec1', 'ec2', 'ec3']
     ALL_UNKNOWN = ['-'] * 4
 

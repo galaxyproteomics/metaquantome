@@ -1,4 +1,5 @@
 import metaquant.AnnotationNode as anode
+import pandas as pd
 
 # Annotation Hierarchy that takes in the dataframe and builds hierarchy
 # the pruning method removes all nodes with a number of children less than N
@@ -80,6 +81,14 @@ class AnnotationHierarchy:
                 informative_nodes[id] = node
         return informative_nodes
 
-    def to_dataframe(self):
-        # todo
-        pass
+    def to_dataframe(self, intensity_names):
+        node_rows = [0]*len(self.nodes)
+        index = 0
+        for uid, node in self.nodes.items():
+            intensity = node.aggregated_intensity
+            # put aggregated intensities into dict
+            ints = {name: value for name, value in zip(intensity_names, intensity)}
+            node_rows[index] = pd.DataFrame(ints, index=[uid])
+            index += 1
+        df = pd.concat(node_rows)
+        return df

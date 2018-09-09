@@ -7,7 +7,7 @@ import shutil
 
 class TestGeneOntologyDb(unittest.TestCase):
     TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 8/27/18
-    db = godb.GeneOntologyDb(TEST_DIR)
+    db = godb.GeneOntologyDb(TEST_DIR, slim_down=True)
 
     def testDownloadGO(self):
         tmp_dir = os.path.join(DATA_DIR, 'tmp_go_data_dwnld')
@@ -22,6 +22,36 @@ class TestGeneOntologyDb(unittest.TestCase):
             self.assertEqual('biological_process', go.gofull['GO:0008150'].name)
         finally:
             shutil.rmtree(tmp_dir)
+
+    def testMapIdToSlim(self):
+        # the case where the test term has a parent in the slim set
+        testid = "GO:0001842" # neural fold formation
+        # closest ancestor in slim is GO:0048646, anatomical structure formation involved in morphogenesis
+        exp_closest = "GO:0048646"
+        obs_closest = self.db.map_id_to_slim(testid)
+        self.assertEqual(exp_closest, obs_closest)
+
+        # case where test term has a grandparent in the slim set
+        test_grand_id = "GO:0007623"  # circadian rhythm
+        # closest ancestor in slim is GO:0008150, biological process
+        exp_grand_closest = "GO:0008150"
+        obs_grand_closest = self.db.map_id_to_slim(test_grand_id)
+        self.assertEqual(exp_grand_closest, obs_grand_closest)
+
+        # case where go term is gibberish
+        test_gibberish = "gibberish"
+        exp_result = set()
+        obs_result = self.db.map_id_to_slim(test_gibberish)
+        self.assertSetEqual(exp_result, obs_result)
+
+    def testMapSetToSlim(self):
+        # use the same terms as in testMapIdToSlim
+        test_set = {"GO:0001842", "GO:0007623", "gibberish"}
+        exp_result = {"GO:0001842": "GO:0048646",
+                      "GO:0007623": "GO:0008150",
+                      "gibberish": set()}
+        obs_result = self.db.map_set_to_slim(test_set)
+        self.assertDictEqual(exp_result, obs_result)
 
     def testGetChildren(self):
         testid = "GO:0098632"  # cell-cell adhesion mediator activity
