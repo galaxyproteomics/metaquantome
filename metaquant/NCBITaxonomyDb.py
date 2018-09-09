@@ -239,33 +239,3 @@ class NCBITaxonomyDb:
                 ids[i] = 32644  # ncbi taxid for unidentified
 
         return ids
-
-
-# the following two are for all 4 database types
-# todo: move to sample set file
-def number_of_children(taxid, db, dbtype, expanded_sample_set):
-    """
-    get number of children within sample set
-    :param taxid:
-    :param db:
-    :param dbtype:
-    :param expanded_sample_set: set of all taxa in sample, with all ancestors
-    :return: the number of children for the id node
-    """
-    if dbtype == 'ncbi':
-        if taxid in {1, 2, 2759, 2157}:  # root, bacteria, eukaryota, or archaea
-            return np.inf
-        else:
-            children = db.get_children(taxid)
-            nchildren = len(children.intersection(expanded_sample_set))
-            return nchildren
-
-
-def prune_taxonomy_tree(expanded_sample_set, min_children, ncbi):
-    # nchildren
-    good_ids = expanded_sample_set.copy()
-    for i in expanded_sample_set:
-        nchild = number_of_children(i, ncbi, 'ncbi', expanded_sample_set)
-        if 0 < nchild < min_children:
-            good_ids.remove(i)
-    return good_ids
