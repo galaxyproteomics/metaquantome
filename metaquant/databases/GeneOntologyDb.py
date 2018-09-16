@@ -1,7 +1,7 @@
 from goatools import obo_parser
 import wget
 import os
-from metaquant.utils import safe_cast_to_list
+from metaquant.util.utils import safe_cast_to_list
 import logging
 
 

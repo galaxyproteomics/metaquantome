@@ -2,15 +2,17 @@ import unittest
 import pandas as pd
 from metaquant.AnnotationNode import AnnotationNode
 from metaquant.AnnotationHierarchy import AnnotationHierarchy
-from metaquant.NCBITaxonomyDb import NCBITaxonomyDb
-from metaquant.GeneOntologyDb import GeneOntologyDb
-from metaquant.EnzymeDb import EnzymeDb
-from metaquant.utils import DATA_DIR
+from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
+from metaquant.databases.GeneOntologyDb import GeneOntologyDb
+from metaquant.databases.EnzymeDb import EnzymeDb
+from metaquant.util.utils import define_ontology_data_dir
 
 
 class TestAnnotationHierarchyNcbi(unittest.TestCase):
+    ddir = define_ontology_data_dir('taxonomy')
+
     def _create_sapiens_db(self):
-        db = NCBITaxonomyDb(DATA_DIR)
+        db = NCBITaxonomyDb(self.ddir)
         sample_set = {9604, 9605, 9606}  # hominidae (family), homo (genus), homo sapiens (species)
         ah = AnnotationHierarchy(db, sample_set)
         return ah, sample_set
@@ -44,7 +46,7 @@ class TestAnnotationHierarchyNcbi(unittest.TestCase):
         self.assertEqual(ah.nodes[9604].intensity, [1000, 1000])
 
     def testGetInformativeNodes(self):
-        db = NCBITaxonomyDb(DATA_DIR)
+        db = NCBITaxonomyDb(self.ddir)
         sample_set = {9604, 9605, 9606, 9599}  # hominidae (family), homo (genus), homo sapiens (species)
         ah = AnnotationHierarchy(db, sample_set)
         # we have hominidae, homo, homo sapiens, and pongo (genus)
@@ -70,9 +72,9 @@ class TestAnnotationHierarchyNcbi(unittest.TestCase):
 
 
 class TestAnnotationHierarchyGO(unittest.TestCase):
-
+    ddir = define_ontology_data_dir('go')
     def _create_go_db(self):
-        db = GeneOntologyDb(DATA_DIR)
+        db = GeneOntologyDb(self.ddir)
         sample_set = {'GO:0008150',  # biological process
                       'GO:0008283',  # cell proliferation (child of BP)
                       'GO:0033687',  # osteoblast proliferation (child of cell pro)
@@ -143,7 +145,6 @@ class TestAnnotationHierarchyGO(unittest.TestCase):
             ah.add_node(id, test_intensity)
             exp_ancestors.update(db.get_ancestors(id))
 
-
         # filter without any actual filtering
         ah.get_informative_nodes(min_peptides=0, min_children_non_leaf=0)
         # we expect that all remain
@@ -166,8 +167,10 @@ class TestAnnotationHierarchyGO(unittest.TestCase):
 
 
 class TestAnnotationHierarchyEc(unittest.TestCase):
+    ddir = define_ontology_data_dir('ec')
+
     def _create_ec_db(self):
-        db = EnzymeDb(DATA_DIR)
+        db = EnzymeDb(self.ddir)
         sample_set = {'1.1.4.-',
                       '1.1.4.1',
                       '1.1.4.2',
@@ -275,6 +278,7 @@ class TestAnnotationHierarchyEc(unittest.TestCase):
         exp_df['id'] = exp_df.index
         df = ah.to_dataframe(['a', 'b', 'c']).sort_index()
         self.assertTrue(df.equals(exp_df))
+
 
 if __name__ == '__main__':
     unittest.main()

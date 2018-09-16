@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 import metaquant.SampleGroups
-from metaquant import stats,io
+from metaquant.util import stats
 
 
 class TestCommon(unittest.TestCase):

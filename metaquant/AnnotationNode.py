@@ -1,6 +1,3 @@
-from metaquant.utils import DATA_DIR
-
-
 # todo test both of these
 
 

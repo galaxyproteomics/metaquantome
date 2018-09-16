@@ -1,9 +1,9 @@
 import unittest
 from metaquant.runner import runner
-from metaquant import GeneOntologyDb
+from metaquant.databases import GeneOntologyDb
 from tests.testutils import testfile, TTEST_SINFO
 import numpy as np
-from metaquant.utils import DATA_DIR, GO_SUBDIR
+from metaquant.util.utils import DATA_DIR, GO_SUBDIR
 import os
 
 

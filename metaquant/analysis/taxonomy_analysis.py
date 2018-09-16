@@ -1,6 +1,6 @@
-from metaquant.NCBITaxonomyDb import NCBITaxonomyDb
-import metaquant.common as cha
-from metaquant import utils
+from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
+import metaquant.analysis.common as cha
+from metaquant.util import utils
 
 
 def taxonomy_analysis(df, samp_grps, test, threshold, paired, parametric, data_dir, tax_colname='lca',
