@@ -4,7 +4,7 @@ import metaquant.NCBITaxonomyDb as td
 import shutil
 from tests.testutils import testfile
 import pandas as pd
-from metaquant.definitions import DATA_DIR
+from metaquant.utils import DATA_DIR
 
 
 class TestTaxonomyDatabase(unittest.TestCase):
@@ -62,27 +62,6 @@ class TestTaxonomyDatabase(unittest.TestCase):
         # should have 4 genus children: gorilla (9592), homo (9605), pongo (9599) and pan (9596)
         expected = {9592, 9605, 9599, 9596}
         self.assertSetEqual(ncbi.get_children(id), expected)
-
-    # def testNumberOfChildren(self):
-    #     ncbi = td.ncbi_database_handler(DATA_DIR)
-    #
-    #     # expect these taxids and all ancestors
-    #     sample_set = {9605, 562, 1807140}
-    #     ecoli = set(td.map_id_to_desired_ranks(td.BASIC_TAXONOMY_TREE, 562, ncbi).values())
-    #     homo = set(td.map_id_to_desired_ranks(td.BASIC_TAXONOMY_TREE, 9605, ncbi).values())
-    #     acidithiobaccillia = set(td.map_id_to_desired_ranks(td.BASIC_TAXONOMY_TREE, 1807140, ncbi).values())
-    #     joined = ecoli.union(homo).union(acidithiobaccillia)
-    #     expanded = td.expand_sample_taxonomy(sample_set, ncbi)
-    #
-    #     # expect two children of Proteobacteria
-    #     self.assertEqual(td.number_of_children(1224, ncbi, 'ncbi', expanded), 2)
-    #
-    #     # expect zero children of homo
-    #     self.assertEqual(td.number_of_children(9605, ncbi, 'ncbi', expanded), 0)
-    #
-    #     # expect that asking for children of root returns np.inf
-    #     # this is to save time, because we'll never filter out root, bacteria, euk, or arch
-    #     self.assertEqual(td.number_of_children(1, ncbi, 'ncbi', expanded), np.inf)
 
     def testGetDescendants(self):
         ncbi = td.NCBITaxonomyDb(DATA_DIR)

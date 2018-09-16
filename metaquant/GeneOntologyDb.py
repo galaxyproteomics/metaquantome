@@ -1,6 +1,4 @@
-from goatools import mapslim
 from goatools import obo_parser
-import pandas as pd
 import wget
 import os
 from metaquant.utils import safe_cast_to_list
@@ -19,6 +17,10 @@ class GeneOntologyDb:
         gofull, goslim = self._go_database_handler(data_dir, slim_down, overwrite)
         self.gofull = gofull
         self.goslim = goslim
+        self.slim_down = slim_down
+        self.slim_members = None
+        if slim_down:
+            self.slim_members = set(goslim.keys())
 
     @staticmethod
     def _go_database_handler(data_dir, slim_down, overwrite):
@@ -45,7 +47,8 @@ class GeneOntologyDb:
         """
         Maps a set of GO terms to the generic GO slim.
         For each term, the closest ancestor contained within the GO slim is reported.
-        The return type is a dict, to account for multiple terms mapping to the same slim
+        The return type is a dict, to account for multiple terms mapping to the same slim.
+        See map_id_to_slim() for more details.
         :param sample_set: set of all GO terms reported by the annotation tool
         :return: dictionary where the keys are the members of sample_set and the values are the mapped-to slim terms
         """
@@ -55,9 +58,17 @@ class GeneOntologyDb:
         return mapper
 
     def map_id_to_slim(self, goid):
-        # first, check that term is in full GO. if not, return empty set
+        """
+        Maps a GO term ID to the most closely related term in the generic GO slim.
+        If goid is in GO slim, it is returned. If it is not even in the full GO, the string "unknown" is returned.
+        Otherwise, the most recent ancestor in the GO slim is returned.
+        If multiple ancestors tie, the one that is first alphabetically is chosen.
+        :param goid: GO term ID
+        :return:
+        """
+        # first, check that term is in full GO. if not, return "unknown"
         if not self._safe_query_go(goid):
-            return set()
+            return "unknown"
         # first, see if term is in slim
         slim_ids = self.goslim.keys()
         if goid in slim_ids:
@@ -71,8 +82,8 @@ class GeneOntologyDb:
             potential_closest = set()
             # get term parents
             ancestors = list(ancestor_set)
-            in_slim = [id in slim_ids for id in ancestors]
-            for i in range(0, len(in_slim)):
+            in_slim = [full_id in slim_ids for full_id in ancestors]
+            for i in range(0, len(ancestors)):
                 if in_slim[i]:
                     potential_closest.update(safe_cast_to_list(ancestors[i]))
             # no potential closest
@@ -95,6 +106,9 @@ class GeneOntologyDb:
             return self.gofull[goid]
         else:
             return None
+
+    def _intersect_with_slim(self, go_set):
+        return go_set.intersection(self.slim_members)
 
     def get_children(self, goid):
         term = self._safe_query_go(goid)

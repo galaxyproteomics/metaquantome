@@ -4,7 +4,6 @@ import os
 import json
 import re
 import logging
-from metaquant.Term import Term
 
 
 class EnzymeDb:
@@ -24,10 +23,8 @@ class EnzymeDb:
         Ignored if files are not present. If files are present and overwrite=False, the current files are used.
         :return: ENZYME database as dictionary, with EC ids as keys.
         """
-
         dat_path = os.path.join(data_dir, 'enzyme.dat')
         class_path = os.path.join(data_dir, 'enzclass.txt')
-
         if (os.path.exists(dat_path) or os.path.exists(class_path)) and not overwrite:
             logging.info('Using ENZYME files in ' + data_dir)
         else:
@@ -35,23 +32,17 @@ class EnzymeDb:
             with ftplib.FTP('ftp.expasy.org') as ftp:
                 ftp.login()
                 ftp.cwd('/databases/enzyme')
-
                 dat_file = open(dat_path, 'wb')
                 class_file = open(class_path, 'wb')
                 ftp.retrbinary('RETR enzyme.dat', dat_file.write)
                 ftp.retrbinary('RETR enzclass.txt', class_file.write)
-
                 dat_file.close()
                 class_file.close()
-
                 ec_path = os.path.join(data_dir, 'ec_id.json')
-
                 # create a simpler file from enzyme.dat
                 self.create_ec_num_enzyme_name_association_file(dat_path, ec_path)
-
                 # get clean enzclass.txt and dump to json
                 self.read_enzyme_class_to_json(data_dir)
-
         # load both
         combined = self.load_combined_enzyme_class_ec_id(data_dir)
         return combined
@@ -105,7 +96,6 @@ class EnzymeDb:
             enz_id = dict()
             for record in enzyme_dat:
                 enz_id[record['ID']] = record['DE']
-
         with open(ec_id_file, 'w') as ec:
             json.dump(enz_id, ec)
 
@@ -145,16 +135,6 @@ class EnzymeDb:
         with open(ec_path) as ec:
             ec_id = json.load(ec)
         return ec_id
-
-    # def expand_ec(self, ecid):
-    #     split_ec = self.split_ec(ecid)
-    #     deepest_known = 0
-    #     for i, j in zip(split_ec, self.ALL_UNKNOWN):
-    #         if i != j:
-    #             deepest_known += 1
-    #     ec_dict = {self.LEVEL_NAMES[i]:
-    #                '.'.join(split_ec[0:(i + 1)] + self.ALL_UNKNOWN[(i + 1):]) for i in range(deepest_known)}
-    #     return pd.Series(ec_dict)
 
     @staticmethod
     def split_ec(ecid):
@@ -203,10 +183,8 @@ class EnzymeDb:
         child = self.ecdb[ecid]
         child_levels = child['levels']
         child_depth = child['depth']
-
         # get annotation at levels up to depth - 1
         annot_to_prev_depth = child_levels[0:child_depth]
-
         # parents are all terms that:
         #   - have same annotation at level 0 to child_depth minus 1
         #   - have depth (child_depth - 1)
@@ -235,107 +213,3 @@ class EnzymeDb:
             this_parents = self.get_parents(this_id)
             ancestors.update(this_parents)
         return ancestors
-
-
-class ECNumber(Term):
-    def __init__(self, id, descript):
-        Term.__init__(self, id, descript)
-        split_ec = id.split('.')
-        self.levels = split_ec
-        if '-' in split_ec:
-            depth = split_ec.index('-') - 1
-        else:
-            depth = 3
-        self.depth = depth
-        # filled in ECDatabase
-        self.children = None
-        self.all_descendants = None
-
-
-class ECDatabaseOld:
-    def __init__(self, ids):
-        terms = dict()
-        # for k, v in ids.items():
-        self.terms = {k: ECNumber(k, v) for k, v in ids.items()}
-        self.ids = ids
-
-        # assign children to ec numbers within database
-        for i in self.ids:
-            parent = self.terms[i]
-            parent_depth = parent.depth
-
-            # get annotation at depth
-            annot_at_depth = parent.levels[parent_depth]
-
-            # children are all terms that have same annotation at depth and are not the parent
-            # and have a depth that is one greater than the parent
-            # children and all_descendants are just ids - can be used as keys for ECDatabase.terms
-            all_descendants_terms = {ec for ec in self.terms.values() if
-                                        ec.levels[parent_depth] == annot_at_depth and
-                                        ec != parent}
-            children = {elem.id for elem in all_descendants_terms if elem.depth == (parent_depth + 1)}
-            all_descendants = {elem.id for elem in all_descendants_terms}
-            self.terms[i].children = children
-            self.terms[i].all_descendants = all_descendants
-
-    def query_term(self, query_id):
-        if query_id in self.terms.keys():
-            return self.terms[query_id]
-        else:
-            return 'unknown_ec'
-
-
-# terms = ['3.14.2.-', '1.-.-.-', '1.2.-.-']
-# ecs = [ECNumber(id, 'descript') for id in terms]
-# db = ECDatabase(ecs)
-# print(db.terms['1.2.-.-'].children)
-# next - load real ec database into an ECDatabase
-# from metaquant.definitions import DATA_DIR
-#
-# db = enzyme_database_handler(DATA_DIR, False)
-# out = ECDatabase(db)
-# print(out.terms['1.-.-.-'].children)
-# print(out.terms['1.-.-.-'].all_descendants)
-# print(out.terms['1.-.-.-'].children.issubset(out.terms['1.-.-.-'].all_descendants))
-
-
-# modified from https://github.com/cognoma/genes/blob/721204091a96e55de6dcad165d6d8265e67e2a48/2.process.py#L61-L95
-def tidy_split(df, column, sep='|', keep=False):
-    """
-    Split the values of a column and expand so the new DataFrame has one split
-    value per row.
-
-    Params
-    ------
-    df : pandas.DataFrame
-        dataframe with the column to split and expand
-    column : str
-        the column to split and expand
-    sep : str
-        the string used to split the column's values
-    keep : bool
-        whether to retain the presplit value as it's own row
-
-    Returns
-    -------
-    pandas.DataFrame
-        Returns a dataframe with the same columns as `df`.
-    """
-    indexes = list()
-    new_values = list()
-    for i, presplit in enumerate(df[column].astype(str)):
-        values = presplit.split(sep)
-        if keep and len(values) > 1:
-            indexes.append(i)
-            new_values.append(presplit)
-        for value in values:
-            indexes.append(i)
-            new_values.append(value)
-    new_df = df.iloc[indexes, :].copy()
-    new_df[column] = new_values
-    return new_df
-
-
-def split_ec_list(ec_df, func_colname):
-    new_df = tidy_split(ec_df, func_colname, sep=',', keep=False)
-    return new_df

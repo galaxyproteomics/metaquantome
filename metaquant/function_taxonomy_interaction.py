@@ -2,12 +2,20 @@ from metaquant.cog import cogCat
 from metaquant.cog import take_first_cog
 from metaquant import stats
 import numpy as np
-from metaquant import taxonomy_database
+from metaquant.NCBITaxonomyDb import NCBITaxonomyDb
+from metaquant import utils
 
 
-def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, threshold, paired, parametric, data_dir,
-                               overwrite):
-
+def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, threshold, paired, parametric, data_dir):
+    """
+    Runs the function-taxonomy interaction analysis. For the documentation of other arguments, see metaquant.py
+    :param df: joined taxonomy, intensity, and function tables
+    :param cog_name: name of COG column in dataframe
+    :param lca_colname: name of LCA column in dataframe.
+    :param samp_grps: a SampleGroups object for this analysis
+    :return: dataframe with taxon-function pairs and their associated total intensity
+    """
+    # todo: add option for lca or rank-level
     # take first cog
     df = take_first_cog(df, cog_name)
 
@@ -37,11 +45,11 @@ def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, thres
     taxids = results[lca_colname]
 
     # get ranks
-    ncbi = taxonomy_database.ncbi_database_handler(data_dir)
-    taxid_to_rank_dict = ncbi.get_rank(taxids)
-    results['rank'] = [taxid_to_rank_dict[int(elem)] for elem in taxids]
-
-    results['taxon_name'] = taxonomy_database.convert_taxid_to_name(taxids, ncbi)
+    if not data_dir:
+        data_dir = utils.define_ontology_data_dir('taxonomy')
+    ncbi = NCBITaxonomyDb(data_dir)
+    results['rank'] = [ncbi.get_rank(int(elem)) for elem in taxids]
+    results['taxon_name'] = ncbi.convert_taxid_to_name(taxids)
 
     return results
 

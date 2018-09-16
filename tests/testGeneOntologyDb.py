@@ -1,6 +1,6 @@
 import unittest
 from metaquant import GeneOntologyDb as godb
-from metaquant.definitions import DATA_DIR
+from metaquant.utils import DATA_DIR
 import os
 import shutil
 
@@ -38,18 +38,18 @@ class TestGeneOntologyDb(unittest.TestCase):
         obs_grand_closest = self.db.map_id_to_slim(test_grand_id)
         self.assertEqual(exp_grand_closest, obs_grand_closest)
 
-        # case where go term is gibberish
+        # case where go term is not in full set
         test_gibberish = "gibberish"
-        exp_result = set()
+        exp_result = 'unknown'
         obs_result = self.db.map_id_to_slim(test_gibberish)
-        self.assertSetEqual(exp_result, obs_result)
+        self.assertEqual(exp_result, obs_result)
 
     def testMapSetToSlim(self):
         # use the same terms as in testMapIdToSlim
         test_set = {"GO:0001842", "GO:0007623", "gibberish"}
         exp_result = {"GO:0001842": "GO:0048646",
                       "GO:0007623": "GO:0008150",
-                      "gibberish": set()}
+                      "gibberish": 'unknown'}
         obs_result = self.db.map_set_to_slim(test_set)
         self.assertDictEqual(exp_result, obs_result)
 

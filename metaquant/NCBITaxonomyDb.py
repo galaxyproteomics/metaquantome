@@ -72,10 +72,7 @@ class NCBITaxonomyDb:
     def _ncbi_database_handler(data_dir):
         with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
             warnings.simplefilter('ignore')
-            ncbi_db_path = os.path.join(data_dir, 'ncbi')
-            if not os.path.exists(ncbi_db_path):
-                os.mkdir(ncbi_db_path)
-            tax_path = os.path.join(ncbi_db_path, 'taxa.sqlite')
+            tax_path = os.path.join(data_dir, 'taxa.sqlite')
             if os.path.exists(tax_path):
                 logging.info('Using taxonomy database in ' + tax_path)
                 ncbi = NCBITaxa(tax_path)
@@ -91,7 +88,7 @@ class NCBITaxonomyDb:
     def map_id_to_desired_ranks(self, ranks2get, taxid):
 
         clean_taxid = self.handle_nan_taxid(taxid)
-        rank_of_query = self.ncbi.get_rank([clean_taxid])[clean_taxid]  # needs to be list
+        rank_of_query = self.get_rank(taxid)
         num_rank_of_query = NUMERIC_RANK[rank_of_query]
 
         lineage = self.ncbi.get_lineage(clean_taxid)
@@ -137,9 +134,14 @@ class NCBITaxonomyDb:
         relevant_ranks = {k for k, v in ranks.items() if v in desired_ranks}
         return relevant_ranks
 
-    def get_children(self, taxid):
+    def get_rank(self, taxid):
         # get the rank of the query, as a number
         query_rank = self.ncbi.get_rank([taxid])[taxid]
+        return query_rank
+
+    def get_children(self, taxid):
+        # get the rank of the query, as a number
+        query_rank = self.get_rank(taxid)
 
         # get number of query rank
         num_query_rank = NUMERIC_RANK[query_rank]
@@ -169,7 +171,7 @@ class NCBITaxonomyDb:
 
     def get_parents(self, taxid):
         clean_taxid = self.handle_nan_taxid(taxid)
-        rank_of_query = self.ncbi.get_rank([clean_taxid])[clean_taxid]  # needs to be list
+        rank_of_query = self.get_rank(clean_taxid)  # needs to be list
         num_query_rank = NUMERIC_RANK[rank_of_query]
 
         # which major rank is the lowest with lower rank? (i.e., more general)
@@ -192,7 +194,7 @@ class NCBITaxonomyDb:
 
     def get_ancestors(self, taxid):
         clean_taxid = self.handle_nan_taxid(taxid)
-        rank_of_query = self.ncbi.get_rank([clean_taxid])[clean_taxid]  # needs to be list
+        rank_of_query = self.get_rank(clean_taxid)
         num_query_rank = NUMERIC_RANK[rank_of_query]
 
         # which ranks are more general?

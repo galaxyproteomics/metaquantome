@@ -1,15 +1,33 @@
-import pandas as pd
-import itertools
-from metaquant import taxonomy_database
-import re
-import numpy as np
-import json
 import os
-from metaquant.definitions import DATA_DIR
 
+import pandas as pd
 
 MISSING_VALUES = ["", "0", "NA", "NaN", "0.0"]
 ONTOLOGIES = ['cog', 'go', 'ec']
+
+
+def read_and_join_files(mode, pep_colname,
+                        samp_groups, int_file,
+                        tax_file=None, func_file=None,
+                        func_colname=None,
+                        tax_colname=None):
+
+    # intensity
+    int = read_intensity_table(int_file, samp_groups, pep_colname)
+
+    # start df list
+    dfs = [int]
+    if mode == 'tax' or mode == 'taxfn':
+        tax_check(tax_file, tax_colname)
+        tax = read_taxonomy_table(tax_file, pep_colname, tax_colname)
+        dfs.append(tax)
+    if mode == 'fn' or mode == 'taxfn':
+        function_check(func_file, func_colname)
+        func = read_function_table(func_file, pep_colname, func_colname)
+        dfs.append(func)
+
+    dfs_joined = join_on_peptide(dfs)
+    return dfs_joined
 
 
 def read_intensity_table(file, samp_grps, pep_colname):
@@ -33,6 +51,7 @@ def read_taxonomy_table(file, pep_colname, tax_colname):
     """
     read taxonomy table, such as Unipept output.
     Peptides with no annotation are kept, and assigned 32644 (ncbi id for unassigned)
+    :param data_dir:
     :param file: path to taxonomy file
     :param pep_colname: string, peptide sequence column name
     :param tax_colname: string, taxonomy identifier column name
@@ -44,24 +63,7 @@ def read_taxonomy_table(file, pep_colname, tax_colname):
 
     # take only specified column
     df_tax = df.loc[:, [tax_colname]]
-
-    # check for numeric characters, which indicates taxid
-    # if is name, convert to taxid
-    # keep as character until querying ncbi database
-    if sniff_tax_names(df_tax, tax_colname):
-        ncbi = taxonomy_database.ncbi_database_handler(DATA_DIR)
-        df_tax[tax_colname] = taxonomy_database.convert_name_to_taxid(df_tax[tax_colname], ncbi)
-
     return df_tax
-
-
-def sniff_tax_names(df, tax_colname):
-    pattern = re.compile(r'[0-9]')  # little bit faster to compile
-    is_numeric = df[tax_colname].str.contains(pattern)
-    if is_numeric.any():
-        return False # if any entries contain numbers, assume taxids (already converted missings to NA)
-    else:
-        return True # else names
 
 
 def read_function_table(file, pep_colname, func_colname):
@@ -87,88 +89,19 @@ def join_on_peptide(dfs):
     return df_joined
 
 
-def read_and_join_files(mode, pep_colname,
-                  samp_groups, int_file,
-                  tax_file=None, func_file=None,
-                  func_colname=None,
-                  tax_colname=None):
-
-    # intensity
-    int = read_intensity_table(int_file, samp_groups, pep_colname)
-
-    # start df list
-    dfs = [int]
-
-    if mode == 'tax' or mode == 'taxfn':
-        tax = read_taxonomy_table(tax_file, pep_colname, tax_colname)
-        dfs.append(tax)
-
-    if mode == 'fn' or mode == 'taxfn':
-        func = read_function_table(func_file, pep_colname, func_colname)
-        dfs.append(func)
-
-    dfs_joined = join_on_peptide(dfs)
-    return(dfs_joined)
+def function_check(func_file, func_colname):
+    if not func_file:
+        raise IOError('Function tabular file not provided (--func_file)')
+    if not os.path.exists(func_file):
+        raise FileNotFoundError('func_file does not exist. Please check filename')
+    if not func_colname:
+        raise ValueError('func_colname=None. Please provide a function column name (--func_colname)')
 
 
-class SampleGroups:
-    """
-    flatten sample names list
-    :param sample_names: dictionary of lists, where the keys are the group names and
-    the values are lists of column names within that group
-    :return:
-    """
-
-    def __init__(self, sample_names):
-
-        # top level dictionary
-        self.sample_names = sample_names
-
-        # flatten sample column names
-        self.all_intcols = list(itertools.chain(*list(sample_names.values())))
-
-        # for defining pandas column data types on read in
-        self.dict_numeric_cols = {x: np.float64 for x in self.all_intcols}
-
-        # number of conditions
-        self.ngrps = len(sample_names)
-
-        # name of experimental groups
-        # sort alphabetically, so it's deterministic
-        self.grp_names = sorted(list(sample_names.keys()))
-
-        # when calculating means, column names for means
-        # same order as grp names
-        self.mean_names = [grp + "_mean" for grp in self.grp_names]
-
-
-def read_samp_info(sinfo):
-    # check if sinfo is a file name
-    if os.path.exists(sinfo):
-        samp_names = dict()
-        with open(sinfo, 'r') as f:
-            # throw away header
-            f.readline()
-
-            # read groups one by one
-            for line in f:
-                split = line.split('\t')
-                samp_names[split[0]] = [elem.strip() for elem in split[1].split(',')]
-        return samp_names
-    else:
-        # check if sinfo is a json format
-        is_json, json_obj = to_json(sinfo)
-
-        if is_json:
-            return json_obj
-        else:
-            raise ValueError('--samps is not a text file or in proper json format. please check again!')
-
-
-# thanks to https://stackoverflow.com/questions/5508509/how-do-i-check-if-a-string-is-valid-json-in-python
-def to_json(obj):
-    try:
-        json_object = json.loads(obj)
-        return True, json_object
-    except ValueError:
-        return False, obj
+def tax_check(tax_file, tax_colname):
+    if not tax_file:
+        raise IOError('Taxonomy tabular file not provided (--tax_file)')
+    if not os.path.exists(tax_file):
+        raise FileNotFoundError('func_file does not exist. Please check filename')
+    if not tax_colname:
+        raise ValueError('tax_colname=None. Please provide a taxonomy column name (--tax_colname)')
