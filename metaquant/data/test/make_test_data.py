@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from metaquant.definitions import DATA_DIR
+from metaquant.utils import DATA_DIR
 import numpy as np
 import re
 
@@ -23,15 +23,16 @@ write_testfile(unk_ec, 'unk_ec.tab')
 int = pd.DataFrame({'int': ['100', '200']}, index=['A', 'B'])
 write_testfile(int, 'simple_int.tab')
 
-# taxa are h. pylori and c. difficile
-tax = pd.DataFrame({'lca': ['210', '1496']}, index=['A', 'B'])
+# taxa are h. pylori and c. difficile (both species), from different phyla
+tax = pd.DataFrame({'lca': [210, 1496]}, index=['A', 'B'])
 write_testfile(tax, 'simple_tax.tab')
 
 # multiple intensities
 peptides = ['A', 'B', 'C']
 
 mult_func = pd.DataFrame({'go': ['GO:0008152', 'GO:0022610', 'GO:0000003,GO:0032505'],
-                          'cog': ['C', 'N', 'D']},
+                          'cog': ['C', 'N', 'D'],
+                          'ec': ['3.4.11.-', '3.4.21.70', '1.2.-.-']},
                          index=peptides)
 write_testfile(mult_func, 'multiple_func.tab')
 

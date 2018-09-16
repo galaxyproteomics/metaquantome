@@ -1,6 +1,6 @@
 import metaquant.AnnotationNode as anode
 import pandas as pd
-
+from metaquant.GeneOntologyDb import GeneOntologyDb
 # Annotation Hierarchy that takes in the dataframe and builds hierarchy
 # the pruning method removes all nodes with a number of children less than N
 # and a number of peptides less than M
@@ -22,48 +22,48 @@ class AnnotationHierarchy:
     def __init__(self, db, sample_set):
         self.db = db
         self.sample_set = sample_set
+        self.expanded_sample_set = sample_set  # add more terms later
         self.nodes = dict()
         self.informative_nodes = dict()
 
-    def update_node(self, id, intensity):
+    def add_node(self, id, intensity):
         if id not in self.nodes.keys():
             # create new node
-            new_node = anode.AnnotationNode(id, intensity)
-
-            # children handling #
-            # get node's children from reference database
-            ref_children = self.db.get_children(id)
-            # get node's children that are also present in sample_set, and assign to this node
-            new_node.sample_children = ref_children.intersection(self.sample_set)
-
-            # determine number of sample children
-            new_node.n_sample_children = len(new_node.sample_children)
-
-            # descendants handling #
-            ref_descendants = self.db.get_descendants(id)
-            new_node.sample_descendants = ref_descendants.intersection(self.sample_set)
-
-            # insert into dict
-            self.nodes[id] = new_node
-
+            self.nodes[id] = anode.AnnotationNode(id, intensity)
         else:
             # update existing node
             self.nodes[id].add_peptide(intensity)
+        # do same for parents #
+        parents = self.db.get_parents(id)
+        for par in parents:
+            # if using GO and slimming down, only add parents in slim
+            if isinstance(self.db, GeneOntologyDb):
+                if self.db.slim_down and par not in self.db.slim_members:
+                    continue
+            self.expanded_sample_set.update({par})
+            self.add_node(par, intensity)
 
-    def aggregate_nodes(self):
-        # this sums up intensity for all nodes:
-        # get sample descendants
-        # sum intensities of all sample descendants
-        # something like [sum(x) for x in zip(*intensities)]
-        for id, node in self.nodes.items():
-            descendant_ids = node.sample_descendants
-            intensities = [node.intensity]
-            for id in descendant_ids:
-                descendant_node = self.nodes[id]
-                intensities.append(descendant_node.intensity)
-            # aggregate intensity
-            agg_intensity = [sum(x) for x in zip(*intensities)]
-            node.aggregated_intensity = agg_intensity  # make sure this updates the intensity in the node itself
+    def _define_sample_children(self):
+        for id in self.nodes.keys():
+            node = self.nodes[id]
+            ref_children = self.db.get_children(id)
+            node.sample_children = ref_children.intersection(self.expanded_sample_set)
+            node.n_sample_children = len(node.sample_children)
+
+    # def aggregate_nodes(self):
+    #     # this sums up intensity for all nodes:
+    #     # get sample descendants
+    #     # sum intensities of all sample descendants
+    #     # something like [sum(x) for x in zip(*intensities)]
+    #     for id, node in self.nodes.items():
+    #         descendant_ids = node.sample_descendants
+    #         intensities = [node.intensity]
+    #         for id in descendant_ids:
+    #             descendant_node = self.nodes[id]
+    #             intensities.append(descendant_node.intensity)
+    #         # aggregate intensity
+    #         agg_intensity = [sum(x) for x in zip(*intensities)]
+    #         node.aggregated_intensity = agg_intensity  # make sure this updates the intensity in the node itself
 
     def get_informative_nodes(self, min_peptides, min_children_non_leaf):
         """
@@ -72,6 +72,8 @@ class AnnotationHierarchy:
         it will be pruned.
         :return:
         """
+        # first, define sample children for each id
+        self._define_sample_children()
         informative_nodes = dict()
         for id, node in self.nodes.items():
             n_children = node.n_sample_children
@@ -79,16 +81,18 @@ class AnnotationHierarchy:
             if (n_children >= min_children_non_leaf or n_children == 0) and n_peptides >= min_peptides:
                 # add node to informative node dict
                 informative_nodes[id] = node
-        return informative_nodes
+        # change self nodes to informative nodes
+        self.nodes = informative_nodes
 
     def to_dataframe(self, intensity_names):
         node_rows = [0]*len(self.nodes)
         index = 0
         for uid, node in self.nodes.items():
-            intensity = node.aggregated_intensity
+            intensity = node.intensity
             # put aggregated intensities into dict
             ints = {name: value for name, value in zip(intensity_names, intensity)}
             node_rows[index] = pd.DataFrame(ints, index=[uid])
             index += 1
         df = pd.concat(node_rows)
+        df['id'] = df.index
         return df

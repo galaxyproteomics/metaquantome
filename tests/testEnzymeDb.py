@@ -1,6 +1,6 @@
 import unittest
 from metaquant.EnzymeDb import EnzymeDb
-from metaquant.definitions import DATA_DIR
+from metaquant.utils import DATA_DIR
 import os
 import shutil
 

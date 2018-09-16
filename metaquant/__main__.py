@@ -1,21 +1,14 @@
-from metaquant import io, parser
-from metaquant.runner import metaquant
+from metaquant import runner
+from metaquant import parser
 import sys
 
 
 def main():
     args = parser.parse_args_cli()
-
-    # read sample names
-    samp_grps = io.read_samp_info(args.samps)
-
-    # input checks, error handling (todo)
-
-    metaquant(args.mode, sample_names=samp_grps, int_file=args.int_file, pep_colname=args.pep_colname,
-              func_file=args.func_file, tax_file=args.tax_file, ontology=args.ontology, tax_colname=args.tax_colname,
-              outfile=args.outfile, slim_down=args.slim_down, test=args.test, paired=args.paired,
-              threshold=args.threshold, data_dir=args.data_dir, overwrite=args.overwrite)
-
+    runner.runner(args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
+                  func_file=args.func_file, tax_file=args.tax_file, ontology=args.ontology, tax_colname=args.tax_colname,
+                  outfile=args.outfile, slim_down=args.slim_down, test=args.test, paired=args.paired,
+                  threshold=args.threshold, data_dir=args.data_dir, overwrite=args.overwrite)
     sys.exit(0)
 
 
