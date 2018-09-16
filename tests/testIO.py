@@ -1,9 +1,9 @@
 import unittest
 
 import metaquant.SampleGroups
-from metaquant import io
+from metaquant.util import io
 import os
-from metaquant.utils import DATA_DIR
+from metaquant.util.utils import DATA_DIR
 
 
 class TestIO(unittest.TestCase):

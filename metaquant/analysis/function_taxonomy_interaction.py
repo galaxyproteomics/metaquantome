@@ -1,9 +1,8 @@
-from metaquant.cog import cogCat
-from metaquant.cog import take_first_cog
-from metaquant import stats
+from metaquant.databases.cog import cogCat
+from metaquant.databases.cog import take_first_cog
+from metaquant.util import stats, utils
 import numpy as np
-from metaquant.NCBITaxonomyDb import NCBITaxonomyDb
-from metaquant import utils
+from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
 
 
 def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, threshold, paired, parametric, data_dir):

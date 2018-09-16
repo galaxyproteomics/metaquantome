@@ -1,10 +1,8 @@
-import metaquant.io
 from metaquant.SampleGroups import SampleGroups
-from metaquant.function_taxonomy_interaction import function_taxonomy_analysis
-from metaquant.functional_analysis import functional_analysis
-from metaquant.taxonomy_analysis import taxonomy_analysis
-from metaquant import utils
-from metaquant import io
+from metaquant.analysis.function_taxonomy_interaction import function_taxonomy_analysis
+from metaquant.analysis.functional_analysis import functional_analysis
+from metaquant.analysis.taxonomy_analysis import taxonomy_analysis
+from metaquant.util import io
 import os
 import logging
 import sys

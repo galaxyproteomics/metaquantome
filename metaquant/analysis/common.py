@@ -1,6 +1,6 @@
 from metaquant.AnnotationHierarchy import AnnotationHierarchy
-from metaquant import stats
-from metaquant.NCBITaxonomyDb import NCBITaxonomyDb
+from metaquant.util import stats
+from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
 import numpy as np
 
 

@@ -1,5 +1,5 @@
 import os
-from metaquant.utils import DATA_DIR
+from metaquant.util.utils import DATA_DIR
 import pandas
 
 pandas.set_option('display.max_columns', 20)

@@ -1,8 +1,7 @@
 import pandas as pd
 import os
-from metaquant.utils import DATA_DIR
+from metaquant.util.utils import DATA_DIR
 import numpy as np
-import re
 
 
 def write_testfile(df, name):

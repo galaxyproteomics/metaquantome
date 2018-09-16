@@ -1,6 +1,6 @@
 import metaquant.AnnotationNode as anode
 import pandas as pd
-from metaquant.GeneOntologyDb import GeneOntologyDb
+from metaquant.databases.GeneOntologyDb import GeneOntologyDb
 # Annotation Hierarchy that takes in the dataframe and builds hierarchy
 # the pruning method removes all nodes with a number of children less than N
 # and a number of peptides less than M

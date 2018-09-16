@@ -1,9 +1,9 @@
-from metaquant.GeneOntologyDb import GeneOntologyDb
-from metaquant.cog import cogCat
-from metaquant.cog import take_first_cog
-import metaquant.EnzymeDb as ec
-from metaquant import utils
-import metaquant.common as cha
+from metaquant.databases.GeneOntologyDb import GeneOntologyDb
+from metaquant.databases.cog import cogCat
+from metaquant.databases.cog import take_first_cog
+import metaquant.databases.EnzymeDb as ec
+from metaquant.util import utils
+import metaquant.analysis.common as cha
 
 
 def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, slim_down, paired, parametric, data_dir,
