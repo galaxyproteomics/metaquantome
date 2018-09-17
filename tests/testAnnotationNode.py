@@ -1,5 +1,6 @@
 import unittest
 from metaquant.AnnotationNode import AnnotationNode
+import numpy as np
 
 
 class TestAnnotationNode(unittest.TestCase):
@@ -21,6 +22,6 @@ class TestAnnotationNode(unittest.TestCase):
         expected = [x + y for x, y in zip(pep1_intensity, pep2_intensity)]
         an.add_peptide(pep2_intensity)
         self.assertEqual(an.intensity, expected)
-        self.assertEqual(an.npeptide, 2)
+        self.assertEqual(an.npeptide, [2, 2, 1])
 
 
