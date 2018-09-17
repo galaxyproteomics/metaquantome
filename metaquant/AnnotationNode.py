@@ -1,4 +1,4 @@
-# todo test both of these
+import numpy as np
 
 
 class AnnotationNode:
@@ -10,7 +10,7 @@ class AnnotationNode:
         """
         self.id = id
         self.intensity = intensity
-        self.npeptide = 1
+        self.npeptide = self._calc_npeptide(intensity)
 
         # the next four attributes are updated later in AnnotationHierarchy
         self.sample_children = None
@@ -19,8 +19,17 @@ class AnnotationNode:
         self.aggregated_intensity = None
 
     def add_peptide(self, intensity):
-        new_intensity = [x + y for x, y in zip(self.intensity, intensity)]
+        new_intensity = self._add_two_lists(self.intensity, intensity)
         self.intensity = new_intensity
-        self.npeptide += 1
+        new_peptide_evidence = self._calc_npeptide(new_intensity)
+        self.npeptide = self._add_two_lists(self.npeptide, new_peptide_evidence)
+
+    def _calc_npeptide(self, intensity):
+        return [(x > 0)*1 for x in intensity]
+
+    def _add_two_lists(self, list1, list2):
+        return [x + y for x, y in zip(list1, list2)]
+
+
 
 
