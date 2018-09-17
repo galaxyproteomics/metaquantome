@@ -2,7 +2,6 @@ import argparse
 
 
 def parse_args_cli():
-    # todo: add min_peptides and min_children_non_leaf to parser
     # todo: split into two/three modules
     parser = argparse.ArgumentParser()
 
