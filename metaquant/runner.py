@@ -30,7 +30,7 @@ def runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func
                                 int_file=int_file, func_file=func_file, func_colname=func_colname,
                                 tax_colname=tax_colname, tax_file=tax_file)
 
-    # run analysis based on mode
+    # run analysis based on modes
     if mode == 'fn':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, test=test,
                                       threshold=threshold, ontology=ontology, slim_down=slim_down, paired=paired,
@@ -48,29 +48,35 @@ def runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func
                                              test=test, threshold=threshold, paired=paired, parametric=parametric,
                                              data_dir=data_dir)
     else:
-        raise ValueError("Invalid mode. Expected one of: %s" % modes)
-
+        raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
     # set up written output
     if outfile:
-        cols = []
-        int_cols = []
-        if test:
-            fc_name = ['log2fc_' + samp_grps.grp_names[0] + '_over_' + samp_grps.grp_names[1]]
-            int_cols += fc_name + ['p', 'corrected_p']
-        int_cols += samp_grps.mean_names + samp_grps.all_intcols
-        if mode == 'fn':
-            if ontology == 'go':
-                cols = ['go_id', 'name', 'namespace'] + int_cols
-            if ontology == 'cog':
-                cols = ['cog', 'description'] + int_cols
-            if ontology == 'ec':
-                cols = ['ec', 'description'] + int_cols
-        if mode == 'tax':
-            cols = ['taxon_name', 'rank'] + int_cols
-        if mode == 'taxfn':
-            cols = [ontology, 'cog_descript', 'taxon_name', 'rank'] + int_cols
+        cols = define_outfile_cols(samp_grps, ontology, mode, test)
         results.to_csv(outfile, columns=cols, sep="\t", header=True, index=False, na_rep="NA")
     # whether writing out or not, return result data frame
     return results
 
+
+def define_outfile_cols(samp_grps, ontology, mode, test):
+    int_cols = []
+    if test:
+        fc_name = ['log2fc_' + samp_grps.grp_names[0] + '_over_' + samp_grps.grp_names[1]]
+        int_cols += fc_name + ['p', 'corrected_p']
+    int_cols += samp_grps.mean_names + samp_grps.all_intcols
+    if mode == 'fn':
+        if ontology == 'go':
+            cols = ['id', 'name', 'namespace'] + int_cols
+        elif ontology == 'cog':
+            cols = ['id', 'description'] + int_cols
+        elif ontology == 'ec':
+            cols = ['id', 'description'] + int_cols
+        else:
+            raise ValueError("Invalid ontology. Expected one of: %s" % ['go', 'cog', 'ec'])
+    elif mode == 'tax':
+        cols = ['id', 'taxon_name', 'rank'] + int_cols
+    elif mode == 'taxfn':
+        cols = [ontology, 'cog_descript', 'taxon_name', 'rank'] + int_cols
+    else:
+        raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
+    return cols
 
