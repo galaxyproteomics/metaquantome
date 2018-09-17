@@ -2,6 +2,8 @@ import argparse
 
 
 def parse_args_cli():
+    # todo: add min_peptides and min_children_non_leaf to parser
+    # todo: split into two/three modules
     parser = argparse.ArgumentParser()
 
     # required for all analyses
@@ -28,7 +30,15 @@ def parse_args_cli():
                            ' directory and timestamped. '+
                            'Note that names of files within the directory cannot be changed. ' +
                            'The default is <metaquant_package_root>/data.')
-
+    common.add_argument('--min_peptides', default=0, type=int,
+                        help='Used for filtering to well-supported annotations. The number of peptides providing ' +
+                             'evidence for a term is the number of peptides directly annotated with that term ' +
+                             'plus the number of peptides annotated with any of its descendants. ' +
+                             'Terms with a number of peptides greater than or equal to min_peptides are retained.')
+    common.add_argument('--min_children_non_leaf', default=0, type=int,
+                        help='Used for filtering to informative annotations. ' +
+                             'A term is retained if it has a number of children ' +
+                             'greater than or equal to min_children_non_leaf. ')
     # function-specific
     func = parser.add_argument_group('Function')
     func.add_argument('--func_file', '-f',

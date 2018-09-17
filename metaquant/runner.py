@@ -10,7 +10,8 @@ import sys
 
 def runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None,
            ontology='go', tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, parametric=False,
-           threshold=0, data_dir=None, overwrite=False):
+           threshold=0, data_dir=None, overwrite=False, min_peptides=0, min_children_non_leaf=0):
+
     # initialize logger
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
 
@@ -33,10 +34,12 @@ def runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func
     if mode == 'fn':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, test=test,
                                       threshold=threshold, ontology=ontology, slim_down=slim_down, paired=paired,
-                                      parametric=parametric, data_dir=data_dir, overwrite=overwrite)
+                                      parametric=parametric, data_dir=data_dir, overwrite=overwrite,
+                                      min_peptides=min_peptides, min_children_non_leaf=min_children_non_leaf)
     elif mode == 'tax':
         results = taxonomy_analysis(df=df, samp_grps=samp_grps, test=test, threshold=threshold, paired=paired,
-                                    parametric=parametric, data_dir=data_dir, tax_colname=tax_colname)
+                                    parametric=parametric, data_dir=data_dir, tax_colname=tax_colname,
+                                    min_peptides=min_peptides, min_children_non_leaf=min_children_non_leaf)
     elif mode == 'taxfn':
         if ontology != 'cog':
             raise ValueError("Only cog is supported for ft interaction. " +

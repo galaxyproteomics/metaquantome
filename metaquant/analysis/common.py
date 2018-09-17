@@ -1,28 +1,21 @@
 from metaquant.AnnotationHierarchy import AnnotationHierarchy
+from metaquant.SampleAnnotations import SampleAnnotations
 from metaquant.util import stats
 from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
 import numpy as np
 
 
-def common_hierarchical_analysis(db, df, annot_colname, samp_grps, min_peptides, min_children_non_leaf, test,
-                                 threshold, paired, parametric):
-    # get sample set
-    sample_set = set(df[annot_colname])
+def common_hierarchical_analysis(db, df, annot_colname, samp_grps,
+                                 min_peptides, min_children_non_leaf,
+                                 test, threshold, paired, parametric):
+    samp_annot = SampleAnnotations(db)
+    # make a hierarchy for each sample
+    samp_annot.add_samples_from_df(df, annot_colname, samp_grps, min_peptides, min_children_non_leaf)
+    intensity_all_ranks = samp_annot.to_dataframe()
 
-    # insert each term into AnnotationHierarchy
-    ah = AnnotationHierarchy(db, sample_set)
-
-    for index, row in df.iterrows():
-        id = row[annot_colname]
-        if isinstance(db, NCBITaxonomyDb):
-            id = int(id)
-        intensity_list = row[samp_grps.all_intcols].tolist()
-        ah.add_node(id, intensity_list)
-    # define sample children and filter to informative
-    ah.get_informative_nodes(min_peptides=min_peptides, min_children_non_leaf=min_children_non_leaf)
-    intensity_all_ranks = ah.to_dataframe(samp_grps.all_intcols)
-
+    # change zeros back to NaN for stats, so they are ignored
     results = common_stats(intensity_all_ranks, samp_grps, test, threshold, paired, parametric)
+    results['id'] = results.index
     return results
 
 
