@@ -1,5 +1,5 @@
 from metaquant import runner
-from metaquant.util import parser
+from metaquant import parser
 import sys
 
 
