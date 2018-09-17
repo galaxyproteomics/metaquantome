@@ -10,25 +10,17 @@ class AnnotationNode:
         """
         self.id = id
         self.intensity = intensity
-        self.npeptide = self._calc_npeptide(intensity)
+        self.npeptide = 1
 
-        # the next four attributes are updated later in AnnotationHierarchy
+        # the next three attributes are updated later in AnnotationHierarchy
         self.sample_children = None
-        self.sample_descendants = None
         self.n_sample_children = None
         self.aggregated_intensity = None
 
     def add_peptide(self, intensity):
-        new_intensity = self._add_two_lists(self.intensity, intensity)
-        self.intensity = new_intensity
-        new_peptide_evidence = self._calc_npeptide(new_intensity)
-        self.npeptide = self._add_two_lists(self.npeptide, new_peptide_evidence)
-
-    def _calc_npeptide(self, intensity):
-        return [(x > 0)*1 for x in intensity]
-
-    def _add_two_lists(self, list1, list2):
-        return [x + y for x, y in zip(list1, list2)]
+        self.intensity += intensity
+        if intensity > 0:
+            self.npeptide += 1
 
 
 
