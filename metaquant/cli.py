@@ -1,4 +1,16 @@
+from metaquant import runner
+import sys
 import argparse
+
+
+def cli():
+    args = parse_args_cli()
+    runner.metaquant_runner(args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
+                         func_file=args.func_file, tax_file=args.tax_file, ontology=args.ontology,
+                         tax_colname=args.tax_colname, outfile=args.outfile, slim_down=args.slim_down, test=args.test,
+                         paired=args.paired, threshold=args.threshold, data_dir=args.data_dir, overwrite=args.overwrite,
+                         min_peptides=args.min_peptides, min_children_non_leaf=args.min_children_non_leaf)
+    sys.exit(0)
 
 
 def parse_args_cli():
@@ -25,10 +37,10 @@ def parse_args_cli():
     common.add_argument('--outfile', required=True,
                         help='Output file')
     common.add_argument('--data_dir',
-                      help='Path to database directory. Pre-downloaded databases can be stored in a separate' +
-                           ' directory and timestamped. '+
-                           'Note that names of files within the directory cannot be changed. ' +
-                           'The default is <metaquant_package_root>/data.')
+                        help='Path to database directory. Pre-downloaded databases can be stored in a separate' +
+                             ' directory and timestamped. '+
+                             'Note that names of files within the directory cannot be changed. ' +
+                             'The default is <metaquant_package_root>/data.')
     common.add_argument('--min_peptides', default=0, type=int,
                         help='Used for filtering to well-supported annotations. The number of peptides providing ' +
                              'evidence for a term is the number of peptides directly annotated with that term ' +
@@ -38,6 +50,7 @@ def parse_args_cli():
                         help='Used for filtering to informative annotations. ' +
                              'A term is retained if it has a number of children ' +
                              'greater than or equal to min_children_non_leaf. ')
+
     # function-specific
     func = parser.add_argument_group('Function')
     func.add_argument('--func_file', '-f',
@@ -79,3 +92,7 @@ def parse_args_cli():
 
     args = parser.parse_args()
     return args
+
+
+if __name__ == "__main__":
+    cli()

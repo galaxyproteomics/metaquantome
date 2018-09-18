@@ -111,39 +111,3 @@ class TestEC(unittest.TestCase):
         test_id2 = '6.-.-.-'
         exp_parent2 = set()
         self.assertSetEqual(self.ec.get_ancestors(test_id2), exp_parent2)
-
-
-    # def testSingleInt(self):
-    #     func=testfile('simple_ec.tab')
-    #     int=testfile('simple_int.tab')
-    #
-    #     ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_colname='ec',
-    #                       func_file=func, ontology='ec', test=False, overwrite=False)
-    #     # leaf of tree
-    #     self.assertEqual(ec_df.loc['3.4.21.70']['int'], np.log2(200))
-    #
-    #     # internal node - check that we are adding up the hierarchy
-    #     self.assertEqual(ec_df.loc['3.4.-.-']['int'], np.log2(100+200))
-    #
-    # def testUnknownEC(self):
-    #     func=testfile('unk_ec.tab')
-    #     int=testfile('simple_int.tab')
-    #     ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_colname='ec',
-    #                       func_file=func, ontology='ec', test=False, overwrite=False)
-    #     self.assertEqual(ec_df.loc['1.50.10000.-']['description'], 'unknown_ec')
-    #
-    # def testExpandList(self):
-    #     peptide = ['AAYEEAEHAAK', 'AGVTK', 'FAKE']
-    #     df = pd.DataFrame({'EC': ['1.11.1.1,1.-.-.-,1.14.13.81', '2.3.1.234,1.2.1.-,4.2.1.9', '']},
-    #                       index=peptide)
-    #     print(ec.split_ec_list(df, 'EC'))
-    #
-    # def testRealEC(self):
-    #     func=testfile('unipept_sample7_functional_clean.tab')
-    #     int=testfile('unipept_sample7_int_clean.tab')
-    #     ec_df = metaquant('fn', sample_names={'s1': ['int']}, int_file=int, pep_colname='peptide', func_colname='EC',
-    #                       func_file=func, ontology='ec', test=False, overwrite=False)
-    #     # make sure that all of the 1s have been filtered out
-    #     self.assertEqual(ec_df.query('id == "1.-.-.-"').size, 0)
-    #
-    #
