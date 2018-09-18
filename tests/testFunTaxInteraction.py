@@ -1,5 +1,5 @@
 import unittest
-from metaquant.runner import runner
+from metaquant.runner import metaquant_runner
 from tests.testutils import testfile
 import tests.testutils as tu
 import numpy as np
@@ -10,8 +10,8 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
         tax=testfile('multiple_tax.tab')
-        ft_df = runner(mode='taxfn', sinfo=tu.TTEST_SINFO, int_file=int, func_colname='cog', func_file=func,
-                       tax_file=tax, ontology='cog', tax_colname='lca', test=True, parametric=True)
+        ft_df = metaquant_runner(mode='taxfn', sinfo=tu.TTEST_SINFO, int_file=int, func_colname='cog', func_file=func,
+                                 tax_file=tax, ontology='cog', tax_colname='lca', test=True, parametric=True)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(ft_df.loc[(ft_df['taxon_name'] == 'Helicobacter pylori') & (ft_df['cog'] == 'C')]['corrected_p'].ge(0.05).all())
         self.assertTrue(ft_df.loc[ft_df['taxon_name'] != 'Helicobacter pylori']['corrected_p'].le(0.05).all())
@@ -20,8 +20,8 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         func=testfile('mult_ft_func.tab')
         int=testfile('int_ttest.tab')
         tax=testfile('mult_ft_tax.tab')
-        ft_df = runner('taxfn', sinfo=tu.TTEST_SINFO, int_file=int, func_colname='cog', func_file=func, tax_file=tax,
-                       ontology='cog', tax_colname='lca', test=True, parametric=True)
+        ft_df = metaquant_runner('taxfn', sinfo=tu.TTEST_SINFO, int_file=int, func_colname='cog', func_file=func, tax_file=tax,
+                                 ontology='cog', tax_colname='lca', test=True, parametric=True)
         # we expect the C-Helicobacter pylori pair to be the log of the mean intensity
         # {'int1': [12, 20, 1000],
         #  'int2': [20, 30, 1200],

@@ -1,5 +1,4 @@
 import re
-
 import pkg_resources
 import os
 

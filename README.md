@@ -9,11 +9,19 @@ The dependencies are most easily satisfied with conda, and the environment can
 be created as follows:
 
 `
-conda create -n metaquant python=3.5 pandas ete3 goatools wget numpy statsmodels
+conda create -n metaquant python=3.5 pandas ete3 goatools wget numpy statsmodels biopython
 `
 
 Note that the bioconda and conda forge channels must be enabled,
 as described on [the bioconda website](https://bioconda.github.io/#set-up-channels).
+
+# Tests
+To run unittests for the project, run the following from the root directory:
+
+`
+python -m unittest discover tests
+`
+
 
 # Roadmap
 

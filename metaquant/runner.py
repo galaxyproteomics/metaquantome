@@ -8,9 +8,9 @@ import logging
 import sys
 
 
-def runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None,
-           ontology='go', tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, parametric=False,
-           threshold=0, data_dir=None, overwrite=False, min_peptides=0, min_children_non_leaf=0):
+def metaquant_runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None,
+                     ontology='go', tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, parametric=False,
+                     threshold=0, data_dir=None, overwrite=False, min_peptides=0, min_children_non_leaf=0):
 
     # initialize logger
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
@@ -23,7 +23,7 @@ def runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func
     # make sure base data directory exists, if provided
     if data_dir:
         if not os.path.isdir(data_dir):
-            print('data_dir is not a directory or was not found. Making data_dir')
+            logging.log('data_dir is not a directory or was not found. Making data_dir')
             os.mkdir(data_dir)
 
     df = io.read_and_join_files(mode, pep_colname, samp_grps,
@@ -79,4 +79,3 @@ def define_outfile_cols(samp_grps, ontology, mode, test):
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
     return cols
-

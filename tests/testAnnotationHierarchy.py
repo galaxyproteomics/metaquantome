@@ -153,7 +153,6 @@ class TestAnnotationHierarchyGO(unittest.TestCase):
         # then we also get GO:0009987, cellular process, and
         # GO:0002823, cell proliferaction
         ah.get_informative_nodes(min_peptides=2, min_children_non_leaf=2)
-        print(ah.informative_nodes)
         self.assertSetEqual(set(ah.informative_nodes.keys()),
                             {'GO:0008150', 'GO:0022414', 'GO:0051026', 'GO:0036093', 'GO:0009987', 'GO:0008283'})
 

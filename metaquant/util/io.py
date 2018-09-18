@@ -1,6 +1,6 @@
 import os
-
 import pandas as pd
+
 
 MISSING_VALUES = ["", "0", "NA", "NaN", "0.0"]
 ONTOLOGIES = ['cog', 'go', 'ec']
