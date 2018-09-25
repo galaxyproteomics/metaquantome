@@ -43,6 +43,12 @@ class GeneOntologyDb:
             go_dag_slim = None
         return go_dag, go_dag_slim
 
+    def is_in_db(self, goid):
+        if goid in self.gofull.keys():
+            return True
+        else:
+            return False
+
     def map_set_to_slim(self, sample_set):
         """
         Maps a set of GO terms to the generic GO slim.

@@ -140,6 +140,12 @@ class EnzymeDb:
     def split_ec(ecid):
         return ecid.split('.')
 
+    def is_in_db(self, ecid):
+        if ecid in self.ecdb.keys():
+            return True
+        else:
+            return False
+
     def get_children(self, ecid):
         parent = self.ecdb[ecid]
         parent_levels = parent['levels']
