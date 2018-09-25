@@ -1,7 +1,6 @@
 from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
 import metaquant.analysis.common as cha
 from metaquant.util import utils
-import pandas as pd
 
 
 def taxonomy_analysis(df, samp_grps, test, threshold, paired, parametric, data_dir, tax_colname='lca',
@@ -18,7 +17,12 @@ def taxonomy_analysis(df, samp_grps, test, threshold, paired, parametric, data_d
     if utils.sniff_tax_names(df, tax_colname):
         df[tax_colname] = ncbi.convert_name_to_taxid(df[tax_colname])
 
-    results = cha.common_hierarchical_analysis(ncbi, df, tax_colname, samp_grps,
+    # filter df to those that tax ids that non-NaN and are present in NCBI database
+    is_not_nan = ~df[tax_colname].isnull()
+    is_in_db = df[tax_colname].apply(ncbi.is_in_ncbi)
+    df_clean = df.loc[is_not_nan & is_in_db]
+
+    results = cha.common_hierarchical_analysis(ncbi, df_clean, tax_colname, samp_grps,
                                                min_peptides, min_children_non_leaf,
                                                test, threshold, paired, parametric)
     results['rank'] = results['id'].apply(ncbi.get_rank)
