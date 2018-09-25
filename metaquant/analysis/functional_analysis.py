@@ -22,6 +22,10 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
         results = cha.common_hierarchical_analysis(go, norm_df, func_colname, samp_grps,
                                                    min_peptides, min_children_non_leaf,
                                                    test, threshold, paired, parametric)
+        # todo: replace hard coded column names in utils
+        gos = [go._safe_query_go(x) for x in results['id']]
+        results['name'] = [x.name for x in gos]
+        results['namespace'] = [x.namespace for x in gos]
     elif ontology == "cog":
         cog_df = take_first_cog(df, func_colname)
         cog_sum_df = cog_df[[func_colname] + samp_grps.all_intcols].\
@@ -40,7 +44,6 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
         raise ValueError("the desired ontology is not supported. " +
                          "Please use either GO (ontology = 'go'), " +
                          "COG (ontology = 'cog'), or EC numbers (ontology = 'ec')")
-    results['id'] = results.index
     return results
 
 
