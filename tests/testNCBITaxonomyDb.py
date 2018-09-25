@@ -5,6 +5,7 @@ import shutil
 from tests.testutils import testfile
 import pandas as pd
 from metaquant.util.utils import DATA_DIR, define_ontology_data_dir
+import numpy as np
 
 
 class TestTaxonomyDatabase(unittest.TestCase):
@@ -50,6 +51,11 @@ class TestTaxonomyDatabase(unittest.TestCase):
         self.assertSetEqual(joined, expanded)
         # make sure we don't get human species
         self.assertNotIn(member=9606, container=expanded)
+
+    def testGetRank(self):
+        testid = 2
+        rank = self.ncbi.get_rank(testid)
+        self.assertEqual(rank, 'superkingdom')
 
     def testGetChildren(self):
         # test case is the family hominidae
@@ -101,7 +107,7 @@ class TestTaxonomyDatabase(unittest.TestCase):
         # assigns the ncbi taxid for unidentified (32644) if a name is unknown
         name = ['Random nonsense']
         id = self.ncbi.convert_name_to_taxid(name)
-        self.assertEqual(id, [32644])
+        self.assertEqual(id, [np.nan])
 
     def testConvertNameToTaxid_Root(self):
         name = ['root']
@@ -116,7 +122,7 @@ class TestTaxonomyDatabase(unittest.TestCase):
             names = [elem.strip('\n') for elem in f.readlines()]
             ids = self.ncbi.convert_name_to_taxid(names)
         # assure no unknown names (i.e., unipept names are reasonably well supported)
-        self.assertEqual(sum([id == 32644 for id in ids]), 0)
+        self.assertEqual(sum([id == np.nan for id in ids]), 0)
 
 
 if __name__=='__main__':
