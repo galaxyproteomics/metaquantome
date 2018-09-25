@@ -1,6 +1,11 @@
-from metaquant import runner
 import sys
 import argparse
+import os
+
+# SCRIPT_PATH = os.path.split(os.path.realpath(os.path.abspath(__file__)))[0]
+# sys.path.insert(0, SCRIPT_PATH)
+
+from metaquant import runner
 
 
 def cli():
