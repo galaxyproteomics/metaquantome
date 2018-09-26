@@ -36,14 +36,11 @@ def read_intensity_table(file, samp_grps, pep_colname):
                        dtype=samp_grps.dict_numeric_cols,
                        na_values=MISSING_VALUES,
                        low_memory=False)
-
     # drop rows where all intensities are NA
     df.dropna(axis=0, how="all", inplace=True)
-
     # change remaining missing intensities to 0, for arithmetic (changed back to NA for export)
     values = {x: 0 for x in samp_grps.all_intcols}
     df.fillna(values, inplace=True)
-
     return df
 
 
@@ -60,33 +57,35 @@ def read_taxonomy_table(file, pep_colname, tax_colname):
     # always read as character
     df = pd.read_table(file, sep="\t", index_col=pep_colname,
                        na_values=MISSING_VALUES, dtype={tax_colname: object})
-
     # take only specified column
     df_tax = df.loc[:, [tax_colname]]
+    # drop nas
+    df_tax.dropna(inplace=True, axis=0)
     return df_tax
 
 
 def read_function_table(file, pep_colname, func_colname):
     """
-
     :param file:
     :param pep_colname:
     :return:
     """
     df = pd.read_table(file, sep="\t", index_col=pep_colname,
                        na_values=MISSING_VALUES)
-
     df_new = df[[func_colname]].copy()
-
     # drop nas
     df_new.dropna(inplace=True, axis=0)
-    return(df_new)
+    return df_new
 
 
 def join_on_peptide(dfs):
     # join inner means that only peptides present in all dfs will be kept
-    df_joined = pd.concat(dfs, axis=1, join='inner')
-    return df_joined
+    df_all = dfs.pop(0)
+    while len(dfs) > 0:
+        df_other = dfs.pop(0)
+        print(df_other.head())
+        df_all = df_all.join(df_other, how="inner")
+    return df_all
 
 
 def function_check(func_file, func_colname):
