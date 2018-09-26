@@ -83,7 +83,6 @@ def join_on_peptide(dfs):
     df_all = dfs.pop(0)
     while len(dfs) > 0:
         df_other = dfs.pop(0)
-        print(df_other.head())
         df_all = df_all.join(df_other, how="inner")
     return df_all
 
