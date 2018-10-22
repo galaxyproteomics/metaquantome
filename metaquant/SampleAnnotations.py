@@ -41,7 +41,18 @@ class SampleAnnotations:
 
     def to_dataframe(self):
         # convert each separate hierarchy to df
-        hierarchy_dfs = [hier.to_dataframe() for hier in self.hierarchies]
+        # import pdb; pdb.set_trace()
+        n_hier = len(self.hierarchies)
+        loc_hier = self.hierarchies.copy()
+
+        # remove any
+        hierarchy_dfs = list()
+        for i in range(n_hier):
+            h = loc_hier.pop()
+            if len(h.informative_nodes) > 0:
+                dh = h.to_dataframe()
+                hierarchy_dfs.append(dh)
+
         full_df = pd.concat(hierarchy_dfs, axis=1, sort=True)
         # stats expects 0's, not NaNs
         full_df.fillna(0)
