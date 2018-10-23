@@ -73,6 +73,7 @@ class GeneOntologyDb:
         :return:
         """
         # first, check that term is in full GO. if not, return "unknown"
+        # todo: can remove this because all NaN's are filtered out
         if not self._safe_query_go(goid):
             return "unknown"
         # first, see if term is in slim

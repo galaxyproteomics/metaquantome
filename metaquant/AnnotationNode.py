@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class AnnotationNode:
     def __init__(self, id, intensity):
         """

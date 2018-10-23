@@ -36,12 +36,15 @@ def read_intensity_table(file, samp_grps, pep_colname):
                        dtype=samp_grps.dict_numeric_cols,
                        na_values=MISSING_VALUES,
                        low_memory=False)
+    # only intcols (in case table has extra cols)
+    int_df = df.loc[:, samp_grps.all_intcols]
+
     # drop rows where all intensities are NA
-    df.dropna(axis=0, how="all", inplace=True)
+    int_df.dropna(axis=0, how="all", inplace=True)
     # change remaining missing intensities to 0, for arithmetic (changed back to NA for export)
     values = {x: 0 for x in samp_grps.all_intcols}
-    df.fillna(values, inplace=True)
-    return df
+    int_df.fillna(values, inplace=True)
+    return int_df
 
 
 def read_taxonomy_table(file, pep_colname, tax_colname):

@@ -29,7 +29,6 @@ def metaquant_runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=
     df = io.read_and_join_files(mode, pep_colname, samp_grps,
                                 int_file=int_file, func_file=func_file, func_colname=func_colname,
                                 tax_colname=tax_colname, tax_file=tax_file)
-
     # run analysis based on modes
     if mode == 'fn':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, test=test,
