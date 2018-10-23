@@ -15,6 +15,8 @@ def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, thres
     :return: dataframe with taxon-function pairs and their associated total intensity
     """
     # todo: add option for lca or rank-level
+    # todo: change this so accounts for descendants of each taxon
+    # if blah, map to desired ranks.
     # take first cog
     df = take_first_cog(df, cog_name)
 

@@ -29,11 +29,28 @@ python -m unittest discover tests
 - visualizations
 - documentation
 - better arg checking
+    - deal with sample that is completely missing values
+    - deal with missing values better
+    - taxonomy rank checking
+    - move ncbi checking to IO
+    - check that supplied columns are in the dataframe
+    - check that sample info provides a list, or is coerced to a list
+    - don't return above phylum
+    - don't return BP, MF, or CC
+    - just pass args from cli?
 - configure Travis CI on Github
 - add option for specific rank in TF
+- move threshold to calculating mean values as well
+- make COG more similar to other databases
+    - make class
+    - add is_in_db method
 
 ## Lower Priority
+- benchmarking and optimization
 - use flake8 for codestyle
+- refactoring
+    - move every analysis function to one to cut down on duplication?
+    - could implement databases as instantiations of abstract classes. Any advantages?
 
 ## Done
 - unified database structure and 'adding up'

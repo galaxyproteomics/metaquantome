@@ -71,10 +71,10 @@ def tidy_split(df, column, sep='|', keep=False):
     return new_df
 
 
-def sniff_tax_names(df, tax_colname):
+def sniff_tax_names(df, tax_colname):  # todo: move to NCBI database
     pattern = re.compile(r'[0-9]')  # little bit faster to compile
     is_numeric = df[tax_colname].str.contains(pattern)
     if is_numeric.any():
-        return False # if any entries contain numbers, assume taxids (already converted missings to NA)
+        return False  # if any entries contain numbers, assume taxids (already converted missings to NA)
     else:
-        return True # else names
+        return True  # else names

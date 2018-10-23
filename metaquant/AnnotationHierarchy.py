@@ -33,7 +33,7 @@ class AnnotationHierarchy:
     def add_nodes_from_df(self, df, annot_colname, int_colname):
         for index, row in df.iterrows():
             term = row[annot_colname]
-            if isinstance(self.db, NCBITaxonomyDb):
+            if isinstance(self.db, NCBITaxonomyDb):  # todo: move this to IO
                 term = int(term)
             intensity = row[int_colname]
             self.add_node(term, intensity)
