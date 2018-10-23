@@ -91,7 +91,7 @@ def calc_means(df, samp_grps):
 
         else:
             # just log transform the single sample
-            df[samp_grps.mean_names] = np.log2(df[samples_in_grp])
+            df[samp_grps.mean_names[i]] = np.log2(df[samples_in_grp])
 
     return df
 
