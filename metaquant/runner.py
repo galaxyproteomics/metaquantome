@@ -7,7 +7,6 @@ import os
 import logging
 import sys
 
-from metaquant.util.io import define_outfile_cols
 
 
 def metaquant_runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None,

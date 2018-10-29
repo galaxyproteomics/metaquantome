@@ -108,30 +108,6 @@ def tax_check(tax_file, tax_colname):
         raise ValueError('tax_colname=None. Please provide a taxonomy column name (--tax_colname)')
 
 
-def define_outfile_cols(samp_grps, ontology, mode, test):
-    int_cols = []
-    if test:
-        fc_name = ['log2fc_' + samp_grps.grp_names[0] + '_over_' + samp_grps.grp_names[1]]
-        int_cols += fc_name + ['p', 'corrected_p']
-    int_cols += samp_grps.mean_names + samp_grps.all_intcols
-    if mode == 'fn':
-        if ontology == 'go':
-            cols = ['id', 'name', 'namespace'] + int_cols
-        elif ontology == 'cog':
-            cols = ['id', 'description'] + int_cols
-        elif ontology == 'ec':
-            cols = ['id', 'description'] + int_cols
-        else:
-            raise ValueError("Invalid ontology. Expected one of: %s" % ['go', 'cog', 'ec'])
-    elif mode == 'tax':
-        cols = ['id', 'taxon_name', 'rank'] + int_cols
-    elif mode == 'taxfn':
-        cols = [ontology, 'cog_descript', 'taxon_name', 'rank'] + int_cols
-    else:
-        raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
-    return cols
-
-
 def define_outfile_cols_expand(samp_grps, ontology, mode):
     int_cols = []
     int_cols += samp_grps.mean_names + samp_grps.all_intcols

@@ -35,6 +35,14 @@ class SampleGroups:
         # same order as grp names
         self.mean_names = [grp + "_mean" for grp in self.grp_names]
 
+        # this is used in test()
+        self.fc_name = None
+        if self.ngrps == 2:
+            grp1 = self.grp_names[0]
+            grp2 = self.grp_names[1]
+            self.fc_name = 'log2fc_' + grp1 + '_over_' + grp2
+
+
     def read_samp_info(self, sinfo):
         # check if sinfo is a file name
         if os.path.exists(sinfo):
