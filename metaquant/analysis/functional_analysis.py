@@ -6,8 +6,8 @@ from metaquant.util import utils
 import metaquant.analysis.common as cha
 
 
-def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, slim_down, paired, parametric, data_dir,
-                        overwrite, min_peptides=0, min_children_non_leaf=0):
+def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir, overwrite,
+                        min_peptides=0, min_children_non_leaf=0, threshold=0):
     norm_df = utils.split_func_list(df, sep=',', func_colname=func_colname)
     if not data_dir:
         data_dir = utils.define_ontology_data_dir(ontology)
@@ -29,6 +29,7 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
         gos = [go.gofull[x] for x in results['id']]
         results['name'] = [x.name for x in gos]
         results['namespace'] = [x.namespace for x in gos]
+
     elif ontology == "cog":
         # todo: change to common hierarchical analysis
         cog_df = take_first_cog(df, func_colname)
@@ -37,7 +38,8 @@ def functional_analysis(df, func_colname, samp_grps, test, threshold, ontology, 
             sum()
         df_to_return = cog_sum_df
         df_to_return['description'] = [cogCat[x] for x in df_to_return.index]
-        results = cha.common_stats(df_to_return, samp_grps, test, threshold, paired, parametric)
+        results = df_to_return
+
     elif ontology == "ec":
         ec_db = ec.EnzymeDb(data_dir, overwrite)
         # filter to only those in Enzyme database

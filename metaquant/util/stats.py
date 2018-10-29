@@ -19,12 +19,12 @@ def group_and_sum_by_rank(df, rank, all_intcols, norm_to_rank=False):
 
 
 def filter_min_observed(df, threshold, samp_grps):
-    # todo: update this so it works for any number of groups
     if threshold == 0:
         return df
 
     # filter to a minimum number of observed intensities per group
-    samp_loc = samp_grps.copy()
+    samp_loc = samp_grps.sample_names.copy()
+
     # get the columns for the first sample group
     first = samp_loc.popitem()[1]
     keep = (df[first] > 0).apply(sum, axis=1) >= threshold

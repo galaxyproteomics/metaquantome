@@ -1,18 +1,24 @@
 import sys
 import argparse
-import os
-
-# SCRIPT_PATH = os.path.split(os.path.realpath(os.path.abspath(__file__)))[0]
-# sys.path.insert(0, SCRIPT_PATH)
-
-from metaquant import runner
+from metaquant.analysis.expand import expand
 
 
 def cli():
     args = parse_args_cli()
-    print(args)
     # TODO: pass args to metaquant_runner as a list
     # todo: also maybe split metaquant_runner into three functions to match the cli
+
+    if args.command == "expand":
+        print('expand')
+        expand(args)
+        # run expand function
+    elif args.command == "test":
+        print('test')
+        # run test function
+    elif args.command == "viz":
+        print('viz')
+        # run expand function
+
     # runner.metaquant_runner(args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
     #                         func_file=args.func_file, func_colname=args.func_colname, tax_file=args.tax_file,
     #                         ontology=args.ontology, tax_colname=args.tax_colname, outfile=args.outfile,
@@ -26,7 +32,7 @@ def parse_args_cli():
     parser = argparse.ArgumentParser()
 
     # split this into three submodules
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(title="commands", dest="command")
     parser_expand = subparsers.add_parser('expand')
     parser_test = subparsers.add_parser('test')
     parser_viz = subparsers.add_parser('viz')

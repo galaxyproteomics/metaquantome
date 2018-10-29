@@ -5,6 +5,8 @@ import numpy as np
 
 def common_hierarchical_analysis(db, df, annot_colname, samp_grps,
                                  min_peptides, min_children_non_leaf, threshold):
+    # import pdb; pdb.set_trace()
+
     samp_annot = SampleAnnotations(db)
     # make a hierarchy for each sample
     samp_annot.add_samples_from_df(df, annot_colname, samp_grps, min_peptides, min_children_non_leaf)

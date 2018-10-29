@@ -9,9 +9,9 @@ class TestCLI(unittest.TestCase):
     def testSingleInt(self):
         out = testfile('cli_out.tab')
         os.chdir('..')
-        command = '''python3 cli.py -m tax --pep_colname peptide --outfile ''' + out
+        command = '''python3 cli.py expand -m tax --pep_colname peptide --outfile ''' + out
         command += ''' -i metaquant/data/test/simple_int.tab --tax_file metaquant/data/test/simple_tax.tab '''
-        command += '''--tax_colname "lca" --samps '{"A": ["int"]}' --min_peptides 0 --min_children_non_leaf 0'''
+        command += '''--tax_colname "lca" --samps '{"A": ["int"]}' --min_peptides 0 --min_children_non_leaf 0 --threshold 0'''
         status = subprocess.call(command, shell=True)
         self.assertEqual(status, 0)
 
