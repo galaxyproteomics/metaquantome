@@ -45,8 +45,7 @@ def metaquant_runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=
             raise ValueError("Only cog is supported for ft interaction. " +
                              "Make sure you have a cog column and supply the column name to func_colname")
         results = function_taxonomy_analysis(df=df, cog_name=func_colname, lca_colname=tax_colname, samp_grps=samp_grps,
-                                             test=test, threshold=threshold, paired=paired, parametric=parametric,
-                                             data_dir=data_dir)
+                                             threshold=threshold, data_dir=data_dir)
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
     # set up written output

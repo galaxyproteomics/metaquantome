@@ -2,7 +2,7 @@ from metaquant.databases.GeneOntologyDb import GeneOntologyDb
 from metaquant.databases.cog import cogCat
 from metaquant.databases.cog import take_first_cog
 import metaquant.databases.EnzymeDb as ec
-from metaquant.util import utils
+from metaquant.util import utils, stats
 import metaquant.analysis.common as cha
 
 
@@ -22,9 +22,8 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
             func_set = set(func_series)
             mapper = go.map_set_to_slim(func_set)
             df_clean.loc[:, func_colname] = func_series.map(mapper)
-        results = cha.common_hierarchical_analysis(go, df_clean, func_colname, samp_grps,
-                                                   min_peptides, min_children_non_leaf,
-                                                   threshold)
+        results = cha.common_hierarchical_analysis(go, df_clean, func_colname, samp_grps, min_peptides,
+                                                   min_children_non_leaf, threshold)
         # todo: replace hard coded column names in utils
         gos = [go.gofull[x] for x in results['id']]
         results['name'] = [x.name for x in gos]
@@ -36,9 +35,9 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         cog_sum_df = cog_df[[func_colname] + samp_grps.all_intcols].\
             groupby(func_colname).\
             sum()
-        df_to_return = cog_sum_df
-        df_to_return['description'] = [cogCat[x] for x in df_to_return.index]
-        results = df_to_return
+        results = cha.common_hierarchical_analysis('cog', cog_sum_df, func_colname, samp_grps, min_peptides,
+                                                   min_children_non_leaf, threshold, hierarchical=False)
+        results['description'] = [cogCat[x] for x in results.index]
 
     elif ontology == "ec":
         ec_db = ec.EnzymeDb(data_dir, overwrite)
@@ -46,9 +45,8 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         is_not_nan = ~norm_df[func_colname].isnull()
         is_in_db = norm_df[func_colname].apply(ec_db.is_in_db)
         df_clean = norm_df.loc[is_not_nan & is_in_db].copy(deep=True)  # copy() avoids setting with copy warning
-        results = cha.common_hierarchical_analysis(ec_db, df_clean, func_colname, samp_grps,
-                                                   min_peptides, min_children_non_leaf,
-                                                   threshold)
+        results = cha.common_hierarchical_analysis(ec_db, df_clean, func_colname, samp_grps, min_peptides,
+                                                   min_children_non_leaf, threshold)
         results['descript'] = [ec_db.ecdb[term]['descript'] for term in results.index]
     else:
         raise ValueError("the desired ontology is not supported. " +

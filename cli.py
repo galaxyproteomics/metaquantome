@@ -9,22 +9,15 @@ def cli():
     # todo: also maybe split metaquant_runner into three functions to match the cli
 
     if args.command == "expand":
-        print('expand')
-        expand(args)
-        # run expand function
+        expand(mode=args.mode, samps=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
+               data_dir=args.data_dir, overwrite=args.overwrite, outfile=args.outfile, func_file=args.func_file,
+               func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down, tax_file=args.tax_file,
+               tax_colname=args.tax_colname, min_peptides=args.min_peptides,
+               min_children_non_leaf=args.min_children_non_leaf, threshold=args.threshold)
     elif args.command == "test":
         print('test')
-        # run test function
     elif args.command == "viz":
         print('viz')
-        # run expand function
-
-    # runner.metaquant_runner(args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
-    #                         func_file=args.func_file, func_colname=args.func_colname, tax_file=args.tax_file,
-    #                         ontology=args.ontology, tax_colname=args.tax_colname, outfile=args.outfile,
-    #                         slim_down=args.slim_down, test=args.test,
-    #                         paired=args.paired, threshold=args.threshold, data_dir=args.data_dir, overwrite=args.overwrite,
-    #                         min_peptides=args.min_peptides, min_children_non_leaf=args.min_children_non_leaf)
     sys.exit(0)
 
 

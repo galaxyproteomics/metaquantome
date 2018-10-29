@@ -3,14 +3,17 @@ from metaquant.util import stats
 import numpy as np
 
 
-def common_hierarchical_analysis(db, df, annot_colname, samp_grps,
-                                 min_peptides, min_children_non_leaf, threshold):
-    # import pdb; pdb.set_trace()
+def common_hierarchical_analysis(db, df, annot_colname, samp_grps, min_peptides, min_children_non_leaf, threshold,
+                                 hierarchical=True):
 
-    samp_annot = SampleAnnotations(db)
-    # make a hierarchy for each sample
-    samp_annot.add_samples_from_df(df, annot_colname, samp_grps, min_peptides, min_children_non_leaf)
-    intensity_all_ranks = samp_annot.to_dataframe()
+    # import pdb; pdb.set_trace()
+    if hierarchical:
+        samp_annot = SampleAnnotations(db)
+        # make a hierarchy for each sample
+        samp_annot.add_samples_from_df(df, annot_colname, samp_grps, min_peptides, min_children_non_leaf)
+        intensity_all_ranks = samp_annot.to_dataframe()
+    else:
+        intensity_all_ranks = df
 
     # filter
     int_all_ranks_filt = stats.filter_min_observed(intensity_all_ranks, threshold, samp_grps)

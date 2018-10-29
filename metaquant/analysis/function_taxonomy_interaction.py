@@ -5,7 +5,7 @@ import numpy as np
 from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
 
 
-def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, threshold, paired, parametric, data_dir):
+def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, threshold, data_dir):
     """
     Runs the function-taxonomy interaction analysis. For the documentation of other arguments, see metaquant.py
     :param df: joined taxonomy, intensity, and function tables
@@ -27,10 +27,10 @@ def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, test, thres
     grouped = df_int.groupby(by=[cog_name, lca_colname]).sum(axis=1)
 
     # test
-    if test:
-        results = stats.test_norm_intensity(grouped, samp_grps, threshold, paired, parametric)
-    else:
-        results = stats.calc_means(grouped, samp_grps)
+    # if test:
+    #     results = stats.test_norm_intensity(grouped, samp_grps, threshold, paired, parametric)
+    # else:
+    results = stats.calc_means(grouped, samp_grps)
 
     # take log of intensities for return
     results[results == 0] = np.nan
