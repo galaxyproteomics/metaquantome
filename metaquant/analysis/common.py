@@ -40,7 +40,7 @@ def common_hierarchical_analysis(db, df, annot_colname, samp_grps, min_peptides,
 def common_stats(intensity_df, samp_grps, test, threshold, paired, parametric):
     # test
     if test and samp_grps.ngrps == 2:
-        results = stats.test_norm_intensity(intensity_df, samp_grps, threshold, paired, parametric)
+        results = stats.test_norm_intensity(intensity_df, samp_grps, paired, parametric)
     else:
         results = stats.calc_means(intensity_df, samp_grps)
     # replace nan with zero, so that np.log2 returns nan

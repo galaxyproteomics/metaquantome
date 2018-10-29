@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
 import pandas as pd
-from metaquant.runner import metaquant_runner
 from tests.testutils import testfile, TTEST_SINFO
 from metaquant.analysis.expand import expand
+from metaquant.analysis.test import test
 
 
 class TestTaxonomyAnalysisExpand(unittest.TestCase):
@@ -30,17 +30,6 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         tax_df = expand('tax', samps='{"s1": ["int1", "int2", "int3"]}', int_file=int, tax_file=tax, tax_colname='lca')
         self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0], np.log2(70))
 
-    # def testTaxTTests(self):
-    #     tax=testfile('multiple_tax.tab')
-    #     int=testfile('int_ttest.tab')
-    #     tax_df = metaquant_runner('tax', sinfo=TTEST_SINFO, int_file=int, tax_file=tax, tax_colname='lca', test=True,
-    #                               paired=False, parametric=False)
-    #     # make sure false is > 0.05 and trues are less than 0.05
-    #     self.assertTrue(tax_df['p'][210] > 0.05)
-    #     self.assertTrue(tax_df['p'][[1496,1870884]].le(0.05).all())
-    #     # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae, divided by all phyla
-    #     self.assertEqual(tax_df['int1'][1239], np.log2(1020))
-
     def testParentIntensityHigher(self):
         """
         make sure that parents always have higher intensity than children
@@ -58,6 +47,19 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         # strep genus intensity should be greater than or equal to that of strep species
         self.assertGreaterEqual(ints[1301], ints[1302])
         self.assertGreaterEqual(ints[1301], ints[1305])
+
+
+class TestTaxonomyAnalysisTest(unittest.TestCase):
+    def testTaxTTests(self):
+        tax=testfile('multiple_tax.tab')
+        int=testfile('int_ttest.tab')
+        tax_df = expand('tax', samps=TTEST_SINFO, int_file=int, tax_file=tax, tax_colname='lca')
+        tax_tst = test(tax_df, samps=TTEST_SINFO, paired=False, parametric=False)
+        # make sure false is > 0.05 and trues are less than 0.05
+        self.assertTrue(tax_tst['p'][210] > 0.05)
+        self.assertTrue(tax_tst['p'][[1496,1870884]].le(0.05).all())
+        # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae, divided by all phyla
+        self.assertEqual(tax_tst['int1'][1239], np.log2(1020))
 
 
 if __name__ == '__main__':
