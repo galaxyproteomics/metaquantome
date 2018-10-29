@@ -2,6 +2,9 @@ import numpy as np
 import scipy.stats as sps
 import statsmodels.sandbox.stats.multicomp as mc
 
+P_COLNAME = 'p'
+P_CORR_COLNAME = 'corrected_p'
+
 
 def group_and_sum_by_rank(df, rank, all_intcols, norm_to_rank=False):
     # sum intensities in each rank
@@ -47,6 +50,7 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
     :param paired:
     :return:
     """
+
     grp1_intcols = samp_grps.sample_names[samp_grps.grp_names[0]]
     grp2_intcols = samp_grps.sample_names[samp_grps.grp_names[1]]
 
@@ -55,7 +59,7 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
 
     all_intcols = grp1_intcols + grp2_intcols
 
-    test_df = np.log2(df[all_intcols])
+    test_df = df
 
     # test, using logged df
     if parametric:
@@ -73,11 +77,10 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
                                                                 x[grp2_intcols].dropna()).pvalue,
                                          axis=1)
 
-    df_means = fold_change(calc_means(df, samp_grps), samp_grps, log=True)
+    df_means = fold_change(df, samp_grps, log=True)
 
-    df_means['p'] = test_results
-    df_means['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
-    df_means['id'] = df.index
+    df_means[P_COLNAME] = test_results
+    df_means[P_CORR_COLNAME] = mc.fdrcorrection0(test_results, method='indep')[1]
 
     return df_means
 
@@ -104,16 +107,9 @@ def calc_means(df, samp_grps):
 def fold_change(df, samp_grps, log=False):
     mean1 = samp_grps.mean_names[0]
     mean2 = samp_grps.mean_names[1]
-
-    grp1 = samp_grps.grp_names[0]
-    grp2 = samp_grps.grp_names[1]
-
     if log:
         fc = df[mean1] - df[mean2]
     else:
         fc = np.log2(df[mean1]/df[mean2])
-
-    fc_name = 'log2fc_' + grp1 + '_over_' + grp2
-
-    df[fc_name] = fc
+    df[samp_grps.fc_name] = fc
     return df

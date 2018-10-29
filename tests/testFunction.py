@@ -2,7 +2,6 @@ import unittest
 import numpy as np
 import os
 
-from metaquant.runner import metaquant_runner
 from metaquant.databases import GeneOntologyDb
 from metaquant.analysis.expand import expand
 from metaquant.analysis.test import test
@@ -22,13 +21,12 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testMultipleInt(self):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
-        go_df = metaquant_runner('fn', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, func_colname='go', func_file=func,
-                                 ontology='go')
+        go_df = expand('fn', samps='{"s1": ["int1", "int2", "int3"]}', int_file=int, func_colname='go', func_file=func,
+                       ontology='go')
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
         self.assertTrue(np.isnan(go_df.loc['GO:0000003']['int3']))
-
 
     def testSlimDown(self):
         func=testfile('func_eggnog.tab')

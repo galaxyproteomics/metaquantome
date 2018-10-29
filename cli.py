@@ -1,6 +1,7 @@
 import sys
 import argparse
 from metaquant.analysis.expand import expand
+from metaquant.analysis import test
 
 
 def cli():
@@ -14,8 +15,12 @@ def cli():
                func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down, tax_file=args.tax_file,
                tax_colname=args.tax_colname, min_peptides=args.min_peptides,
                min_children_non_leaf=args.min_children_non_leaf, threshold=args.threshold)
+
     elif args.command == "test":
-        print('test')
+        df = test.read_expanded(args.file)
+        df_test = test.test(df=df, paired=args.paired, parametric=args.parametric, samps=args.samps)
+        test.write_test(df_test, samps=args.samps, ontology=args.ontology, mode=args.mode, outfile=args.outfile)
+
     elif args.command == "viz":
         print('viz')
     sys.exit(0)
@@ -32,9 +37,11 @@ def parse_args_cli():
 
     # we need these two arguments in all three parsers
     for par in (parser_expand, parser_test, parser_viz):
-        common_tmp = par.add_argument_group('Required for all analyses')
+        common_tmp = par.add_argument_group('Arguments for all analyses')
         common_tmp.add_argument('--mode', '-m', choices=['fn', 'tax', 'taxfn'], required=True,
-                            help='Analysis mode. If taxfun is chosen, both function and taxonomy files must be provided')
+                            help='Analysis mode. If taxfn is chosen, both function and taxonomy files must be provided')
+        common_tmp.add_argument('--ontology', choices=['go', 'cog', 'ec'], required=False,
+                          help='Which functional terms to use. Ignored (and not required) if mode is not fn or taxfn.')
         # todo: make example of tabular samps file
         common_tmp.add_argument('--samps', '-s', required=True,
                             help='Give the column names in the intensity file that ' +
@@ -84,8 +91,8 @@ def parse_args_cli():
                            ' column should be given in --func_colname. Other columns will be ignored. ')
     func.add_argument('--func_colname',
                       help='Name of the functional column')
-    func.add_argument('--ontology', choices=['go', 'cog', 'ec'],
-                      help='Which functional terms to use.')
+    # func.add_argument('--ontology', choices=['go', 'cog', 'ec'],
+    #                   help='Which functional terms to use.')
     func.add_argument('--slim_down', action='store_true',
                       help='Flag. If provided, terms are mapped from the full OBO to the slim OBO. ' +
                            'Terms not in the full OBO will be skipped.')
@@ -106,13 +113,17 @@ def parse_args_cli():
     # METAQUANTOME TEST #
 
     # statistics
-    parser_test.add_argument('--file', '-f', help='Output file from metaquantome expand.')
+    parser_test.add_argument('--file', '-f', required=True,
+                             help='Output file from metaquantome expand.')
+    parser_test.add_argument('--outfile', required=True,
+                             help='Output file')
     parser_test.add_argument('--parametric', type=bool, default=True,
-                      help='Choose the type of test. If --parametric True is provided,' +
-                           'then a standard t-test is performed. If --parametric False is provided, ' +
-                           'then a Wilcoxon test is performed.')
+                             help='Choose the type of test. If --parametric True is provided,' +
+                                  'then a standard t-test is performed. If --parametric False is provided, ' +
+                                  'then a Wilcoxon test is performed.')
     parser_test.add_argument('--paired', action='store_true',
-                      help='Perform paired tests.')
+                             help='Perform paired tests.')
+
 
     # METAQUANTOME VIZ #
 
