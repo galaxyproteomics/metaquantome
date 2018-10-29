@@ -3,9 +3,7 @@ import metaquant.analysis.common as cha
 from metaquant.util import utils
 
 
-def taxonomy_analysis(df, samp_grps, test, threshold, paired, parametric, data_dir, tax_colname='lca',
-                      min_peptides=0,
-                      min_children_non_leaf=0):
+def taxonomy_analysis(df, samp_grps, data_dir, tax_colname='lca', min_peptides=0, min_children_non_leaf=0, threshold=0):
     if not data_dir:
         data_dir = utils.define_ontology_data_dir('taxonomy')
     # load ncbi database
