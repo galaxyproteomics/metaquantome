@@ -38,28 +38,24 @@ def filter_min_observed(df, threshold, samp_grps):
     return filtered_df
 
 
-def test_norm_intensity(df, samp_grps, threshold, paired, parametric, log=False):
+def test_norm_intensity(df, samp_grps, paired, parametric):
     """
 
     :param parametric:
     :param df:
     :param samp_grps: is a SampleGroups() object
-    :param threshold:
     :param paired:
-    :param log:
     :return:
     """
     grp1_intcols = samp_grps.sample_names[samp_grps.grp_names[0]]
     grp2_intcols = samp_grps.sample_names[samp_grps.grp_names[1]]
 
-    df_filt = filter_min_observed(df, threshold, samp_grps)
-
     # change any zeros back to NaN
-    df_filt.replace(0, np.nan, inplace=True)
+    df.replace(0, np.nan, inplace=True)
 
     all_intcols = grp1_intcols + grp2_intcols
 
-    test_df = np.log2(df_filt[all_intcols])
+    test_df = np.log2(df[all_intcols])
 
     # test, using logged df
     if parametric:
@@ -77,11 +73,11 @@ def test_norm_intensity(df, samp_grps, threshold, paired, parametric, log=False)
                                                                 x[grp2_intcols].dropna()).pvalue,
                                          axis=1)
 
-    df_means = fold_change(calc_means(df_filt, samp_grps), samp_grps, log=True)
+    df_means = fold_change(calc_means(df, samp_grps), samp_grps, log=True)
 
     df_means['p'] = test_results
     df_means['corrected_p'] = mc.fdrcorrection0(test_results, method='indep')[1]
-    df_means['id'] = df_filt.index
+    df_means['id'] = df.index
 
     return df_means
 
