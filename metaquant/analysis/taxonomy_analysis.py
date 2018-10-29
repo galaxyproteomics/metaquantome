@@ -24,7 +24,7 @@ def taxonomy_analysis(df, samp_grps, test, threshold, paired, parametric, data_d
     df_clean = df.loc[is_not_nan & is_in_db]
     results = cha.common_hierarchical_analysis(ncbi, df_clean, tax_colname, samp_grps,
                                                min_peptides, min_children_non_leaf,
-                                               test, threshold, paired, parametric)
+                                               threshold)
     results['rank'] = results['id'].apply(ncbi.get_rank)
 
     # translate ids back to names

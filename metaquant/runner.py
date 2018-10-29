@@ -7,6 +7,8 @@ import os
 import logging
 import sys
 
+from metaquant.util.io import define_outfile_cols
+
 
 def metaquant_runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=None, func_file=None, tax_file=None,
                      ontology='go', tax_colname=None, outfile=None, slim_down=False, test=False, paired=False, parametric=False,
@@ -56,25 +58,3 @@ def metaquant_runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=
     return results
 
 
-def define_outfile_cols(samp_grps, ontology, mode, test):
-    int_cols = []
-    if test:
-        fc_name = ['log2fc_' + samp_grps.grp_names[0] + '_over_' + samp_grps.grp_names[1]]
-        int_cols += fc_name + ['p', 'corrected_p']
-    int_cols += samp_grps.mean_names + samp_grps.all_intcols
-    if mode == 'fn':
-        if ontology == 'go':
-            cols = ['id', 'name', 'namespace'] + int_cols
-        elif ontology == 'cog':
-            cols = ['id', 'description'] + int_cols
-        elif ontology == 'ec':
-            cols = ['id', 'description'] + int_cols
-        else:
-            raise ValueError("Invalid ontology. Expected one of: %s" % ['go', 'cog', 'ec'])
-    elif mode == 'tax':
-        cols = ['id', 'taxon_name', 'rank'] + int_cols
-    elif mode == 'taxfn':
-        cols = [ontology, 'cog_descript', 'taxon_name', 'rank'] + int_cols
-    else:
-        raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
-    return cols

@@ -18,13 +18,22 @@ def group_and_sum_by_rank(df, rank, all_intcols, norm_to_rank=False):
     return return_df
 
 
-def filter_min_observed(df, grp1_intcols, grp2_intcols, threshold):
+def filter_min_observed(df, threshold, samp_grps):
+    # todo: update this so it works for any number of groups
     if threshold == 0:
         return df
-    # filter to a minimum number of observed intensities per sample
-    numNotNA1 = (df[grp1_intcols] > 0).apply(sum, axis=1) >= threshold
-    numNotNA2 = (df[grp2_intcols] > 0).apply(sum, axis=1) >= threshold
-    keep = numNotNA1 & numNotNA2
+
+    # filter to a minimum number of observed intensities per group
+    samp_loc = samp_grps.copy()
+    # get the columns for the first sample group
+    first = samp_loc.popitem()[1]
+    keep = (df[first] > 0).apply(sum, axis=1) >= threshold
+
+    # now, iterate over the rest
+    while len(samp_loc) > 0:
+        ith = samp_loc.popitem()[1]
+        ith_keep = (df[ith] > 0).apply(sum, axis=1) >= threshold
+        keep = keep & ith_keep
     filtered_df = df.loc[keep].copy()
     return filtered_df
 
@@ -43,7 +52,7 @@ def test_norm_intensity(df, samp_grps, threshold, paired, parametric, log=False)
     grp1_intcols = samp_grps.sample_names[samp_grps.grp_names[0]]
     grp2_intcols = samp_grps.sample_names[samp_grps.grp_names[1]]
 
-    df_filt = filter_min_observed(df, grp1_intcols, grp2_intcols, threshold)
+    df_filt = filter_min_observed(df, threshold, samp_grps)
 
     # change any zeros back to NaN
     df_filt.replace(0, np.nan, inplace=True)

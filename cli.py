@@ -10,29 +10,44 @@ from metaquant import runner
 
 def cli():
     args = parse_args_cli()
-    runner.metaquant_runner(args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
-                            func_file=args.func_file, func_colname=args.func_colname, tax_file=args.tax_file,
-                            ontology=args.ontology, tax_colname=args.tax_colname, outfile=args.outfile,
-                            slim_down=args.slim_down, test=args.test,
-                            paired=args.paired, threshold=args.threshold, data_dir=args.data_dir, overwrite=args.overwrite,
-                            min_peptides=args.min_peptides, min_children_non_leaf=args.min_children_non_leaf)
+    print(args)
+    # TODO: pass args to metaquant_runner as a list
+    # todo: also maybe split metaquant_runner into three functions to match the cli
+    # runner.metaquant_runner(args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
+    #                         func_file=args.func_file, func_colname=args.func_colname, tax_file=args.tax_file,
+    #                         ontology=args.ontology, tax_colname=args.tax_colname, outfile=args.outfile,
+    #                         slim_down=args.slim_down, test=args.test,
+    #                         paired=args.paired, threshold=args.threshold, data_dir=args.data_dir, overwrite=args.overwrite,
+    #                         min_peptides=args.min_peptides, min_children_non_leaf=args.min_children_non_leaf)
     sys.exit(0)
 
 
 def parse_args_cli():
-    # todo: split into two/three modules
     parser = argparse.ArgumentParser()
 
-    # required for all analyses
-    common = parser.add_argument_group('Required for all analyses')
-    common.add_argument('--mode', '-m', choices=['fn', 'tax', 'taxfn'], required=True,
-                        help='Analysis mode. If taxfun is chosen, both function and taxonomy files must be provided')
-    common.add_argument('--samps', '-s', required=True,
-                        help='Give the column names in the intensity file that ' +
-                             'correspond to a given sample group. ' +
-                             'This can either be JSON formatted or be a path to a tabular file. ' +
-                             'JSON example of two experimental groups and two samples in each group: ' +
-                             '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
+    # split this into three submodules
+    subparsers = parser.add_subparsers()
+    parser_expand = subparsers.add_parser('expand')
+    parser_test = subparsers.add_parser('test')
+    parser_viz = subparsers.add_parser('viz')
+
+    # we need these two arguments in all three parsers
+    for par in (parser_expand, parser_test, parser_viz):
+        common_tmp = par.add_argument_group('Required for all analyses')
+        common_tmp.add_argument('--mode', '-m', choices=['fn', 'tax', 'taxfn'], required=True,
+                            help='Analysis mode. If taxfun is chosen, both function and taxonomy files must be provided')
+        # todo: make example of tabular samps file
+        common_tmp.add_argument('--samps', '-s', required=True,
+                            help='Give the column names in the intensity file that ' +
+                                 'correspond to a given sample group. ' +
+                                 'This can either be JSON formatted or be a path to a tabular file. ' +
+                                 'JSON example of two experimental groups and two samples in each group: ' +
+                                 '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
+
+    # METAQUANTOME EXPAND #
+    common = parser_expand.add_argument_group('Arguments for all 3 modes')
+    common.add_argument('--pep', type=bool, default=True,
+                        help="Peptides or no peptides.")
     common.add_argument('--int_file', '-i', required=True,
                         help='Path to the file with intensity data. Must be tabular, have a peptide sequence column, '+
                              'and be raw, untransformed intensity values. Missing values can be 0, NA, or NaN' +
@@ -56,9 +71,14 @@ def parse_args_cli():
                         help='Used for filtering to informative annotations. ' +
                              'A term is retained if it has a number of children ' +
                              'greater than or equal to min_children_non_leaf. ')
+    common.add_argument('--threshold', type=int, default=3,
+                        help='Minimum number of intensities in each sample group. ' +
+                             'Any functional/taxonomic term with lower number of per-group intensities ' +
+                             'will be filtered out. The default is 3, because this is the minimum ' +
+                             'number for t-tests.')
 
     # function-specific
-    func = parser.add_argument_group('Function')
+    func = parser_expand.add_argument_group('Function')
     func.add_argument('--func_file', '-f',
                       help='Path to file with function. The file must be tabular, with a peptide sequence column '+
                            'and either a GO-term column, COG column, or EC number column. The name of the functional'
@@ -75,7 +95,7 @@ def parse_args_cli():
                            'overwriting any previously downloaded databases at these locations.')
 
     # taxonomy-specific
-    tax = parser.add_argument_group('Taxonomy')
+    tax = parser_expand.add_argument_group('Taxonomy')
     tax.add_argument('--tax_file', '-t',
                      help='Path to (tabular) file with taxonomy assignments. There should be a peptide sequence ' +
                           'column with name pep_colname, and a taxonomy column with name tax_colname')
@@ -84,17 +104,18 @@ def parse_args_cli():
                           'must be either NCBI taxids (strongly preferred) or taxonomy names. ' +
                           'Unipept name output is known to function well, but other formats may not work.')
 
+    # METAQUANTOME TEST #
+
     # statistics
-    stat = parser.add_argument_group('Statistics')
-    stat.add_argument('--test', action='store_true',
-                      help='Perform t-tests on the summed intensities.' +
-                           'FDR-corrected q-values are returned.')
-    stat.add_argument('--paired', action='store_true',
-                      help='If --test and --paired are provided, perform paired t-tests.')
-    stat.add_argument('--threshold', type=int,
-                      help='Minimum number of intensities in each sample group. ' +
-                           'Anything with lower number of intensities will be filtered out.' +
-                           'Only applies when testing, not to descriptive statistics.')
+    parser_test.add_argument('--file', '-f', help='Output file from metaquantome expand.')
+    parser_test.add_argument('--parametric', type=bool, default=True,
+                      help='Choose the type of test. If --parametric True is provided,' +
+                           'then a standard t-test is performed. If --parametric False is provided, ' +
+                           'then a Wilcoxon test is performed.')
+    parser_test.add_argument('--paired', action='store_true',
+                      help='Perform paired tests.')
+
+    # METAQUANTOME VIZ #
 
     args = parser.parse_args()
     return args
