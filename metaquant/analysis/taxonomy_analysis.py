@@ -20,9 +20,8 @@ def taxonomy_analysis(df, samp_grps, data_dir, tax_colname='lca', min_peptides=0
     is_not_nan = df[tax_colname].notnull()
     is_in_db = df[tax_colname].apply(ncbi.is_in_db)
     df_clean = df.loc[is_not_nan & is_in_db]
-    results = cha.common_hierarchical_analysis(ncbi, df_clean, tax_colname, samp_grps,
-                                               min_peptides, min_children_non_leaf,
-                                               threshold)
+    results = cha.common_hierarchical_analysis(ncbi, df_clean, tax_colname, samp_grps, min_peptides,
+                                               min_children_non_leaf, threshold)
     results['rank'] = results['id'].apply(ncbi.get_rank)
 
     # translate ids back to names
