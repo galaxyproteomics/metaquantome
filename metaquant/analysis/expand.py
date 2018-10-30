@@ -5,18 +5,23 @@ from metaquant.analysis.function_taxonomy_interaction import function_taxonomy_a
 from metaquant.SampleGroups import SampleGroups
 
 
-def expand(mode, samps, int_file, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None, func_file=None,
+def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None, func_file=None,
            func_colname=None, ontology='go', slim_down=False, tax_file=None, tax_colname=None, min_peptides=0,
-           min_children_non_leaf=0, threshold=0):
+           min_children_non_leaf=0, threshold=0, nopep=False, nopep_file=None):
 
     samp_grps = SampleGroups(samps)
 
     # todo: move threshold to expand
     # read and join files - depending on pep/nopep
-    df = io.read_and_join_files(mode, pep_colname, samp_grps,
-                                int_file=int_file,
-                                func_file=func_file, func_colname=func_colname,
-                                tax_colname=tax_colname, tax_file=tax_file)
+    if nopep:
+        df = io.read_nopep_table(file=nopep_file, samp_grps=samp_grps,
+                                 mode=mode,func_colname=func_colname,
+                                 tax_colname=tax_colname)
+    else:
+        df = io.read_and_join_files(mode, pep_colname, samp_grps,
+                                    int_file=int_file,
+                                    func_file=func_file, func_colname=func_colname,
+                                    tax_colname=tax_colname, tax_file=tax_file)
     # run analysis based on modes
     if mode == 'fn':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps,

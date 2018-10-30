@@ -93,3 +93,15 @@ uni.to_csv(os.path.join(DATA_DIR, 'test', 'unipept_sample7_int_clean.tab'), sep=
 # make lca table for testing filtering
 uni_raw.to_csv(os.path.join(DATA_DIR, 'test', 'unipept_sample7_taxonomy.tab'), sep='\t', columns=['lca'],
            index_label="peptide")
+
+# make nopep table
+
+nopep = pd.DataFrame({'go': ['GO:0008152', 'GO:0022610', 'GO:0000003,GO:0032505'],
+                      'cog': ['C', 'N', None,],
+                      'ec': ['3.4.11.-', '3.4.21.70', '1.2.-.-'],
+                      'int1': [10, 40, 50],
+                      'int2': [20, 30, 50],
+                      'int3': [70, 30, 0],
+                      'lca': ['210', '1496', '1870884']})
+nopep.to_csv(os.path.join(DATA_DIR, 'test', 'nopep.tab'), sep='\t',
+             index=False)
