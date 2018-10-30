@@ -72,9 +72,16 @@ def tidy_split(df, column, sep='|', keep=False):
 
 
 def sniff_tax_names(df, tax_colname):  # todo: move to NCBI database
+    '''
+    if greater than 90% of entries contain numbers, then we say it is numeric
+    otherwise, we attempt to convert the names to taxids
+    :param df:
+    :param tax_colname:
+    :return:
+    '''
     pattern = re.compile(r'[0-9]')  # little bit faster to compile
     is_numeric = df[tax_colname].str.contains(pattern)
-    if is_numeric.any():
+    if is_numeric.mean() > 0.9:
         return False  # if any entries contain numbers, assume taxids (already converted missings to NA)
     else:
         return True  # else names

@@ -62,6 +62,7 @@ def read_taxonomy_table(file, pep_colname, tax_colname):
                        na_values=MISSING_VALUES, dtype={tax_colname: object})
     # take only specified column
     df_tax = df.loc[:, [tax_colname]]
+
     # drop nas
     df_tax.dropna(inplace=True, axis=0)
     return df_tax
