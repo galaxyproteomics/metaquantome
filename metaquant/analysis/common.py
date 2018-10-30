@@ -17,7 +17,7 @@ def common_hierarchical_analysis(db, df, annot_colname, samp_grps, min_peptides,
 
     # filter
     int_all_ranks_filt = stats.filter_min_observed(intensity_all_ranks, threshold, samp_grps)
-    int_all_ranks_filt['id'] = intensity_all_ranks.index
+    int_all_ranks_filt['id'] = int_all_ranks_filt.index
 
     # calculate means
     int_w_means = stats.calc_means(int_all_ranks_filt, samp_grps)
