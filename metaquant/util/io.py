@@ -82,6 +82,34 @@ def read_function_table(file, pep_colname, func_colname):
     return df_new
 
 
+def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None):
+    newdict = samp_grps.dict_numeric_cols.copy()
+    newdict[func_colname] = object
+    newdict[tax_colname] = object
+    df = pd.read_table(file, sep="\t",
+                       dtype=newdict,
+                       na_values=MISSING_VALUES,
+                       low_memory=False)
+    # change remaining missing intensities to 0, for arithmetic (changed back to NA for export)
+    values = {x: 0 for x in samp_grps.all_intcols}
+    df.fillna(values, inplace=True)
+    sub = list()
+    if mode == 'fn':
+        sub = [func_colname]
+        df.dropna(how='all', subset=sub, inplace=True)
+    elif mode == 'tax':
+        sub = [tax_colname]
+    elif mode == 'taxfn':
+        sub = [func_colname, tax_colname]
+
+    df.dropna(how='all', subset=sub, inplace=True)
+
+    # type_change = {col: object for col in sub}
+    # df_new = df.astype(dtype=type_change)
+    return df
+
+
+
 def join_on_peptide(dfs):
     # join inner means that only peptides present in all dfs will be kept
     df_all = dfs.pop(0)
