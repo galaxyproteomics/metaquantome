@@ -53,6 +53,13 @@ class TestGeneOntologyDb(unittest.TestCase):
         obs_result = self.db.map_set_to_slim(test_set)
         self.assertDictEqual(exp_result, obs_result)
 
+    def testMakeSetNonredundant(self):
+        goset = {'GO:0006915', 'GO:0008150'}
+        exp_result = {'GO:0006915'}
+        obs_result = self.db.make_set_nonredundant(goset)
+        self.assertSetEqual(exp_result, obs_result)
+
+
     def testGetChildren(self):
         testid = "GO:0098632"  # cell-cell adhesion mediator activity
         # expected children

@@ -63,6 +63,20 @@ class GeneOntologyDb:
             mapper[id] = self.map_id_to_slim(id)
         return mapper
 
+    def make_set_nonredundant(self, goset):
+        """
+        Take a set of go terms and return only the
+        GO terms that are not the ancestor of any
+        other term in the set
+        :param goset: set of GO terms to be reduced
+        :return: the set of GO terms with redundant terms removed
+        """
+        reduced_set = goset.copy()
+        for goid in goset:
+            ancestors = self.get_ancestors(goid)
+            reduced_set.difference_update(ancestors)
+        return reduced_set
+
     def map_id_to_slim(self, goid):
         """
         Maps a GO term ID to the most closely related term in the generic GO slim.
