@@ -1,16 +1,23 @@
 import sys
 import argparse
+import logging
+
 from metaquant.analysis.expand import expand
 from metaquant.analysis import test
 
 
 def cli():
+    # initialize logger
+    logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
+
     args = parse_args_cli()
     # TODO: pass args to metaquant_runner as a list
     # todo: also maybe split metaquant_runner into three functions to match the cli
 
     if args.command == "expand":
-        expand(mode=args.mode, samps=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
+        expand(mode=args.mode, samps=args.samps,
+               nopep=args.nopep, nopep_file = args.nopep_file,
+               int_file=args.int_file, pep_colname=args.pep_colname,
                data_dir=args.data_dir, overwrite=args.overwrite, outfile=args.outfile, func_file=args.func_file,
                func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down, tax_file=args.tax_file,
                tax_colname=args.tax_colname, min_peptides=args.min_peptides,
@@ -52,13 +59,15 @@ def parse_args_cli():
 
     # METAQUANTOME EXPAND #
     common = parser_expand.add_argument_group('Arguments for all 3 modes')
-    common.add_argument('--pep', type=bool, default=True,
-                        help="Peptides or no peptides.")
-    common.add_argument('--int_file', '-i', required=True,
+    common.add_argument('--nopep', action="store_true",
+                        help="If provided, need to provide a --nopep_file.")
+    common.add_argument('--nopep_file',
+                        help="File with functional annotations and intensities. ")
+    common.add_argument('--int_file', '-i',
                         help='Path to the file with intensity data. Must be tabular, have a peptide sequence column, '+
                              'and be raw, untransformed intensity values. Missing values can be 0, NA, or NaN' +
                              '- transformed to NA for analysis')
-    common.add_argument('--pep_colname', required=True,
+    common.add_argument('--pep_colname',
                         help='The column name within the intensity, function, and/or taxonomy file that corresponds ' +
                              'to the peptide sequences. ')
     common.add_argument('--outfile', required=True,
@@ -91,8 +100,6 @@ def parse_args_cli():
                            ' column should be given in --func_colname. Other columns will be ignored. ')
     func.add_argument('--func_colname',
                       help='Name of the functional column')
-    # func.add_argument('--ontology', choices=['go', 'cog', 'ec'],
-    #                   help='Which functional terms to use.')
     func.add_argument('--slim_down', action='store_true',
                       help='Flag. If provided, terms are mapped from the full OBO to the slim OBO. ' +
                            'Terms not in the full OBO will be skipped.')
@@ -124,8 +131,8 @@ def parse_args_cli():
     parser_test.add_argument('--paired', action='store_true',
                              help='Perform paired tests.')
 
-
     # METAQUANTOME VIZ #
+    # todo
 
     args = parser.parse_args()
     return args

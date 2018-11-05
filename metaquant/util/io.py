@@ -96,7 +96,6 @@ def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None)
     sub = list()
     if mode == 'fn':
         sub = [func_colname]
-        df.dropna(how='all', subset=sub, inplace=True)
     elif mode == 'tax':
         sub = [tax_colname]
     elif mode == 'taxfn':

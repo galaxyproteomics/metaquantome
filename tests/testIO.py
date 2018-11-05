@@ -1,10 +1,10 @@
 import unittest
+import os
 
 import metaquant.SampleGroups
 from metaquant.util import io
-import os
 from metaquant.util.utils import DATA_DIR
-
+from tests.testutils import testfile, TTEST_SINFO
 
 class TestIO(unittest.TestCase):
 
@@ -32,6 +32,18 @@ class TestIO(unittest.TestCase):
 
         self.assertSetEqual(set(dfs_joined), {'int1', 'int2', 'lca', 'go'})
 
+    def testNopepIn(self):
+        nopep = testfile('nopep.tab')
+        sinfo = '{"s1":["int1", "int2", "int3"]}'
+        samp_grps = metaquant.SampleGroups.SampleGroups(sinfo)
+
+        go_df = io.read_nopep_table(mode='fn', samp_grps=samp_grps,
+                                    file=nopep, func_colname='cog')
+        # test that go is in columns
+        self.assertIn('cog', go_df.keys())
+        # test that there are only two rows
+        # the row with an NA cog was filtered out
+        self.assertEqual(go_df.shape[0], 2)
 
 if __name__=='__main__':
     unittest.main()
