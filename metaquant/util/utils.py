@@ -30,6 +30,7 @@ def safe_cast_to_list(obj):
 
 
 def split_func_list(df, sep, func_colname):
+    # replace old func colname with reduced
     new_df = tidy_split(df, func_colname, sep=sep, keep=False)
     return new_df
 

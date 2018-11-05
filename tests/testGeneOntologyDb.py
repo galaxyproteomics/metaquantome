@@ -3,7 +3,7 @@ from metaquant.databases import GeneOntologyDb as godb
 from metaquant.util.utils import DATA_DIR
 import os
 import shutil
-
+import pandas as pd
 
 class TestGeneOntologyDb(unittest.TestCase):
     TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 8/27/18
@@ -52,13 +52,6 @@ class TestGeneOntologyDb(unittest.TestCase):
                       "gibberish": 'unknown'}
         obs_result = self.db.map_set_to_slim(test_set)
         self.assertDictEqual(exp_result, obs_result)
-
-    def testMakeSetNonredundant(self):
-        goset = {'GO:0006915', 'GO:0008150'}
-        exp_result = {'GO:0006915'}
-        obs_result = self.db.make_set_nonredundant(goset)
-        self.assertSetEqual(exp_result, obs_result)
-
 
     def testGetChildren(self):
         testid = "GO:0098632"  # cell-cell adhesion mediator activity
