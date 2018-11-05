@@ -37,7 +37,8 @@ python -m unittest discover tests
     - check that sample info provides a list, or is coerced to a list
     - don't return above phylum
     - don't return BP, MF, or CC
-    - just pass args from cli?
+    - raise error when all rows are filtered out
+    - strip any newlines in samps file
 - configure Travis CI on Github
 - add option for specific rank in TF
 - move threshold to calculating mean values as well

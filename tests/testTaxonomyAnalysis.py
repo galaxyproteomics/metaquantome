@@ -19,8 +19,7 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         tax = testfile('simple_tax.tab')
         int = testfile('simple_int.tab')
         out = testfile('taxonomy_write_simple.tab')
-        expand(mode='tax', samps='{"samp1": ["int"]}',
-               int_file=int, tax_file=tax, tax_colname='lca', outfile=out)
+        expand(mode='tax', samps='{"samp1": ["int"]}', int_file=int, outfile=out, tax_file=tax, tax_colname='lca')
         written = pd.read_table(out)
         self.assertAlmostEqual(written.query("taxon_name == 'Clostridioides difficile'")['samp1_mean'].values[0], np.log2(200))
 
@@ -30,15 +29,22 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         tax_df = expand('tax', samps='{"s1": ["int1", "int2", "int3"]}', int_file=int, tax_file=tax, tax_colname='lca')
         self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0], np.log2(70))
 
+    def testNopep(self):
+        nopep=testfile('nopep.tab')
+        tax_df = expand('tax', samps='{"s1": ["int1", "int2", "int3"]}',
+                        tax_colname='lca',
+                        nopep=True, nopep_file=nopep)
+        self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0],
+                         np.log2(70))
+
     def testParentIntensityHigher(self):
         """
         make sure that parents always have higher intensity than children
         """
         tax=testfile('test_root_sum_uni.tab')
         int=testfile('test_root_sum_int.tab')
-        tax_df = expand('tax', samps='{"A": ["int"]}', pep_colname='peptide',
-                        int_file=int, tax_file=tax, tax_colname='taxon_id',
-                        min_peptides=1, min_children_non_leaf=1)
+        tax_df = expand('tax', samps='{"A": ["int"]}', int_file=int, pep_colname='peptide', tax_file=tax,
+                        tax_colname='taxon_id', min_peptides=1, min_children_non_leaf=1)
         # filter to phylum and below
         tax_df_filt = tax_df[(tax_df["rank"] != 'no rank') & (tax_df["rank"] != 'superkingdom')]
         # firmicutes phylum should be highest
