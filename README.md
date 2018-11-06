@@ -27,6 +27,7 @@ python -m unittest discover tests
 
 ## High Priority
 - visualizations
+- another module for cluster distance
 - documentation
 - switch to metagenomics slim
 - better arg checking
