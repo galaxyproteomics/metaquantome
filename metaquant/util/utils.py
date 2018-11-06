@@ -8,6 +8,7 @@ EC_SUBDIR = 'enzyme'
 TAX_SUBDIR = 'ncbi'
 
 
+
 def define_ontology_data_dir(ontology):
     base_ddir = DATA_DIR
     if ontology == "go":

@@ -1,5 +1,5 @@
 from goatools import obo_parser
-import wget
+import urllib.request as req
 import os
 from metaquant.util.utils import safe_cast_to_list
 import logging
@@ -23,18 +23,26 @@ class GeneOntologyDb:
             self.slim_members = set(goslim.keys())
 
     @staticmethod
-    def _go_database_handler(data_dir, slim_down, overwrite):
+    def _download_obo(url, tar):
+        obo = req.urlopen(url)
+        data = obo.read()
+        tarfile = open(tar, 'wb')
+        tarfile.write(data)
+        tarfile.close()
+
+    def _go_database_handler(self, data_dir, slim_down, overwrite):
         obo_path = os.path.join(data_dir, 'go-basic.obo')
-        slim_path = os.path.join(data_dir, 'goslim_generic.obo')
-        if (os.path.exists(obo_path) or os.path.exists(slim_path)) and not overwrite:
+        slim_path = os.path.join(data_dir, 'goslim_metagenomics.obo')
+        if (os.path.exists(obo_path) and os.path.exists(slim_path)) and not overwrite:
             logging.info('Using GO files in ' + data_dir)
         else:
             full_obo_url = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
             logging.info('Downloading full GO obo file from ' + full_obo_url + ' to ' + obo_path)
-            wget.download(full_obo_url, out=obo_path)
-            slim_obo_url = 'http://www.geneontology.org/ontology/subsets/goslim_generic.obo'
+            self._download_obo(full_obo_url, obo_path)
+
+            slim_obo_url = 'http://current.geneontology.org/ontology/subsets/goslim_metagenomics.obo'
             logging.info('Downloading generic slim GO obo file from ' + slim_obo_url + ' to ' + slim_path)
-            wget.download(slim_obo_url, out=slim_path)
+            self._download_obo(slim_obo_url, slim_path)
         # read gos
         go_dag = obo_parser.GODag(obo_path)
         if slim_down:
@@ -62,7 +70,6 @@ class GeneOntologyDb:
         for id in sample_set:
             mapper[id] = self.map_id_to_slim(id)
         return mapper
-
 
     def map_id_to_slim(self, goid):
         """
@@ -109,6 +116,7 @@ class GeneOntologyDb:
                 closest_in_slim = first_alpha
         return closest_in_slim
 
+    # todo: can this be removed? we are filtering at an earlier stage
     def _safe_query_go(self, goid):
         if goid in self.gofull.keys():
             return self.gofull[goid]

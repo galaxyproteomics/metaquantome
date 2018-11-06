@@ -5,17 +5,18 @@ import os
 import shutil
 import pandas as pd
 
+
 class TestGeneOntologyDb(unittest.TestCase):
-    TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 8/27/18
-    db = godb.GeneOntologyDb(TEST_DIR, slim_down=True)
+    TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 11/5/18
+    db = godb.GeneOntologyDb(TEST_DIR, slim_down=True, overwrite=False)
 
     def testDownloadGO(self):
         tmp_dir = os.path.join(DATA_DIR, 'tmp_go_data_dwnld')
         os.mkdir(tmp_dir)
         try:
-            go = godb.GeneOntologyDb(tmp_dir)
+            go = godb.GeneOntologyDb(tmp_dir, slim_down=True)
             expected_contents = [os.path.join(tmp_dir, file)
-                                 for file in ['go-basic.obo', 'goslim_generic.obo']]
+                                 for file in ['go-basic.obo', 'goslim_metagenomics.obo']]
             for content in expected_contents:
                 self.assertTrue(os.path.exists(content))
             # make sure parsed correctly
@@ -25,16 +26,16 @@ class TestGeneOntologyDb(unittest.TestCase):
 
     def testMapIdToSlim(self):
         # the case where the test term has a parent in the slim set
-        testid = "GO:0001842" # neural fold formation
-        # closest ancestor in slim is GO:0048646, anatomical structure formation involved in morphogenesis
-        exp_closest = "GO:0048646"
+        testid = "GO:0009343" # biotin carboxylase complex
+        # closest ancestor in slim is GO:1902494, catalytic complex
+        exp_closest = "GO:1902494"
         obs_closest = self.db.map_id_to_slim(testid)
         self.assertEqual(exp_closest, obs_closest)
 
         # case where test term has a grandparent in the slim set
-        test_grand_id = "GO:0007623"  # circadian rhythm
-        # closest ancestor in slim is GO:0008150, biological process
-        exp_grand_closest = "GO:0008150"
+        test_grand_id = "GO:0032284"  # GO:0032284 plastid biotin carboxylase complex
+        # closest ancestor in slim is again GO:1902494, catalytic complex
+        exp_grand_closest = "GO:1902494"
         obs_grand_closest = self.db.map_id_to_slim(test_grand_id)
         self.assertEqual(exp_grand_closest, obs_grand_closest)
 
@@ -46,9 +47,9 @@ class TestGeneOntologyDb(unittest.TestCase):
 
     def testMapSetToSlim(self):
         # use the same terms as in testMapIdToSlim
-        test_set = {"GO:0001842", "GO:0007623", "gibberish"}
-        exp_result = {"GO:0001842": "GO:0048646",
-                      "GO:0007623": "GO:0008150",
+        test_set = {"GO:0009343", "GO:0032284", "gibberish"}
+        exp_result = {"GO:0009343": "GO:1902494",
+                      "GO:0032284": "GO:1902494",
                       "gibberish": 'unknown'}
         obs_result = self.db.map_set_to_slim(test_set)
         self.assertDictEqual(exp_result, obs_result)
@@ -103,3 +104,7 @@ class TestGeneOntologyDb(unittest.TestCase):
     def testGetAncestors_Unknown(self):
         testid = "notagoterm"
         self.assertSetEqual(self.db.get_ancestors(testid), set())
+
+
+if __name__=="__main__":
+    unittest.main()
