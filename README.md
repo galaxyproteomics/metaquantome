@@ -28,6 +28,7 @@ python -m unittest discover tests
 ## High Priority
 - visualizations
 - documentation
+- switch to metagenomics slim
 - better arg checking
     - deal with sample that is completely missing values
     - deal with missing values better

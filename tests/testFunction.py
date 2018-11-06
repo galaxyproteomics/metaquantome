@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import os
 
-from metaquant.databases import GeneOntologyDb
+from metaquant.databases import GeneOntologyDb as godb
 from metaquant.analysis.expand import expand
 from metaquant.analysis.test import test
 from tests.testutils import testfile, TTEST_SINFO
@@ -10,11 +10,14 @@ from metaquant.util.utils import DATA_DIR, GO_SUBDIR
 
 
 class TestFunctionalAnalysisExpand(unittest.TestCase):
+    TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 11/5/18
+    db = godb.GeneOntologyDb(TEST_DIR, slim_down=True, overwrite=False)
+
     def testSingleInt(self):
         func=testfile('simple_func.tab')
         int=testfile('simple_int.tab')
         go_df = expand('fn', samps='{"s1": ["int"]}', int_file=int, pep_colname='peptide', func_file=func,
-                       func_colname='go', ontology='go')
+                       func_colname='go', ontology='go', data_dir=self.TEST_DIR)
         self.assertEqual(go_df.loc["GO:0022610"]['int'], np.log2(200))
         self.assertEqual(go_df.loc["GO:0008152"]['int'], np.log2(100))
 
@@ -22,7 +25,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
         go_df = expand('fn', samps='{"s1": ["int1", "int2", "int3"]}', int_file=int, func_file=func, func_colname='go',
-                       ontology='go')
+                       ontology='go', data_dir = self.TEST_DIR)
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
@@ -32,7 +35,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testNopep(self):
         nopep=testfile('nopep.tab')
         go_df = expand('fn', samps='{"s1": ["int1", "int2", "int3"]}', nopep=True, nopep_file=nopep,
-                       ontology='go', func_colname='go').sort_index(axis=1)
+                       ontology='go', func_colname='go', data_dir=self.TEST_DIR).sort_index(axis=1)
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
@@ -46,14 +49,13 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         int=testfile('int_eggnog.tab')
         sinfo='{"NS": ["int737NS", "int852NS", "int867NS"], "WS": ["int737WS", "int852WS", "int867WS"]}'
         go_df = expand('fn', samps=sinfo, int_file=int, func_file=func, func_colname='go', ontology='go',
-                       slim_down=True)
+                       slim_down=True, data_dir=self.TEST_DIR)
         # test that all go terms are in slim
         # load slim
-        go = GeneOntologyDb.GeneOntologyDb(data_dir=os.path.join(DATA_DIR, GO_SUBDIR), slim_down=True, overwrite=False)
         returned_gos = set(go_df['id'])
         # potential of unknown, so just drop that
         returned_gos.discard('unknown')
-        self.assertTrue(returned_gos.issubset(go.goslim.keys()))
+        self.assertTrue(returned_gos.issubset(self.db.goslim.keys()))
 
     def testCog(self):
         func=testfile('multiple_func.tab')
@@ -83,10 +85,14 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
 
 
 class TestFunctionalAnalysisTest(unittest.TestCase):
+    TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 11/5/18
+    go_db = godb.GeneOntologyDb(TEST_DIR, slim_down=True, overwrite=False)
+
     def testDA(self):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
-        df_expd = expand('fn', samps=TTEST_SINFO, int_file=int, func_file=func, func_colname='go', ontology='go')
+        df_expd = expand('fn', samps=TTEST_SINFO, int_file=int, func_file=func, func_colname='go', ontology='go',
+                         data_dir=self.TEST_DIR)
         df_tst = test(df_expd, samps=TTEST_SINFO, paired=False, parametric=True)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(df_tst['p']['GO:0008152'] > 0.05)

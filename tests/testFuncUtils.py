@@ -27,6 +27,11 @@ class TestFuncUtils(unittest.TestCase):
         obs_result = fu.reduce_func(self.go_db, gochar, ',')
         self.assertEqual(exp_result, obs_result)
 
+    def testUnipeptMakeListNonRedundantGO(self):
+        gochar = 'GO:1903494,GO:1903496,GO:0042742,GO:0005794,GO:0005796,GO:0005576,GO:0042803,GO:0035375'
+        obs_result = fu.reduce_func(self.go_db, gochar, ',')
+        self.assertSetEqual(set(obs_result.split(',')), set(gochar.split(',')))
+
     def testMakeListNonRedundantEC(self):
         ecchar = '1.1.4.-,1.1.4.2'
         exp_result = '1.1.4.2'

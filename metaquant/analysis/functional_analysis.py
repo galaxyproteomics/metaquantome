@@ -21,10 +21,12 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
             db = ec.EnzymeDb(data_dir, overwrite)
         # reduce df to non-redundant functional terms
         # todo: add sep to args
-        df = funcutils.reduce_func_df(db=db, df=df, func_colname=func_colname, sep=',')
+        red_df = funcutils.reduce_func_df(db=db, df=df, func_colname=func_colname, sep=',')
+    else:
+        red_df = df
 
     # normalize df, so each row has one functional term
-    norm_df = utils.split_func_list(df, sep=',', func_colname=func_colname)
+    norm_df = utils.split_func_list(red_df, sep=',', func_colname=func_colname)
 
     if ontology == "go":
         # filter to only those in full GO
@@ -42,7 +44,14 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         gos = [db.gofull[x] for x in results['id']]
         results['name'] = [x.name for x in gos]
         results['namespace'] = [x.namespace for x in gos]
-
+    elif ontology == "ec":
+        # filter to only those in Enzyme database
+        is_not_nan = ~norm_df[func_colname].isnull()
+        is_in_db = norm_df[func_colname].apply(db.is_in_db)
+        df_clean = norm_df.loc[is_not_nan & is_in_db].copy(deep=True)  # copy() avoids setting with copy warning
+        results = cha.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps, min_peptides,
+                                                   min_children_non_leaf, threshold)
+        results['descript'] = [db.ecdb[term]['descript'] for term in results.index]
     elif ontology == "cog":
         # todo: change to common hierarchical analysis
         cog_df = take_first_cog(df, func_colname)
@@ -52,15 +61,6 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         results = cha.common_hierarchical_analysis('cog', cog_sum_df, func_colname, samp_grps, min_peptides,
                                                    min_children_non_leaf, threshold, hierarchical=False)
         results['description'] = [cogCat[x] for x in results.index]
-
-    elif ontology == "ec":
-        # filter to only those in Enzyme database
-        is_not_nan = ~norm_df[func_colname].isnull()
-        is_in_db = norm_df[func_colname].apply(db.is_in_db)
-        df_clean = norm_df.loc[is_not_nan & is_in_db].copy(deep=True)  # copy() avoids setting with copy warning
-        results = cha.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps, min_peptides,
-                                                   min_children_non_leaf, threshold)
-        results['descript'] = [db.ecdb[term]['descript'] for term in results.index]
     else:
         raise ValueError("the desired ontology is not supported. " +
                          "Please use either GO (ontology = 'go'), " +

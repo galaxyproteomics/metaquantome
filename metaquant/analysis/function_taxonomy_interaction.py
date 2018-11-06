@@ -7,17 +7,21 @@ from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
 
 def function_taxonomy_analysis(df, cog_name, lca_colname, samp_grps, threshold, data_dir):
     """
-    Runs the function-taxonomy interaction analysis. For the documentation of other arguments, see metaquant.py
+    Runs the function-taxonomy interaction analysis. The use of GO terms is required.
+    The process is as follows:
+    1. Reduce provided dataframe
+    2. Normalize dataframe, so each GO term has its own row
+    3. Map each GO term to its slim version - new column
+    4. Drop duplicated peptide-GO slim combinations (so we don't double count)
+    5. Drop rows with peptides that have an LCA taxon at a higher rank than the desired rank (`des_rank`)
+    6. Map each taxon to its desired rank - new column
+    7. Group by the new taxon column and the new GO term column
     :param df: joined taxonomy, intensity, and function tables
     :param cog_name: name of COG column in dataframe
     :param lca_colname: name of LCA column in dataframe.
     :param samp_grps: a SampleGroups object for this analysis
     :return: dataframe with taxon-function pairs and their associated total intensity
     """
-    # todo: add option for lca or rank-level
-    # todo: change this so accounts for descendants of each taxon
-    # if blah, map to desired ranks.
-    # take first cog
     df = take_first_cog(df, cog_name)
 
     # select columns for adding purposes
