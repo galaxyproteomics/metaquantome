@@ -34,11 +34,11 @@ def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, ove
                                     min_peptides=min_peptides, min_children_non_leaf=min_children_non_leaf,
                                     threshold=threshold)
     elif mode == 'taxfn':
-        # if ontology != 'cog':
-        #     raise ValueError("Only cog is supported for ft interaction. " +
-        #                      "Make sure you have a cog column and supply the column name to func_colname")
-        results = function_taxonomy_analysis(df=df, cog_name=func_colname, lca_colname=tax_colname, samp_grps=samp_grps,
-                                             threshold=threshold, data_dir=data_dir)
+        #todo - remove genus default and *_data_dir Nones
+        results = function_taxonomy_analysis(df=df, func_colname=func_colname, lca_colname=tax_colname,
+                                             pep_colname=pep_colname, samp_grps=samp_grps,
+                                             query_rank='genus', tax_data_dir=None, ontology=ontology,
+                                             overwrite=overwrite, slim_down=slim_down, func_data_dir=None)
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
     # filter min observed here
