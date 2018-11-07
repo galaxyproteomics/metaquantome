@@ -9,25 +9,19 @@ from metaquant.analysis import test
 def cli():
     # initialize logger
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
-
     args = parse_args_cli()
-    # TODO: pass args to metaquant_runner as a list
-    # todo: also maybe split metaquant_runner into three functions to match the cli
-
     if args.command == "expand":
-        expand(mode=args.mode, samps=args.samps,
-               nopep=args.nopep, nopep_file = args.nopep_file,
-               int_file=args.int_file, pep_colname=args.pep_colname,
+        expand(mode=args.mode, samps=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
                data_dir=args.data_dir, overwrite=args.overwrite, outfile=args.outfile, func_file=args.func_file,
-               func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down, tax_file=args.tax_file,
-               tax_colname=args.tax_colname, min_peptides=args.min_peptides,
-               min_children_non_leaf=args.min_children_non_leaf, threshold=args.threshold)
-
+               func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down,
+               tax_file=args.tax_file, tax_colname=args.tax_colname,
+               min_peptides=args.min_peptides,min_children_non_leaf=args.min_children_non_leaf, threshold=args.threshold,
+               nopep=args.nopep, nopep_file=args.nopep_file,
+               ft_tar_rank=args.ft_tar_rank, ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir)
     elif args.command == "test":
         df = test.read_expanded(args.file)
         df_test = test.test(df=df, paired=args.paired, parametric=args.parametric, samps=args.samps)
         test.write_test(df_test, samps=args.samps, ontology=args.ontology, mode=args.mode, outfile=args.outfile)
-
     elif args.command == "viz":
         print('viz')
     sys.exit(0)
@@ -57,7 +51,7 @@ def parse_args_cli():
                                  'JSON example of two experimental groups and two samples in each group: ' +
                                  '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
 
-    # METAQUANTOME EXPAND #
+    # ---- METAQUANTOME EXPAND ---- #
     common = parser_expand.add_argument_group('Arguments for all 3 modes')
     common.add_argument('--nopep', action="store_true",
                         help="If provided, need to provide a --nopep_file.")
@@ -72,21 +66,25 @@ def parse_args_cli():
                              'to the peptide sequences. ')
     common.add_argument('--outfile', required=True,
                         help='Output file')
-    common.add_argument('--data_dir',
+
+    f_or_t = parser_expand.add_argument_group('Function for function or taxonomy alone')
+    f_or_t.add_argument('--data_dir',
                         help='Path to database directory. Pre-downloaded databases can be stored in a separate' +
                              ' directory and timestamped. '+
                              'Note that names of files within the directory cannot be changed. ' +
-                             'The default is <metaquant_package_root>/data.')
-    common.add_argument('--min_peptides', default=0, type=int,
+                             'The default is the mode-appropriate subdirectory of <metaquant_package_root>/data.')
+    f_or_t.add_argument('--min_peptides', default=0, type=int,
                         help='Used for filtering to well-supported annotations. The number of peptides providing ' +
                              'evidence for a term is the number of peptides directly annotated with that term ' +
                              'plus the number of peptides annotated with any of its descendants. ' +
-                             'Terms with a number of peptides greater than or equal to min_peptides are retained.')
-    common.add_argument('--min_children_non_leaf', default=0, type=int,
+                             'Terms with a number of peptides greater than or equal to min_peptides are retained. ' +
+                             'The default is 0.')
+    f_or_t.add_argument('--min_children_non_leaf', default=0, type=int,
                         help='Used for filtering to informative annotations. ' +
                              'A term is retained if it has a number of children ' +
-                             'greater than or equal to min_children_non_leaf. ')
-    common.add_argument('--threshold', type=int, default=3,
+                             'greater than or equal to min_children_non_leaf. ' +
+                             'The default is 0. ')
+    f_or_t.add_argument('--threshold', type=int, default=3,
                         help='Minimum number of intensities in each sample group. ' +
                              'Any functional/taxonomic term with lower number of per-group intensities ' +
                              'will be filtered out. The default is 3, because this is the minimum ' +
@@ -104,7 +102,7 @@ def parse_args_cli():
                       help='Flag. If provided, terms are mapped from the full OBO to the slim OBO. ' +
                            'Terms not in the full OBO will be skipped.')
     func.add_argument('--overwrite', action='store_true',
-                      help='Flag. If provided, the most relevant databases (GO and/or EC) are downloaded to data_dir, '+
+                      help='Flag. The most relevant database (GO or EC) is downloaded to data_dir, ' +
                            'overwriting any previously downloaded databases at these locations.')
 
     # taxonomy-specific
@@ -117,7 +115,19 @@ def parse_args_cli():
                           'must be either NCBI taxids (strongly preferred) or taxonomy names. ' +
                           'Unipept name output is known to function well, but other formats may not work.')
 
-    # METAQUANTOME TEST #
+    # function-taxonomy
+    ft = parser_expand.add_argument_group('Function-Taxonomy')
+    ft.add_argument('--ft_func_data_dir',
+                    help="Path to function data directory for the taxfn mode. " +
+                         "The default is <metaquant_pkg_dir>/data/go")
+    ft.add_argument('--ft_tax_data_dir',
+                    help="Path to function data directory for the taxfn mode.")
+    ft.add_argument('--ft_tar_rank', default='genus',
+                    help="Desired rank for taxonomy. The default is 'genus'.")
+
+    # ---- METAQUANTOME FILTER ---- #
+
+    # ---- METAQUANTOME TEST ---- #
 
     # statistics
     parser_test.add_argument('--file', '-f', required=True,
@@ -131,7 +141,12 @@ def parse_args_cli():
     parser_test.add_argument('--paired', action='store_true',
                              help='Perform paired tests.')
 
-    # METAQUANTOME VIZ #
+    # ---- METAQUANTOME VIZ ---- #
+
+    # todo
+
+    # ---- METAQUANTOME CLUSTSEP ---- #
+
     # todo
 
     args = parser.parse_args()

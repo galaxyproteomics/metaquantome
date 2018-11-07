@@ -29,7 +29,6 @@ python -m unittest discover tests
 - visualizations
 - another module for cluster distance
 - documentation
-- switch to metagenomics slim
 - better arg checking
     - deal with sample that is completely missing values
     - deal with missing values better
@@ -42,8 +41,6 @@ python -m unittest discover tests
     - raise error when all rows are filtered out
     - strip any newlines in samps file
 - configure Travis CI on Github
-- add option for specific rank in TF
-- move threshold to calculating mean values as well
 - make COG more similar to other databases
     - make class
     - add is_in_db method
@@ -51,9 +48,6 @@ python -m unittest discover tests
 ## Lower Priority
 - benchmarking and optimization
 - use flake8 for codestyle
-- refactoring
-    - move every analysis function to one to cut down on duplication?
-    - could implement databases as instantiations of abstract classes. Any advantages?
 
 ## Done
 - unified database structure and 'adding up'
@@ -61,4 +55,6 @@ python -m unittest discover tests
     - work on EC in particular
     - how do we implement for COG cats?
 - add handling if description is not found in database (EC)
-
+- switch to metagenomics slim
+- add option for specific rank in TF
+- move threshold to calculating mean values as well
