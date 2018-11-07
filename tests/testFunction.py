@@ -16,16 +16,16 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testSingleInt(self):
         func=testfile('simple_func.tab')
         int=testfile('simple_int.tab')
-        go_df = expand('fn', samps='{"s1": ["int"]}', int_file=int, pep_colname='peptide', func_file=func,
-                       func_colname='go', ontology='go', data_dir=self.TEST_DIR)
+        go_df = expand('fn', samps='{"s1": ["int"]}', int_file=int, pep_colname='peptide', data_dir=self.TEST_DIR,
+                       func_file=func, func_colname='go', ontology='go')
         self.assertEqual(go_df.loc["GO:0022610"]['int'], np.log2(200))
         self.assertEqual(go_df.loc["GO:0008152"]['int'], np.log2(100))
 
     def testMultipleInt(self):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
-        go_df = expand('fn', samps='{"s1": ["int1", "int2", "int3"]}', int_file=int, func_file=func, func_colname='go',
-                       ontology='go', data_dir = self.TEST_DIR)
+        go_df = expand('fn', samps='{"s1": ["int1", "int2", "int3"]}', int_file=int, data_dir=self.TEST_DIR,
+                       func_file=func, func_colname='go', ontology='go')
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
@@ -34,8 +34,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
 
     def testNopep(self):
         nopep=testfile('nopep.tab')
-        go_df = expand('fn', samps='{"s1": ["int1", "int2", "int3"]}', nopep=True, nopep_file=nopep,
-                       ontology='go', func_colname='go', data_dir=self.TEST_DIR).sort_index(axis=1)
+        go_df = expand('fn', samps='{"s1": ["int1", "int2", "int3"]}', data_dir=self.TEST_DIR, func_colname='go',
+                       ontology='go', nopep=True, nopep_file=nopep).sort_index(axis=1)
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
@@ -48,8 +48,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         func=testfile('func_eggnog.tab')
         int=testfile('int_eggnog.tab')
         sinfo='{"NS": ["int737NS", "int852NS", "int867NS"], "WS": ["int737WS", "int852WS", "int867WS"]}'
-        go_df = expand('fn', samps=sinfo, int_file=int, func_file=func, func_colname='go', ontology='go',
-                       slim_down=True, data_dir=self.TEST_DIR)
+        go_df = expand('fn', samps=sinfo, int_file=int, data_dir=self.TEST_DIR, func_file=func, func_colname='go',
+                       ontology='go', slim_down=True)
         # test that all go terms are in slim
         # load slim
         returned_gos = set(go_df['id'])
@@ -91,8 +91,8 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
     def testDA(self):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
-        df_expd = expand('fn', samps=TTEST_SINFO, int_file=int, func_file=func, func_colname='go', ontology='go',
-                         data_dir=self.TEST_DIR)
+        df_expd = expand('fn', samps=TTEST_SINFO, int_file=int, data_dir=self.TEST_DIR, func_file=func,
+                         func_colname='go', ontology='go')
         df_tst = test(df_expd, samps=TTEST_SINFO, paired=False, parametric=True)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(df_tst['p']['GO:0008152'] > 0.05)

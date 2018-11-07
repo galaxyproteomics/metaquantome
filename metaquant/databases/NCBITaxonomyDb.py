@@ -203,9 +203,13 @@ class NCBITaxonomyDb:
         so using taxonomic id's is strongly preferred.
         If the name is not found in the database, than it is replaced with NaN, which will
         be filtered out later.
-        :param names: a list or series of taxon names (as strings)
+        :param names: a list or taxon names (as strings)
         :return: list of ncbi taxonomy ids
         """
+        # arg checking
+        if not isinstance(names, list):
+            TypeError('names must be list')
+
         translator = self.ncbi.get_name_translator(names)
         ids = [0] * len(names)
         for i in range(len(names)):

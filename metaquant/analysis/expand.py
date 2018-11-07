@@ -5,13 +5,13 @@ from metaquant.analysis.function_taxonomy_interaction import function_taxonomy_a
 from metaquant.SampleGroups import SampleGroups
 
 
-def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None, func_file=None,
-           func_colname=None, ontology='go', slim_down=False, tax_file=None, tax_colname=None, min_peptides=0,
-           min_children_non_leaf=0, threshold=0, nopep=False, nopep_file=None):
+def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None,
+           func_file=None, func_colname=None, ontology='go', slim_down=False, tax_file=None, tax_colname=None,
+           min_peptides=0, min_children_non_leaf=0, threshold=0, nopep=False, nopep_file=None,
+           ft_func_data_dir=None, ft_tax_data_dir=None, ft_tar_rank='genus'):
 
     samp_grps = SampleGroups(samps)
 
-    # todo: move threshold to expand
     # read and join files - depending on pep/nopep
     if nopep:
         df = io.read_nopep_table(file=nopep_file, samp_grps=samp_grps,
@@ -34,11 +34,10 @@ def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, ove
                                     min_peptides=min_peptides, min_children_non_leaf=min_children_non_leaf,
                                     threshold=threshold)
     elif mode == 'taxfn':
-        #todo - remove genus default and *_data_dir Nones
-        results = function_taxonomy_analysis(df=df, func_colname=func_colname, lca_colname=tax_colname,
-                                             pep_colname=pep_colname, samp_grps=samp_grps,
-                                             query_rank='genus', tax_data_dir=None, ontology=ontology,
-                                             overwrite=overwrite, slim_down=slim_down, func_data_dir=None)
+        results = function_taxonomy_analysis(df=df, func_colname=func_colname, pep_colname=pep_colname,
+                                             ontology=ontology, overwrite=overwrite, slim_down=slim_down,
+                                             tax_colname=tax_colname, samp_grps=samp_grps, ft_tar_rank=ft_tar_rank,
+                                             ft_func_data_dir=ft_func_data_dir, ft_tax_data_dir=ft_tax_data_dir)
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
     # filter min observed here

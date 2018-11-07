@@ -43,8 +43,9 @@ def metaquant_runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=
         if ontology != 'cog':
             raise ValueError("Only cog is supported for ft interaction. " +
                              "Make sure you have a cog column and supply the column name to func_colname")
-        results = function_taxonomy_analysis(df=df, cog_name=func_colname, lca_colname=tax_colname, samp_grps=samp_grps,
-                                             threshold=threshold, data_dir=data_dir)
+        results = function_taxonomy_analysis(df=df, func_colname=, pep_colname=, ontology=, overwrite=, slim_down=,
+                                             tax_colname=tax_colname, samp_grps=samp_grps, ft_tar_rank=,
+                                             ft_func_data_dir=, ft_tax_data_dir=)
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
     # set up written output
