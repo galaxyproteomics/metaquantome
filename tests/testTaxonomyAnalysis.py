@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from tests.testutils import testfile, TTEST_SINFO
 from metaquant.analysis.expand import expand
-from metaquant.analysis.test import test
+from metaquant.analysis.stat import stat
 
 
 class TestTaxonomyAnalysisExpand(unittest.TestCase):
@@ -60,7 +60,7 @@ class TestTaxonomyAnalysisTest(unittest.TestCase):
         tax=testfile('multiple_tax.tab')
         int=testfile('int_ttest.tab')
         tax_df = expand('tax', samps=TTEST_SINFO, int_file=int, tax_file=tax, tax_colname='lca')
-        tax_tst = test(tax_df, samps=TTEST_SINFO, paired=False, parametric=False)
+        tax_tst = stat(tax_df, samps=TTEST_SINFO, paired=False, parametric=False)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(tax_tst['p'][210] > 0.05)
         self.assertTrue(tax_tst['p'][[1496,1870884]].le(0.05).all())

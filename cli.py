@@ -4,7 +4,7 @@ import logging
 
 from metaquant.analysis.expand import expand
 from metaquant.analysis.filter import filter
-from metaquant.analysis import test
+from metaquant.analysis.stat import stat
 
 
 def cli():
@@ -19,11 +19,16 @@ def cli():
                ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir,
                ft_tar_rank=args.ft_tar_rank)
     elif args.command == "filter":
-        filter()
-    elif args.command == "test":
-        df = test.read_expanded(args.file)
-        df_test = test.test(df=df, paired=args.paired, parametric=args.parametric, samps=args.samps)
-        test.write_test(df_test, samps=args.samps, ontology=args.ontology, mode=args.mode, outfile=args.outfile)
+        filter(file=args.expand_file, sinfo=args.samps,
+               ontology=args.ontology, mode=args.mode,
+               qthreshold=args.threshold,
+               min_child_non_leaf=args.min_children_non_leaf, min_child_nsamp=args.min_child_nsamp,
+               min_peptides=args.min_peptides, min_pep_nsamp=args.min_pep_nsamp, outfile=args.outfile)
+    elif args.command == "stat":
+        stat(infile=args.file, outfile=args.outfile, samps=args.samps,
+             mode=args.mode, ontology=args.ontology,
+             statmode=args.statmode,
+             paired=args.paired, parametric=args.parametric)
     elif args.command == "viz":
         print('viz')
     sys.exit(0)
@@ -36,19 +41,19 @@ def parse_args_cli():
     subparsers = parser.add_subparsers(title="commands", dest="command")
     parser_expand = subparsers.add_parser('expand')
     parser_filter = subparsers.add_parser('filter')
-    parser_test = subparsers.add_parser('test')
+    parser_stat = subparsers.add_parser('stat')
     parser_viz = subparsers.add_parser('viz')
 
     # samps file is required in all four parsers
-    for par in (parser_expand, parser_filter, parser_test, parser_viz):
+    for par in (parser_expand, parser_filter, parser_stat, parser_viz):
         common_tmp = par.add_argument_group('Arguments common to all modules.')
         # todo: make example of tabular samps file
         common_tmp.add_argument('--samps', '-s', required=True,
-                         help='Give the column names in the intensity file that ' +
-                              'correspond to a given sample group. ' +
-                              'This can either be JSON formatted or be a path to a tabular file. ' +
-                              'JSON example of two experimental groups and two samples in each group: ' +
-                              '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
+                                help='Give the column names in the intensity file that ' +
+                                     'correspond to a given sample group. ' +
+                                     'This can either be JSON formatted or be a path to a tabular file. ' +
+                                     'JSON example of two experimental groups and two samples in each group: ' +
+                                     '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
         common_tmp = par.add_argument_group('Arguments for all analyses')
         common_tmp.add_argument('--mode', '-m', choices=['fn', 'tax', 'taxfn'], required=True,
                             help='Analysis mode. If taxfn is chosen, both function and taxonomy files must be provided')
@@ -142,24 +147,26 @@ def parse_args_cli():
     parser_filter.add_argument('--outfile', required=True,
                                help="Output file")
 
-    # ---- METAQUANTOME TEST ---- #
-    # todo: rename test to stat
+    # ---- METAQUANTOME STAT ---- #
     # statistics
-    parser_test.add_argument('--file', '-f', required=True,
+    parser_stat.add_argument('--file', '-f', required=True,
                              help='Output file from metaquantome expand.')
-    parser_test.add_argument('--outfile', required=True,
+    parser_stat.add_argument('--outfile', required=True,
                              help='Output file')
-    parser_test.add_argument('--parametric', type=bool, default=True,
+    parser_stat.add_argument('--statmode', choices=['t', 'sep'], required=True,
+                             help="Mode of analysis. Can either analyze differential expression " +
+                                  "or cluster separation.")
+    parser_stat.add_argument('--parametric', type=bool, default=False,
                              help='Choose the type of test. If --parametric True is provided,' +
-                                  'then a standard t-test is performed. If --parametric False is provided, ' +
+                                  'then a standard t-test is performed. ' +
+                                  'If --parametric False (the default) is provided, ' +
                                   'then a Wilcoxon test is performed.')
-    parser_test.add_argument('--paired', action='store_true',
+    parser_stat.add_argument('--paired', action='store_true',
                              help='Perform paired tests.')
 
     # ---- METAQUANTOME VIZ ---- #
 
     # todo
-
 
     args = parser.parse_args()
     return args

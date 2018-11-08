@@ -27,7 +27,7 @@ python -m unittest discover tests
 
 ## High Priority
 - visualizations
-- another module for cluster distance
+- another stats function for cluster distance
 - documentation
 - better arg checking
     - deal with sample that is completely missing values

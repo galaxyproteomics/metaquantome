@@ -4,7 +4,7 @@ import os
 
 from metaquant.databases import GeneOntologyDb as godb
 from metaquant.analysis.expand import expand
-from metaquant.analysis.test import test
+from metaquant.analysis.stat import stat
 from tests.testutils import testfile, TTEST_SINFO
 from metaquant.util.utils import DATA_DIR, GO_SUBDIR
 
@@ -94,7 +94,7 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         int=testfile('int_ttest.tab')
         df_expd = expand('fn', samps=TTEST_SINFO, int_file=int, data_dir=self.TEST_DIR, func_file=func,
                          func_colname='go', ontology='go')
-        df_tst = test(df_expd, samps=TTEST_SINFO, paired=False, parametric=True)
+        df_tst = stat(df_expd, samps=TTEST_SINFO, paired=False, parametric=True)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(df_tst['p']['GO:0008152'] > 0.05)
         self.assertTrue(df_tst['p'][['GO:0022610','GO:0000003','GO:0032505']].le(0.05).all())
@@ -103,7 +103,7 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
         cog_df = expand('fn', samps=TTEST_SINFO, int_file=int, func_file=func, func_colname='cog', ontology='cog')
-        cog_tst = test(cog_df, samps=TTEST_SINFO, paired=False, parametric=True)
+        cog_tst = stat(cog_df, samps=TTEST_SINFO, paired=False, parametric=True)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(cog_df['p']['C'] > 0.05)
         self.assertTrue(cog_df['p'][['N','D']].le(0.05).all())
@@ -112,7 +112,7 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
         ec_df = expand('fn', samps=TTEST_SINFO, int_file=int, func_file=func, func_colname='ec', ontology='ec')
-        ec_tst = test(ec_df, samps=TTEST_SINFO, paired=False, parametric=True)
+        ec_tst = stat(ec_df, samps=TTEST_SINFO, paired=False, parametric=True)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(ec_df['p']['3.4.11.-'] > 0.05)
         self.assertTrue(ec_df['p'][['3.4.21.70','1.2.-.-']].le(0.05).all())

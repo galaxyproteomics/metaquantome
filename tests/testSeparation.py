@@ -27,9 +27,9 @@ class TestSeparation(unittest.TestCase):
         mean_a = pd.Series([60, 10], index=self.ind)
         self.assertTrue((test_means[0] == mean_a).all())
 
-    def testTotalSSEWithin(self):
+    def testMeanSSEWithin(self):
         centroids = sep.centroid(self.test_df, self.test_sg)
-        sse = sep.total_sse_within_group(self.test_df, centroids, self.test_sg)
+        sse = sep.mean_sse_within_group(self.test_df, centroids, self.test_sg)
         # expected sse
         tot_a = np.sum(np.square(self.a_mean - [100, 0])) +\
                 np.sum(np.square(self.a_mean - [20, 20])) +\
