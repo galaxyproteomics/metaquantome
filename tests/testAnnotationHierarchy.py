@@ -272,7 +272,6 @@ class TestAnnotationHierarchyEc(unittest.TestCase):
                                        '6.-.-.-',
                                        '6.5.-.-']).sort_index()
         df = ah.to_dataframe().sort_index()
-        print(df)
         self.assertTrue(df.equals(exp_df))
 
 

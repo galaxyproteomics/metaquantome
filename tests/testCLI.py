@@ -35,7 +35,6 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(test_status, 0)
 
         test_df = pd.read_csv(test_out, sep="\t", index_col='id')
-        print(test_df)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(test_df['corrected_p']['C'] > 0.05)
         self.assertTrue(test_df['corrected_p'][['N','D']].le(0.05).all())

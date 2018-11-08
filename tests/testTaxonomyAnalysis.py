@@ -28,7 +28,6 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         tax=testfile('multiple_tax.tab')
         int=testfile('multiple_int.tab')
         tax_df = expand('tax', samps='{"s1": ["int1", "int2", "int3"]}', int_file=int, tax_file=tax, tax_colname='lca')
-        print(tax_df)
         self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0], np.log2(70))
 
     def testNopep(self):

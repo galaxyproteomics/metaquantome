@@ -19,7 +19,6 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         int=testfile('simple_int.tab')
         go_df = expand('fn', samps='{"s1": ["int"]}', int_file=int, pep_colname='peptide', data_dir=self.TEST_DIR,
                        func_file=func, func_colname='go', ontology='go')
-        print(go_df)
         self.assertEqual(go_df.loc["GO:0022610"]['int'], np.log2(200))
         self.assertEqual(go_df.loc["GO:0008152"]['int'], np.log2(100))
 
