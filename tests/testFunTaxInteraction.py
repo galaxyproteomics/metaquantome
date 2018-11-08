@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from metaquant.analysis.expand import expand
+from metaquantome.analysis.expand import expand
 from tests.testutils import testfile
 import tests.testutils as tu
 

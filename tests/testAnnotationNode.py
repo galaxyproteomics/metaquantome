@@ -1,5 +1,5 @@
 import unittest
-from metaquant.AnnotationNode import AnnotationNode
+from metaquantome.AnnotationNode import AnnotationNode
 import numpy as np
 
 

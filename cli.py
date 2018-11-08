@@ -2,9 +2,10 @@ import sys
 import argparse
 import logging
 
-from metaquant.analysis.expand import expand
-from metaquant.analysis.filter import filter
-from metaquant.analysis.stat import stat
+
+from metaquantome.analysis.expand import expand
+from metaquantome.analysis.filter import run_filter
+from metaquantome.analysis import test
 
 
 def cli():
@@ -19,16 +20,15 @@ def cli():
                ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir,
                ft_tar_rank=args.ft_tar_rank)
     elif args.command == "filter":
-        filter(file=args.expand_file, sinfo=args.samps,
-               ontology=args.ontology, mode=args.mode,
-               qthreshold=args.threshold,
-               min_child_non_leaf=args.min_children_non_leaf, min_child_nsamp=args.min_child_nsamp,
-               min_peptides=args.min_peptides, min_pep_nsamp=args.min_pep_nsamp, outfile=args.outfile)
-    elif args.command == "stat":
-        stat(infile=args.file, outfile=args.outfile, samps=args.samps,
-             mode=args.mode, ontology=args.ontology,
-             statmode=args.statmode,
-             paired=args.paired, parametric=args.parametric)
+        run_filter(file=args.expand_file, sinfo=args.samps,
+                   ontology=args.ontology, mode=args.mode,
+                   qthreshold=args.threshold,
+                   min_child_non_leaf=args.min_children_non_leaf, min_child_nsamp=args.min_child_nsamp,
+                   min_peptides=args.min_peptides, min_pep_nsamp=args.min_pep_nsamp, outfile=args.outfile)
+    elif args.command == "test":
+        df = test.read_expanded(args.file)
+        df_test = test.test(df=df, paired=args.paired, parametric=args.parametric, samps=args.samps)
+        test.write_test(df_test, samps=args.samps, ontology=args.ontology, mode=args.mode, outfile=args.outfile)
     elif args.command == "viz":
         print('viz')
     sys.exit(0)

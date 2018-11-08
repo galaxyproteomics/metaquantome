@@ -2,8 +2,9 @@ import unittest
 import numpy as np
 import pandas as pd
 from tests.testutils import testfile, TTEST_SINFO
-from metaquant.analysis.expand import expand
-from metaquant.analysis.stat import stat
+
+from metaquantome.analysis.expand import expand
+from metaquantome.analysis.test import test
 
 
 class TestTaxonomyAnalysisExpand(unittest.TestCase):

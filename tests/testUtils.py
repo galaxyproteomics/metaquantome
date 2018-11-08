@@ -1,5 +1,5 @@
 # import unittest
-# import metaquant.util.utils as uu
+# import metaquantome.util.utils as uu
 #
 #
 # class TestUtils(unittest.TestCase):

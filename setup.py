@@ -1,15 +1,15 @@
 from setuptools import setup
 
 VERSION='0.1.2'
-URL='https://github.com/caleb-easterly/metaquant'
+URL='https://github.com/caleb-easterly/metaquantome'
 AUTHOR = 'Caleb Easterly'
 AUTHOR_EMAIL = 'easte080@umn.edu'
 
 setup(
-    name='metaquant',
+    name='metaquantome',
     version=VERSION,
-    packages=['metaquant'],
-    package_data={'metaquant': ['data/*']},
+    packages=['metaquantome'],
+    package_data={'metaquantome': ['data/*']},
     license='Apache License 2.0',
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
@@ -33,10 +33,10 @@ setup(
     ],
     python_requires='>=3.5',
     entry_points={
-        'console_scripts': ['metaquant=metaquant.__main__:main'],
+        'console_scripts': ['metaquantome=metaquantome.__main__:main'],
     },
     project_urls={
-        "Bug Tracker": "https://github.com/caleb-easterly/metaquant/issues",
-        "Source Code": "https://github.com/caleb-easterly/metaquant",
+        "Bug Tracker": "https://github.com/caleb-easterly/metaquantome/issues",
+        "Source Code": "https://github.com/caleb-easterly/metaquantome",
     }
 )

@@ -1,7 +1,7 @@
-from metaquant.databases import GeneOntologyDb as godb
-from metaquant.util.utils import DATA_DIR
-from metaquant.util import funcutils as fu
-from metaquant.databases import EnzymeDb as ecdb
+from metaquantome.databases import GeneOntologyDb as godb
+from metaquantome.util.utils import DATA_DIR
+from metaquantome.util import funcutils as fu
+from metaquantome.databases import EnzymeDb as ecdb
 
 import unittest
 import os
