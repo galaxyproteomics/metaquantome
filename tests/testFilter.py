@@ -49,7 +49,6 @@ class TestFilter(unittest.TestCase):
                            min_child_nsamp=0,
                            mode="tax",
                            ontology=None)
-        print(filt3)
         filt3_ids = set(filt3['id'])
         self.assertNotIn(1496, filt3_ids)
         self.assertNotIn(1870884, filt3_ids)

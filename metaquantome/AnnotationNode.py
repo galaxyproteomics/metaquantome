@@ -1,6 +1,7 @@
 class AnnotationNode:
     """
     A single taxon or functional term and its associated intensity.
+    Also provides members for npeptide and n_sample_children
     """
     def __init__(self, id, intensity):
         """
