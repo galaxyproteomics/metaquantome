@@ -1,7 +1,5 @@
 language: python
-python:
-  # We don't actually use the Travis Python, but this keeps it organized.
-  - "3.5"
+python: 3.5
 install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
@@ -14,9 +12,14 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-
+  
+  # set up channels with bioconda
+  - conda config --add channels defaults
+  - conda config --add channels bioconda
+  - conda config --add channels conda-forge
+  
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pandas ete3 goatools wget numpy statsmodels ggplot2
+  - conda create -q -n test-environment python=3.5 pandas ete3 goatools wget numpy statsmodels ggplot2
   - source activate test-environment
   - python setup.py install
 
