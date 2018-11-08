@@ -1,6 +1,6 @@
 import unittest
-from metaquant.databases import GeneOntologyDb as godb
-from metaquant.util.utils import DATA_DIR
+from metaquantome.databases import GeneOntologyDb as godb
+from metaquantome.util.utils import DATA_DIR
 import os
 import shutil
 import pandas as pd

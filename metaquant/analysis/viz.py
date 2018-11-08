@@ -1,2 +1,0 @@
-def viz(args):
-    pass

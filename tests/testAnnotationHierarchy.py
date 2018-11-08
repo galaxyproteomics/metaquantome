@@ -1,11 +1,11 @@
 import unittest
 import pandas as pd
-from metaquant.AnnotationNode import AnnotationNode
-from metaquant.AnnotationHierarchy import AnnotationHierarchy
-from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
-from metaquant.databases.GeneOntologyDb import GeneOntologyDb
-from metaquant.databases.EnzymeDb import EnzymeDb
-from metaquant.util.utils import define_ontology_data_dir
+from metaquantome.AnnotationNode import AnnotationNode
+from metaquantome.AnnotationHierarchy import AnnotationHierarchy
+from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
+from metaquantome.databases.GeneOntologyDb import GeneOntologyDb
+from metaquantome.databases.EnzymeDb import EnzymeDb
+from metaquantome.util.utils import define_ontology_data_dir
 
 
 class TestAnnotationHierarchyNcbi(unittest.TestCase):
@@ -28,8 +28,8 @@ class TestAnnotationHierarchyNcbi(unittest.TestCase):
         # one sample child
         testid = 9605
         intensity = 200
-        ah.add_node(testid, intensity)
-        ah.define_sample_children()
+        ah._add_node(testid, intensity)
+        ah._define_sample_children()
         updated_node = ah.nodes[testid]
         self.assertIsInstance(updated_node, AnnotationNode)
         self.assertEqual(updated_node.intensity, intensity)
@@ -40,7 +40,7 @@ class TestAnnotationHierarchyNcbi(unittest.TestCase):
         testids = [9604, 9605, 9606]
         test_intensities = [500, 200, 300]
         for i in range(0, 3):
-            ah.add_node(testids[i], test_intensities[i])
+            ah._add_node(testids[i], test_intensities[i])
         self.assertEqual(ah.nodes[9604].intensity, 1000)
 
     # def testGetInformativeNodes(self):
@@ -94,11 +94,11 @@ class TestAnnotationHierarchyGO(unittest.TestCase):
         # one sample child
         testid = 'GO:0051026'
         intensity = 100
-        ah.add_node(testid, intensity)
+        ah._add_node(testid, intensity)
         updated_node = ah.nodes[testid]
         self.assertIsInstance(updated_node, AnnotationNode)
         self.assertEqual(updated_node.intensity, intensity)
-        ah.define_sample_children()
+        ah._define_sample_children()
         self.assertEqual(updated_node.n_sample_children, 0)
 
     def testAggregateNodes(self):
@@ -112,7 +112,7 @@ class TestAnnotationHierarchyGO(unittest.TestCase):
                    'GO:0051026']  # chiasma assembly, child of meiotic
         test_intensities = [0, 0, 0, 100, 50, 200, 300]
         for i in range(0, len(test_intensities)):
-            ah.add_node(testids[i], test_intensities[i])
+            ah._add_node(testids[i], test_intensities[i])
         self.assertEqual(ah.nodes['GO:0022414'].intensity, 650)
 
     # def testGetInformativeNodes(self):
@@ -181,9 +181,9 @@ class TestAnnotationHierarchyEc(unittest.TestCase):
         # one sample child
         testid = '1.1.4.-'
         intensity = 100
-        ah.add_node(testid, intensity)
+        ah._add_node(testid, intensity)
         updated_node = ah.nodes[testid]
-        ah.define_sample_children()
+        ah._define_sample_children()
         self.assertIsInstance(updated_node, AnnotationNode)
         self.assertEqual(updated_node.intensity, intensity)
         self.assertEqual(updated_node.n_sample_children, 2)
@@ -196,7 +196,7 @@ class TestAnnotationHierarchyEc(unittest.TestCase):
                    '6.5.-.-']
         test_intensities = [500, 200, 300, 0]
         for i in range(0, 3):
-            ah.add_node(testids[i], test_intensities[i])
+            ah._add_node(testids[i], test_intensities[i])
         self.assertEqual(ah.nodes['1.1.4.-'].intensity, 1000)
 
     # def testGetInformativeNodes(self):
@@ -249,9 +249,9 @@ class TestAnnotationHierarchyEc(unittest.TestCase):
         # set to one, so it's equal to number of peptides
         test_intensity = 1
         for id in test_set:
-            ah.add_node(id, test_intensity)
+            ah._add_node(id, test_intensity)
 
-        ah.define_sample_children()
+        ah._define_sample_children()
 
         # the sample set is as below:
         #         sample_set = {'1.1.4.-',

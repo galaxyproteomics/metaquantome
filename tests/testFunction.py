@@ -2,11 +2,12 @@ import unittest
 import numpy as np
 import os
 
-from metaquant.databases import GeneOntologyDb as godb
-from metaquant.analysis.expand import expand
-from metaquant.analysis.stat import stat
+
+from metaquantome.databases import GeneOntologyDb as godb
+from metaquantome.analysis.expand import expand
+from metaquantome.analysis.test import test
 from tests.testutils import testfile, TTEST_SINFO
-from metaquant.util.utils import DATA_DIR, GO_SUBDIR
+from metaquantome.util.utils import DATA_DIR, GO_SUBDIR
 
 
 class TestFunctionalAnalysisExpand(unittest.TestCase):

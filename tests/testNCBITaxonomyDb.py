@@ -1,10 +1,10 @@
 import unittest
 import os
-import metaquant.databases.NCBITaxonomyDb as td
+import metaquantome.databases.NCBITaxonomyDb as td
 import shutil
 from tests.testutils import testfile
 import pandas as pd
-from metaquant.util.utils import DATA_DIR, define_ontology_data_dir
+from metaquantome.util.utils import DATA_DIR, define_ontology_data_dir
 import numpy as np
 
 
