@@ -27,4 +27,4 @@ install:
   - python setup.py install
 
 script:
-  echo 'hello world'
+  cd caleb-easterly/metaquantome/metaquantome && python -m unittest discover tests
