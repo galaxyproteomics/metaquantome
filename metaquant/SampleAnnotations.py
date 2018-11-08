@@ -21,7 +21,7 @@ class SampleAnnotations:
         samp.add_nodes_from_df(df, annot_colname, int_colname)
         return samp
 
-    def add_samples_from_df(self, df, annot_colname, samp_grps, min_peptides, min_children_non_leaf):
+    def add_samples_from_df(self, df, annot_colname, samp_grps):
         """
         Adds a sample for each intensity row in the dataframe
         :param df: Full dataframe
@@ -35,23 +35,24 @@ class SampleAnnotations:
             filt = df.loc[df[samp] != 0]
             sample_set = set(df[annot_colname])
             hier = self.add_sample(sample_set, filt, annot_colname, samp)
-            hier.get_informative_nodes(min_peptides, min_children_non_leaf)
             hierarchies.update({hier})
         self.hierarchies = hierarchies
 
     def to_dataframe(self):
-        # convert each separate hierarchy to df
+        """
+        convert each hierarchy to dataframe and concatenate.
+        fills NAs with 0s, for adding up
+        :return: concatenated dataframe, missing values are 0
+        """
+
         # import pdb; pdb.set_trace()
         n_hier = len(self.hierarchies)
         loc_hier = self.hierarchies.copy()
-
-        # remove any
         hierarchy_dfs = list()
         for i in range(n_hier):
             h = loc_hier.pop()
-            if len(h.informative_nodes) > 0:
-                dh = h.to_dataframe()
-                hierarchy_dfs.append(dh)
+            dh = h.to_dataframe()
+            hierarchy_dfs.append(dh)
 
         full_df = pd.concat(hierarchy_dfs, axis=1, sort=True)
         # stats expects 0's, not NaNs

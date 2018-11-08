@@ -1,11 +1,11 @@
 import unittest
 import pandas as pd
+
 from metaquant.databases.NCBITaxonomyDb import NCBITaxonomyDb
 from metaquant.util.utils import define_ontology_data_dir
 from metaquant.SampleAnnotations import SampleAnnotations
 from metaquant.SampleGroups import SampleGroups
-import tests.testutils  # runs pandas options
-import numpy as np
+
 
 
 class TestSampleAnnotations(unittest.TestCase):
@@ -29,13 +29,10 @@ class TestSampleAnnotations(unittest.TestCase):
                                 'samp2': samp2},
                                index=[peptide])
         sa = SampleAnnotations(db=self.ncbi)
-        sa.add_samples_from_df(test_df, annot_colname='lca', samp_grps=samp_grps,
-                               min_peptides=2, min_children_non_leaf=2)
+        sa.add_samples_from_df(test_df, annot_colname='lca', samp_grps=samp_grps)
         df = sa.to_dataframe().sort_index(axis=1)
-        exp_df = pd.DataFrame({'samp1': [6, np.nan],
-                               'samp2': [7, 2]},
-                              index=[9604, 9606]).sort_index(axis=1)
-        self.assertTrue(df.equals(exp_df))
+        self.assertEqual(df.loc[9604, 'samp1'], 6)
+        self.assertEqual(df.loc[9599, 'samp1'], 1)
 
 
 if __name__ == '__main__':

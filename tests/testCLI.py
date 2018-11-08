@@ -12,7 +12,7 @@ class TestCLI(unittest.TestCase):
         out = testfile('cli_out.tab')
         command = '''python3 cli.py expand -m tax --pep_colname peptide --outfile ''' + out
         command += ''' -i metaquant/data/test/simple_int.tab --tax_file metaquant/data/test/simple_tax.tab '''
-        command += '''--tax_colname "lca" --samps '{"A": ["int"]}' --min_peptides 0 --min_children_non_leaf 0 --threshold 0'''
+        command += '''--tax_colname "lca" --samps '{"A": ["int"]}' '''
         status = subprocess.call(command, shell=True)
         self.assertEqual(status, 0)
 
@@ -35,6 +35,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(test_status, 0)
 
         test_df = pd.read_csv(test_out, sep="\t", index_col='id')
+        print(test_df)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(test_df['corrected_p']['C'] > 0.05)
         self.assertTrue(test_df['corrected_p'][['N','D']].le(0.05).all())

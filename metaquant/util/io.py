@@ -108,6 +108,13 @@ def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None)
     return df
 
 
+def read_expanded_table(file, samp_grps):
+    df = pd.read_table(file, sep="\t",
+                       dtype=samp_grps.dict_numeric_cols_expanded,
+                       na_values=MISSING_VALUES,
+                       low_memory=False)
+    return df
+
 
 def join_on_peptide(dfs):
     # join inner means that only peptides present in all dfs will be kept
@@ -136,22 +143,37 @@ def tax_check(tax_file, tax_colname):
         raise ValueError('tax_colname=None. Please provide a taxonomy column name (--tax_colname)')
 
 
+def write_out(df, outfile, cols):
+    df.to_csv(outfile,
+              columns=cols,
+              sep="\t",
+              header=True,
+              index=False,
+              na_rep="NA")
+
 def define_outfile_cols_expand(samp_grps, ontology, mode):
     int_cols = []
     int_cols += samp_grps.mean_names + samp_grps.all_intcols
+    node_cols = []
+    if ontology != "cog":
+        node_cols += samp_grps.n_peptide_names_flat
+        # taxfn doesn't have samp_children
+        if mode != 'taxfn':
+            node_cols += samp_grps.samp_children_names_flat
+    quant_cols = int_cols + node_cols
     if mode == 'fn':
         if ontology == 'go':
-            cols = ['id', 'name', 'namespace'] + int_cols
+            cols = ['id', 'name', 'namespace'] + quant_cols
         elif ontology == 'cog':
-            cols = ['id', 'description'] + int_cols
+            cols = ['id', 'description'] + quant_cols
         elif ontology == 'ec':
-            cols = ['id', 'description'] + int_cols
+            cols = ['id', 'description'] + quant_cols
         else:
             raise ValueError("Invalid ontology. Expected one of: %s" % ['go', 'cog', 'ec'])
     elif mode == 'tax':
-        cols = ['id', 'taxon_name', 'rank'] + int_cols
+        cols = ['id', 'taxon_name', 'rank'] + quant_cols
     elif mode == 'taxfn':
-        cols = [ontology, 'name', 'namespace', 'taxon_name', 'rank'] + int_cols
+        cols = [ontology, 'name', 'namespace', 'taxon_name', 'rank'] + quant_cols
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
     return cols

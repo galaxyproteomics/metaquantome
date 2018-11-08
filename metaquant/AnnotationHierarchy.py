@@ -25,7 +25,7 @@ class AnnotationHierarchy:
     def __init__(self, db, sample_set, sample_name):
         self.db = db
         self.sample_set = sample_set
-        self.expanded_sample_set = sample_set  # add more terms later
+        self.expanded_sample_set = sample_set.copy()  # add more terms later
         self.nodes = dict()
         self.informative_nodes = dict()
         self.sample_name = sample_name
@@ -37,6 +37,8 @@ class AnnotationHierarchy:
                 term = int(term)
             intensity = row[int_colname]
             self.add_node(term, intensity)
+        # add sample children here
+        self.define_sample_children()
 
     def add_node(self, term, intensity):
         if term not in self.nodes.keys():
@@ -55,38 +57,23 @@ class AnnotationHierarchy:
             self.expanded_sample_set.update({par})
             self.add_node(par, intensity)
 
-    def _define_sample_children(self):
+    def define_sample_children(self):
         for term in self.nodes.keys():
             node = self.nodes[term]
             ref_children = self.db.get_children(term)
             node.sample_children = ref_children.intersection(self.expanded_sample_set)
             node.n_sample_children = len(node.sample_children)
 
-    def get_informative_nodes(self, min_peptides, min_children_non_leaf):
-        """
-        :param min_peptides: if node has fewer than min_peptides (i.e. < min_peptides), will be pruned
-        :param min_children_non_leaf: if node has fewer (<) than min_children_non_leaf and more than 0 children,
-        it will be pruned.
-        :return:
-        """
-        # first, define sample children for each term
-        self._define_sample_children()
-        informative_nodes = dict()
-        for term, node in self.nodes.items():
-            n_children = node.n_sample_children
-            n_peptides = node.npeptide
-            if (n_children >= min_children_non_leaf or n_children == 0) and n_peptides >= min_peptides:
-                # add node to informative node dict
-                informative_nodes[term] = node
-        # change self nodes to informative nodes
-        self.informative_nodes = informative_nodes
-
     def to_dataframe(self):
-        inf_nodes = self.informative_nodes
-        node_rows = [0]*len(inf_nodes)
+        nodes = self.nodes
+        node_rows = [0]*len(nodes)
         index = 0
-        for term, node in inf_nodes.items():
-            node_rows[index] = pd.DataFrame({self.sample_name: node.intensity}, index=[term])
+        for term, node in nodes.items():
+            samp_children_name = self.sample_name + '_n_samp_children'
+            n_peptide_name = self.sample_name + '_n_peptide'
+            node_rows[index] = pd.DataFrame({self.sample_name: node.intensity,
+                                             samp_children_name: node.n_sample_children,
+                                             n_peptide_name: node.npeptide}, index=[term])
             index += 1
         df = pd.concat(node_rows)
         return df

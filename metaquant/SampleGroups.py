@@ -35,13 +35,29 @@ class SampleGroups:
         # same order as grp names
         self.mean_names = [grp + "_mean" for grp in self.grp_names]
 
+        # other quant names
+        samp_child_name = '_n_samp_children'
+        self.samp_children_names_dict = {grp: [samp + samp_child_name for samp in self.sample_names[grp]]
+                                         for grp in self.sample_names.keys()}
+        self.samp_children_names_flat = [samp + samp_child_name for samp in self.all_intcols]
+
+        samp_npep_name = '_n_peptide'
+        self.n_peptide_names_dict = {grp: [samp + samp_npep_name for samp in self.sample_names[grp]]
+                                     for grp in self.sample_names.keys()}
+        self.n_peptide_names_flat = [samp + samp_npep_name for samp in self.all_intcols]
+
+        # all columns that should be numeric when reading expanded
+        expand_num = self.all_intcols +\
+                     self.samp_children_names_flat +\
+                     self.n_peptide_names_flat
+        self.dict_numeric_cols_expanded = {x: np.float64 for x in expand_num}
+
         # this is used in test()
         self.fc_name = None
         if self.ngrps == 2:
             grp1 = self.grp_names[0]
             grp2 = self.grp_names[1]
             self.fc_name = 'log2fc_' + grp1 + '_over_' + grp2
-
 
     def read_samp_info(self, sinfo):
         # check if sinfo is a file name

@@ -105,3 +105,16 @@ nopep = pd.DataFrame({'go': ['GO:0008152', 'GO:0022610', 'GO:0000003,GO:0032505'
                       'lca': ['210', '1496', '1870884']})
 nopep.to_csv(os.path.join(DATA_DIR, 'test', 'nopep.tab'), sep='\t',
              index=False)
+
+
+# for filtering
+
+# h pylori, c difficile, and clostridiaceae family
+# t-testing: 6 samples, intensities very different
+filt_int = pd.DataFrame({'int1': [12, 20, 1000],
+                         'int2': [20, 0, 0],
+                         'int3': [15, 20, 900],
+                         'int4': [12, 0, 12],
+                         'int5': [21, 2000, 13],
+                         'int6': [10, 3000, 10]}, index=peptides)
+write_testfile(filt_int, 'filt_int.tab')

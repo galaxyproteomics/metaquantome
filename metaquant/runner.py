@@ -33,12 +33,9 @@ def metaquant_runner(mode, sinfo, int_file, pep_colname='peptide', func_colname=
     # run analysis based on modes
     if mode == 'fn':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, ontology=ontology,
-                                      slim_down=slim_down, data_dir=data_dir, overwrite=overwrite,
-                                      min_peptides=min_peptides, min_children_non_leaf=min_children_non_leaf)
+                                      slim_down=slim_down, data_dir=data_dir, overwrite=overwrite)
     elif mode == 'tax':
-        results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=data_dir, tax_colname=tax_colname,
-                                    min_peptides=min_peptides, min_children_non_leaf=min_children_non_leaf,
-                                    threshold=threshold)
+        results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=data_dir, tax_colname=tax_colname)
     elif mode == 'taxfn':
         if ontology != 'cog':
             raise ValueError("Only cog is supported for ft interaction. " +

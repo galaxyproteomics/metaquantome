@@ -7,8 +7,7 @@ from metaquant.SampleGroups import SampleGroups
 
 def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None,
            func_file=None, func_colname=None, ontology='go', slim_down=False, tax_file=None, tax_colname=None,
-           min_peptides=0, min_children_non_leaf=0, threshold=0, nopep=False, nopep_file=None,
-           ft_func_data_dir=None, ft_tax_data_dir=None, ft_tar_rank='genus'):
+           nopep=False, nopep_file=None, ft_func_data_dir=None, ft_tax_data_dir=None, ft_tar_rank='genus'):
 
     samp_grps = SampleGroups(samps)
 
@@ -24,15 +23,10 @@ def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, ove
                                     tax_colname=tax_colname, tax_file=tax_file)
     # run analysis based on modes
     if mode == 'fn':
-        results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps,
-                                      ontology=ontology, slim_down=slim_down, data_dir=data_dir,
-                                      overwrite=overwrite, min_peptides=min_peptides,
-                                      min_children_non_leaf=min_children_non_leaf,
-                                      threshold=threshold)
+        results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, ontology=ontology,
+                                      slim_down=slim_down, data_dir=data_dir, overwrite=overwrite)
     elif mode == 'tax':
-        results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=data_dir, tax_colname=tax_colname,
-                                    min_peptides=min_peptides, min_children_non_leaf=min_children_non_leaf,
-                                    threshold=threshold)
+        results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=data_dir, tax_colname=tax_colname)
     elif mode == 'taxfn':
         results = function_taxonomy_analysis(df=df, func_colname=func_colname, pep_colname=pep_colname,
                                              ontology=ontology, overwrite=overwrite, slim_down=slim_down,
