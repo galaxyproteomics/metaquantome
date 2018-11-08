@@ -28,3 +28,6 @@ install:
 
 script:
   cd caleb-easterly/metaquantome/metaquantome && python -m unittest discover tests
+
+notifications:
+  email: false
