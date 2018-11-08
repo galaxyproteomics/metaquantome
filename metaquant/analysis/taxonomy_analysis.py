@@ -3,7 +3,7 @@ import metaquant.analysis.common as cha
 from metaquant.util import utils
 
 
-def taxonomy_analysis(df, samp_grps, data_dir, tax_colname='lca', min_peptides=0, min_children_non_leaf=0, threshold=0):
+def taxonomy_analysis(df, samp_grps, data_dir, tax_colname='lca'):
     if not data_dir:
         data_dir = utils.define_ontology_data_dir('taxonomy')
     # load ncbi database
@@ -17,11 +17,11 @@ def taxonomy_analysis(df, samp_grps, data_dir, tax_colname='lca', min_peptides=0
     else:
         df[tax_colname] = [int(x) for x in df[tax_colname]]
     # filter df to those that tax ids that non-NaN and are present in NCBI database
+    # todo - move to own function
     is_not_nan = df[tax_colname].notnull()
     is_in_db = df[tax_colname].apply(ncbi.is_in_db)
     df_clean = df.loc[is_not_nan & is_in_db]
-    results = cha.common_hierarchical_analysis(ncbi, df_clean, tax_colname, samp_grps, min_peptides,
-                                               min_children_non_leaf, threshold)
+    results = cha.common_hierarchical_analysis(ncbi, df_clean, tax_colname, samp_grps)
     results['rank'] = results['id'].apply(ncbi.get_rank)
 
     # translate ids back to names

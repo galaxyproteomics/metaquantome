@@ -61,10 +61,13 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrit
     df_int = dedup_df[samp_grps.all_intcols + [func_colname, 'des_rank']]
     # group by both cog and lca and add
     grouped = df_int.groupby(by=[func_colname, 'des_rank']).sum(axis=1)
+    # get groupwise counts (i.e., unique peptides)
+    counts = df_int.groupby(by=[func_colname, 'des_rank']).size().to_frame(name="n_peptide")
+    ints_and_counts = grouped.join(counts)
 
     # ---- output prep ---- #
     # calculate group means
-    results = stats.calc_means(grouped, samp_grps)
+    results = stats.calc_means(ints_and_counts, samp_grps)
     # take log of intensities for return
     results[results == 0] = np.nan
     results[samp_grps.all_intcols] = np.log2(results[samp_grps.all_intcols])

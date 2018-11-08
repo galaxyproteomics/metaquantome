@@ -6,8 +6,7 @@ from metaquant.util import utils, funcutils
 import metaquant.analysis.common as cha
 
 
-def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir, overwrite,
-                        min_peptides=0, min_children_non_leaf=0, threshold=0):
+def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir, overwrite):
     db, norm_df = clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down)
 
     if ontology == "go":
@@ -15,8 +14,7 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         df_clean = filter_func_df(db, func_colname, norm_df)
         if slim_down:
             df_clean = slim_down_df(db, df_clean, func_colname)
-        results = cha.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps, min_peptides,
-                                                   min_children_non_leaf, threshold)
+        results = cha.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
         # todo: replace hard coded column names in utils
         gos = [db.gofull[x] for x in results['id']]
         results['name'] = [x.name for x in gos]
@@ -24,16 +22,14 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
     elif ontology == "ec":
         # filter to only those in Enzyme database and non-missing
         df_clean = filter_func_df(db, func_colname, norm_df)
-        results = cha.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps, min_peptides,
-                                                   min_children_non_leaf, threshold)
+        results = cha.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
         results['descript'] = [db.ecdb[term]['descript'] for term in results.index]
     elif ontology == "cog":
         cog_df = take_first_cog(df, func_colname)
         cog_sum_df = cog_df[[func_colname] + samp_grps.all_intcols].\
             groupby(func_colname).\
             sum()
-        results = cha.common_hierarchical_analysis('cog', cog_sum_df, func_colname, samp_grps, min_peptides,
-                                                   min_children_non_leaf, threshold, hierarchical=False)
+        results = cha.common_hierarchical_analysis('cog', cog_sum_df, func_colname, samp_grps, hierarchical=False)
         results['description'] = [cogCat[x] for x in results.index]
     else:
         raise ValueError("the desired ontology is not supported. " +

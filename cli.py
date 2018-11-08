@@ -3,6 +3,7 @@ import argparse
 import logging
 
 from metaquant.analysis.expand import expand
+from metaquant.analysis.filter import filter
 from metaquant.analysis import test
 
 
@@ -13,11 +14,12 @@ def cli():
     if args.command == "expand":
         expand(mode=args.mode, samps=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
                data_dir=args.data_dir, overwrite=args.overwrite, outfile=args.outfile, func_file=args.func_file,
-               func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down,
-               tax_file=args.tax_file, tax_colname=args.tax_colname,
-               min_peptides=args.min_peptides,min_children_non_leaf=args.min_children_non_leaf, threshold=args.threshold,
-               nopep=args.nopep, nopep_file=args.nopep_file,
-               ft_tar_rank=args.ft_tar_rank, ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir)
+               func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down, tax_file=args.tax_file,
+               tax_colname=args.tax_colname, nopep=args.nopep, nopep_file=args.nopep_file,
+               ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir,
+               ft_tar_rank=args.ft_tar_rank)
+    elif args.command == "filter":
+        filter()
     elif args.command == "test":
         df = test.read_expanded(args.file)
         df_test = test.test(df=df, paired=args.paired, parametric=args.parametric, samps=args.samps)
@@ -33,23 +35,25 @@ def parse_args_cli():
     # split this into three submodules
     subparsers = parser.add_subparsers(title="commands", dest="command")
     parser_expand = subparsers.add_parser('expand')
+    parser_filter = subparsers.add_parser('filter')
     parser_test = subparsers.add_parser('test')
     parser_viz = subparsers.add_parser('viz')
 
-    # we need these two arguments in all three parsers
-    for par in (parser_expand, parser_test, parser_viz):
+    # samps file is required in all four parsers
+    for par in (parser_expand, parser_filter, parser_test, parser_viz):
+        common_tmp = par.add_argument_group('Arguments common to all modules.')
+        # todo: make example of tabular samps file
+        common_tmp.add_argument('--samps', '-s', required=True,
+                         help='Give the column names in the intensity file that ' +
+                              'correspond to a given sample group. ' +
+                              'This can either be JSON formatted or be a path to a tabular file. ' +
+                              'JSON example of two experimental groups and two samples in each group: ' +
+                              '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
         common_tmp = par.add_argument_group('Arguments for all analyses')
         common_tmp.add_argument('--mode', '-m', choices=['fn', 'tax', 'taxfn'], required=True,
                             help='Analysis mode. If taxfn is chosen, both function and taxonomy files must be provided')
         common_tmp.add_argument('--ontology', choices=['go', 'cog', 'ec'], required=False,
                           help='Which functional terms to use. Ignored (and not required) if mode is not fn or taxfn.')
-        # todo: make example of tabular samps file
-        common_tmp.add_argument('--samps', '-s', required=True,
-                            help='Give the column names in the intensity file that ' +
-                                 'correspond to a given sample group. ' +
-                                 'This can either be JSON formatted or be a path to a tabular file. ' +
-                                 'JSON example of two experimental groups and two samples in each group: ' +
-                                 '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
 
     # ---- METAQUANTOME EXPAND ---- #
     common = parser_expand.add_argument_group('Arguments for all 3 modes')
@@ -73,22 +77,7 @@ def parse_args_cli():
                              ' directory and timestamped. '+
                              'Note that names of files within the directory cannot be changed. ' +
                              'The default is the mode-appropriate subdirectory of <metaquant_package_root>/data.')
-    f_or_t.add_argument('--min_peptides', default=0, type=int,
-                        help='Used for filtering to well-supported annotations. The number of peptides providing ' +
-                             'evidence for a term is the number of peptides directly annotated with that term ' +
-                             'plus the number of peptides annotated with any of its descendants. ' +
-                             'Terms with a number of peptides greater than or equal to min_peptides are retained. ' +
-                             'The default is 0.')
-    f_or_t.add_argument('--min_children_non_leaf', default=0, type=int,
-                        help='Used for filtering to informative annotations. ' +
-                             'A term is retained if it has a number of children ' +
-                             'greater than or equal to min_children_non_leaf. ' +
-                             'The default is 0. ')
-    f_or_t.add_argument('--threshold', type=int, default=3,
-                        help='Minimum number of intensities in each sample group. ' +
-                             'Any functional/taxonomic term with lower number of per-group intensities ' +
-                             'will be filtered out. The default is 3, because this is the minimum ' +
-                             'number for t-tests.')
+
 
     # function-specific
     func = parser_expand.add_argument_group('Function')
@@ -126,9 +115,35 @@ def parse_args_cli():
                     help="Desired rank for taxonomy. The default is 'genus'.")
 
     # ---- METAQUANTOME FILTER ---- #
+    parser_filter.add_argument('--expand_file',
+                               help="Output from metaquantome expand.")
+    parser_filter.add_argument('--min_peptides', default=0, type=int,
+                               help='Used for filtering to well-supported annotations. The number of peptides providing ' +
+                                    'evidence for a term is the number of peptides directly annotated with that term ' +
+                                    'plus the number of peptides annotated with any of its descendants. ' +
+                                    'Terms with a number of peptides greater than or equal to min_peptides are retained. ' +
+                                    'The default is 0.')
+    parser_filter.add_argument('--min_pep_nsamp', default='all',
+                               help="Number of samples per group that must meet or exceed min_peptides. " +
+                               "Can either be a nonnegative integer or 'all'.")
+    parser_filter.add_argument('--min_children_non_leaf', default=0, type=int,
+                               help='Used for filtering to informative annotations. ' +
+                                    'A term is retained if it has a number of children ' +
+                                    'greater than or equal to min_children_non_leaf. ' +
+                                    'The default is 0. ')
+    parser_filter.add_argument('--min_child_nsamp', default='all',
+                               help="Number of samples per group that must meet or exceed min_children_nsamp. " +
+                                    "Can either be a nonnegative integer or 'all'.")
+    parser_filter.add_argument('--qthreshold', type=int, default=3,
+                               help='Minimum number of intensities in each sample group. ' +
+                                    'Any functional/taxonomic term with lower number of per-group intensities ' +
+                                    'will be filtered out. The default is 3, because this is the minimum ' +
+                                    'number for t-tests.')
+    parser_filter.add_argument('--outfile', required=True,
+                               help="Output file")
 
     # ---- METAQUANTOME TEST ---- #
-
+    # todo: rename test to stat
     # statistics
     parser_test.add_argument('--file', '-f', required=True,
                              help='Output file from metaquantome expand.')
@@ -145,9 +160,6 @@ def parse_args_cli():
 
     # todo
 
-    # ---- METAQUANTOME CLUSTSEP ---- #
-
-    # todo
 
     args = parser.parse_args()
     return args
