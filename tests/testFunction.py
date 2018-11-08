@@ -5,7 +5,7 @@ import os
 
 from metaquantome.databases import GeneOntologyDb as godb
 from metaquantome.analysis.expand import expand
-from metaquantome.analysis.test import test
+from metaquantome.analysis.stat import stat
 from tests.testutils import testfile, TTEST_SINFO
 from metaquantome.util.utils import DATA_DIR, GO_SUBDIR
 
@@ -92,9 +92,11 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
     def testDA(self):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
+        expanded=testfile('go_expanded_ttest.tab')
         df_expd = expand('fn', samps=TTEST_SINFO, int_file=int, data_dir=self.TEST_DIR, func_file=func,
-                         func_colname='go', ontology='go')
-        df_tst = stat(df_expd, samps=TTEST_SINFO, paired=False, parametric=True)
+                         func_colname='go', ontology='go',
+                         outfile=expanded)
+        df_tst = stat(expanded, samps=TTEST_SINFO, paired=False, parametric=True, ontology=None, mode=None, outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(df_tst['p']['GO:0008152'] > 0.05)
         self.assertTrue(df_tst['p'][['GO:0022610','GO:0000003','GO:0032505']].le(0.05).all())
@@ -102,20 +104,27 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
     def testCogTTest(self):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
-        cog_df = expand('fn', samps=TTEST_SINFO, int_file=int, func_file=func, func_colname='cog', ontology='cog')
-        cog_tst = stat(cog_df, samps=TTEST_SINFO, paired=False, parametric=True)
+        expandfile=testfile('cog_ttest.tab')
+        cog_df = expand('fn', samps=TTEST_SINFO, int_file=int, func_file=func, func_colname='cog', ontology='cog',
+                        outfile=expandfile)
+        cog_tst = stat(expandfile, samps=TTEST_SINFO, paired=False, parametric=True, ontology='cog', mode='fn',
+                       outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
-        self.assertTrue(cog_df['p']['C'] > 0.05)
-        self.assertTrue(cog_df['p'][['N','D']].le(0.05).all())
+        self.assertTrue(cog_tst['p']['C'] > 0.05)
+        self.assertTrue(cog_tst['p'][['N', 'D']].le(0.05).all())
 
     def testDiffAbundEc(self):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
-        ec_df = expand('fn', samps=TTEST_SINFO, int_file=int, func_file=func, func_colname='ec', ontology='ec')
-        ec_tst = stat(ec_df, samps=TTEST_SINFO, paired=False, parametric=True)
+        expandfile=testfile('ec_ttest.tab')
+        expand('fn', samps=TTEST_SINFO,
+               int_file=int, func_file=func, func_colname='ec', ontology='ec',
+               outfile=expandfile)
+        ec_tst = stat(expandfile, samps=TTEST_SINFO, paired=False, parametric=True,
+                      ontology='ec', mode='fn', outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
-        self.assertTrue(ec_df['p']['3.4.11.-'] > 0.05)
-        self.assertTrue(ec_df['p'][['3.4.21.70','1.2.-.-']].le(0.05).all())
+        self.assertTrue(ec_tst['p']['3.4.11.-'] > 0.05)
+        self.assertTrue(ec_tst['p'][['3.4.21.70', '1.2.-.-']].le(0.05).all())
 
 
 if __name__ == '__main__':

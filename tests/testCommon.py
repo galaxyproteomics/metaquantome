@@ -4,7 +4,7 @@ import pandas as pd
 
 import metaquantome.SampleGroups
 import metaquantome.analysis.expand
-import metaquantome.analysis.test
+import metaquantome.analysis.stat
 
 
 class TestCommon(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestCommon(unittest.TestCase):
         samps = metaquantome.SampleGroups.SampleGroups('{"s1": ["s1_1", "s1_2"], "s2": ["s2_1", "s2_2"]}')
 
         means = metaquantome.analysis.expand.calc_means(df, samps)
-        fc = metaquantome.analysis.test.fold_change(means, samps, log=True)
+        fc = metaquantome.analysis.stat.fold_change(means, samps, log=True)
         self.assertTrue(fc['log2fc_s1_over_s2'].equals(pd.Series({0: np.log2(3/6), 1: np.log2(3/13)})))
 
 

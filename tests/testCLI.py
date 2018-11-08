@@ -29,7 +29,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(exp_status, 0)
 
         test_out = testfile('cli_mult_test_out.tab')
-        test_command = "python3 cli.py test -m fn --outfile " + test_out + ' --file ' + exp_out
+        test_command = "python3 cli.py stat -m fn --outfile " + test_out + ' --file ' + exp_out
         test_command += ''' --ontology cog ''' + " --samps '" + TTEST_SINFO + "'"
         test_status = subprocess.call(test_command, shell=True)
         self.assertEqual(test_status, 0)

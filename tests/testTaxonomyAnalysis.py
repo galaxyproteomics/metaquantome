@@ -4,7 +4,7 @@ import pandas as pd
 from tests.testutils import testfile, TTEST_SINFO
 
 from metaquantome.analysis.expand import expand
-from metaquantome.analysis.test import test
+from metaquantome.analysis.stat import stat
 
 
 class TestTaxonomyAnalysisExpand(unittest.TestCase):
@@ -59,12 +59,15 @@ class TestTaxonomyAnalysisTest(unittest.TestCase):
     def testTaxTTests(self):
         tax=testfile('multiple_tax.tab')
         int=testfile('int_ttest.tab')
-        tax_df = expand('tax', samps=TTEST_SINFO, int_file=int, tax_file=tax, tax_colname='lca')
-        tax_tst = stat(tax_df, samps=TTEST_SINFO, paired=False, parametric=False)
+        expanded=testfile('expand_taxttest.tab')
+        tax_df = expand('tax', samps=TTEST_SINFO, int_file=int, tax_file=tax, tax_colname='lca',
+                        outfile=expanded)
+        tax_tst = stat(expanded, samps=TTEST_SINFO, paired=False, parametric=False, ontology=None, mode=None,
+                       outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(tax_tst['p'][210] > 0.05)
         self.assertTrue(tax_tst['p'][[1496,1870884]].le(0.05).all())
-        # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae, divided by all phyla
+        # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae
         self.assertEqual(tax_tst['int1'][1239], np.log2(1020))
 
 
