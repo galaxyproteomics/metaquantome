@@ -5,7 +5,7 @@ import logging
 
 from metaquantome.analysis.expand import expand
 from metaquantome.analysis.filter import run_filter
-from metaquantome.analysis import test
+from metaquantome.analysis.stat import stat
 
 
 def cli():
@@ -26,9 +26,8 @@ def cli():
                    min_child_non_leaf=args.min_children_non_leaf, min_child_nsamp=args.min_child_nsamp,
                    min_peptides=args.min_peptides, min_pep_nsamp=args.min_pep_nsamp, outfile=args.outfile)
     elif args.command == "test":
-        df = test.read_expanded(args.file)
-        df_test = test.test(df=df, paired=args.paired, parametric=args.parametric, samps=args.samps)
-        test.write_test(df_test, samps=args.samps, ontology=args.ontology, mode=args.mode, outfile=args.outfile)
+        stat(infile=args.file, samps=args.samps, paired=args.paired, parametric=args.parametric,
+             ontology=args.ontology, mode=args.mode, outfile=args.outfile)
     elif args.command == "viz":
         print('viz')
     sys.exit(0)
@@ -153,9 +152,6 @@ def parse_args_cli():
                              help='Output file from metaquantome expand.')
     parser_stat.add_argument('--outfile', required=True,
                              help='Output file')
-    parser_stat.add_argument('--statmode', choices=['t', 'sep'], required=True,
-                             help="Mode of analysis. Can either analyze differential expression " +
-                                  "or cluster separation.")
     parser_stat.add_argument('--parametric', type=bool, default=False,
                              help='Choose the type of test. If --parametric True is provided,' +
                                   'then a standard t-test is performed. ' +

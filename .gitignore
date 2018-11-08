@@ -1,7 +1,7 @@
 # data files
-metaquant/data/enzyme/*
-metaquant/data/go/*
-metaquant/data/ncbi/*
+metaquantome/data/enzyme/*
+metaquantome/data/go/*
+metaquantome/data/ncbi/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

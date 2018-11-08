@@ -23,7 +23,7 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         # filter to only those in Enzyme database and non-missing
         df_clean = filter_func_df(db, func_colname, norm_df)
         results = metaquantome.analysis.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
-        results['descript'] = [db.ecdb[term]['descript'] for term in results.index]
+        results['description'] = [db.ecdb[term]['descript'] for term in results.index]
     elif ontology == "cog":
         cog_df = take_first_cog(df, func_colname)
         cog_sum_df = cog_df[[func_colname] + samp_grps.all_intcols].\

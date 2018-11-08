@@ -7,17 +7,17 @@ from metaquantome.util.io import MISSING_VALUES, define_outfile_cols_expand
 from metaquantome.SampleGroups import SampleGroups
 
 
-def test(df, samps, paired, parametric):
-
+def stat(infile, samps, paired, parametric, ontology, mode, outfile):
+    df = read_expanded(infile)
     # define sample groups
     samp_grps = SampleGroups(samps)
-
     if samp_grps.ngrps != 2:
         ValueError('testing is only available for 2 experimental conditions.')
-
     # run test
     df_test = test_norm_intensity(df, samp_grps, paired, parametric)
-
+    # write out
+    if outfile:
+        write_test(df_test, samp_grps=samp_grps, ontology=ontology, mode=mode, outfile=outfile)
     # return
     return df_test
 
@@ -28,8 +28,7 @@ def read_expanded(file):
     return df
 
 
-def write_test(df,outfile, samps, ontology, mode):
-    samp_grps = SampleGroups(samps)
+def write_test(df,outfile, samp_grps, ontology, mode):
     cols = define_outfile_cols_expand(samp_grps, ontology, mode) +\
         [samp_grps.fc_name, P_COLNAME, P_CORR_COLNAME]
     df.to_csv(outfile, columns=cols, sep="\t", header=True, index=False, na_rep="NA")
@@ -79,7 +78,8 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
 
     df_means[P_COLNAME] = test_results
     df_means[P_CORR_COLNAME] = mc.fdrcorrection0(test_results, method='indep')[1]
-
+    # reset the index to be 'id' - this is mostly for testing, and doesn't affect the output file
+    df_means.set_index('id', drop=False, inplace=True)
     return df_means
 
 
