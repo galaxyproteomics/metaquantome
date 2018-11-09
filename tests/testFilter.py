@@ -1,6 +1,6 @@
 import unittest
 
-from tests.testutils import testfile, TTEST_SINFO
+from metaquantome.util.testutils import testfile, TTEST_SINFO
 from metaquantome.util import io
 from metaquantome.SampleGroups import SampleGroups
 from metaquantome.analysis.filter import run_filter

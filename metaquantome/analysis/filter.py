@@ -55,7 +55,7 @@ def get_rows_to_keep(df, grp, samp_grps, qthreshold,
     if min_child_nsamp == "all":
         keep_child = (df[child_cols] > 0).all()
     else:
-        keep_child = (df[child_cols] >= min_child_non_leaf). \
+        keep_child = (df[child_cols] >= min_child_non_leaf).\
                          apply(sum, axis=1) >= min_child_nsamp
 
     # peptides
@@ -63,7 +63,7 @@ def get_rows_to_keep(df, grp, samp_grps, qthreshold,
     if min_pep_nsamp == "all":
         keep_peptide = (df[peptide_cols] > 0).all()
     else:
-        keep_peptide = (df[peptide_cols] >= min_peptides). \
+        keep_peptide = (df[peptide_cols] >= min_peptides).\
                            apply(sum, axis=1) >= min_pep_nsamp
 
     all_keep = keep_int & keep_child & keep_peptide

@@ -4,7 +4,8 @@ import os
 import metaquantome.SampleGroups
 from metaquantome.util import io
 from metaquantome.util.utils import DATA_DIR
-from tests.testutils import testfile, TTEST_SINFO
+from metaquantome.util.testutils import testfile
+
 
 class TestIO(unittest.TestCase):
 

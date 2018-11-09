@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import pandas as pd
-from tests.testutils import testfile, TTEST_SINFO
+from metaquantome.util.testutils import testfile, TTEST_SINFO
 
 from metaquantome.analysis.expand import expand
 from metaquantome.analysis.stat import stat

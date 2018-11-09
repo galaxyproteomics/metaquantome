@@ -56,7 +56,6 @@ class AnnotationHierarchy:
         df = pd.concat(node_rows)
         return df
 
-
     def _add_node(self, term, intensity):
         if term not in self.nodes.keys():
             # create new node

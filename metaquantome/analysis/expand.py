@@ -60,6 +60,7 @@ def common_hierarchical_analysis(db, df, annot_colname, samp_grps, hierarchical=
 
     # calculate means
     int_w_means = calc_means(intensity_all_ranks, samp_grps)
+    # todo: calculate sds
 
     # clean and log transform
     # replace nan with zero, so that np.log2 returns nan

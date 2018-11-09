@@ -6,8 +6,8 @@ import os
 from metaquantome.databases import GeneOntologyDb as godb
 from metaquantome.analysis.expand import expand
 from metaquantome.analysis.stat import stat
-from tests.testutils import testfile, TTEST_SINFO
-from metaquantome.util.utils import DATA_DIR, GO_SUBDIR
+from metaquantome.util.testutils import testfile, TTEST_SINFO
+from metaquantome.util.utils import DATA_DIR
 
 
 class TestFunctionalAnalysisExpand(unittest.TestCase):

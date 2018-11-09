@@ -1,9 +1,8 @@
 import subprocess
-from tests.testutils import testfile, TTEST_SINFO
+from metaquantome.util.testutils import testfile, TTEST_SINFO
 import unittest
 import pandas as pd
 import numpy as np
-import os
 
 
 class TestCLI(unittest.TestCase):
