@@ -7,6 +7,19 @@ from metaquantome.util import utils, funcutils
 
 
 def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir, overwrite):
+    """
+    Expand functional terms and aggregate intensities.
+    :param df: A DataFrame. Missing values should be 0. There may be multiple
+    functional terms in each row.
+    :param func_colname: The name of the column with functional terms.
+    :param samp_grps: A SampleGroups() object.
+    :param ontology: Functional ontology. Either 'go', 'ec', or 'cog'
+    :param slim_down: Boolean. Whether to map terms to slim or not.
+    :param data_dir: Directory to contain functional database files (ex. go-basic.obo)
+    :param overwrite: Whether to update the database files (applies to EC and GO only)
+    :return: A dataframe with a functional term and its associated sample-specific intensity in each
+    row
+    """
     db, norm_df = clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down)
 
     if ontology == "go":
@@ -39,16 +52,30 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
     return results
 
 
-def slim_down_df(db, df_clean, func_colname):
+def slim_down_df(godb, df_clean, go_colname):
+    """
+    Maps GO column to slim GO
+    :param godb: The GO database
+    :param df_clean: DataFrame with one GO term per row
+    :param go_colname: Name for the column with GO terms
+    :return: DataFrame with old GO terms replaced with slim GO terms
+    """
     df_loc = df_clean.copy()
-    func_series = df_loc[func_colname]
+    func_series = df_loc[go_colname]
     func_set = set(func_series)
-    mapper = db.map_set_to_slim(func_set)
-    df_loc.loc[:, func_colname] = func_series.map(mapper)
+    mapper = godb.map_set_to_slim(func_set)
+    df_loc.loc[:, go_colname] = func_series.map(mapper)
     return df_loc
 
 
 def filter_func_df(db, func_colname, norm_df):
+    """
+    Filter DataFrame to non-missing and valid terms
+    :param db: Relevant database
+    :param func_colname: Name of column with functional terms
+    :param norm_df: Dataframe with one functional term per row
+    :return: DataFrame with only non-missing terms and those present in the database
+    """
     is_not_nan = ~norm_df[func_colname].isnull()
     is_in_db = norm_df[func_colname].apply(db.is_in_db)
     df_clean = norm_df.loc[is_not_nan & is_in_db].copy(deep=True)  # copy() avoids setting with copy warning
@@ -56,6 +83,18 @@ def filter_func_df(db, func_colname, norm_df):
 
 
 def clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down):
+    """
+    make functional terms nonredundant and normalize dataframe so there's only one functional
+    term per row
+    :param data_dir: directory to contain the database files for specified ontology
+    :param df: DataFrame. May have multiple functional terms per row. Missing values
+    should be 0
+    :param func_colname: Name of column with functional terms
+    :param ontology: Desired ontology.
+    :param overwrite: Whether to update the database.
+    :param slim_down: Map full GO terms to the metagenomics slim. Applies for GO only.
+    :return: A tuple of the database and the dataframe with one fuctional term in each row.
+    """
     # db data dir
     if not data_dir:
         data_dir = utils.define_ontology_data_dir(ontology)

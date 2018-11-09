@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION='0.1.2'
+VERSION='0.1.3b'
 URL='https://github.com/caleb-easterly/metaquantome'
 AUTHOR = 'Caleb Easterly'
 AUTHOR_EMAIL = 'easte080@umn.edu'

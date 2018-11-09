@@ -27,7 +27,6 @@ python -m unittest discover tests
 
 ## High Priority
 - visualizations
-- another stats function for cluster distance
 - documentation
 - better arg checking
     - deal with sample that is completely missing values
@@ -41,9 +40,7 @@ python -m unittest discover tests
     - raise error when all rows are filtered out
     - strip any newlines in samps file
 - configure Travis CI on Github
-- make COG more similar to other databases
-    - make class
-    - add is_in_db method
+
 
 ## Lower Priority
 - benchmarking and optimization
