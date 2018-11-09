@@ -1,4 +1,11 @@
 def take_first_cog(df, cog_name):
+    """
+    In a list of COGs, assume the first is the most relevant
+    todo: could change this to normalize the dataframe, as in other ontologies
+    :param df: DataFrame
+    :param cog_name: column with COGs
+    :return: dataframe with one COG per row.
+    """
     # take first cog
     df[cog_name] = df[cog_name].str.split(',').str[0]
     return df

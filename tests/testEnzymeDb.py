@@ -33,7 +33,7 @@ class TestEC(unittest.TestCase):
                   '1.2.-.-': "another description",
                   '1.2.3.-': "more specific enzyme",
                   '1.2.3.4': "most specific enzyme"}
-        newdb = self.ec.annotate_ec_database(testdb)
+        newdb = self.ec._annotate_ec_database(testdb)
         expected0 = {'descript': testdb['1.-.-.-'],
                      'depth': 0,
                      'levels': ['1', '-', '-', '-'],
@@ -59,14 +59,14 @@ class TestEC(unittest.TestCase):
     def testAssignDepth(self):
         test_ecid0 = '1.-.-.-'
         test_ecid2 = '4.5.2.-'
-        self.assertEqual(self.ec.assign_depth(test_ecid0), 0)
-        self.assertEqual(self.ec.assign_depth(test_ecid2), 2)
+        self.assertEqual(self.ec._assign_depth(test_ecid0), 0)
+        self.assertEqual(self.ec._assign_depth(test_ecid2), 2)
 
     def testAssignLevels(self):
         test_ecid0 = '1.-.-.-'
         test_ecid2 = '4.5.2.-'
-        self.assertEqual(self.ec.assign_levels(test_ecid0), ['1', '-', '-', '-'])
-        self.assertEqual(self.ec.assign_levels(test_ecid2), ['4', '5', '2', '-'])
+        self.assertEqual(self.ec._assign_levels(test_ecid0), ['1', '-', '-', '-'])
+        self.assertEqual(self.ec._assign_levels(test_ecid2), ['4', '5', '2', '-'])
 
     # def testExpandEC(self):
     #     test_ec = '1.2.-.-'
