@@ -2,7 +2,7 @@ import unittest
 import os
 import metaquantome.databases.NCBITaxonomyDb as td
 import shutil
-from tests.testutils import testfile
+from metaquantome.util.testutils import testfile
 import pandas as pd
 from metaquantome.util.utils import DATA_DIR, define_ontology_data_dir
 import numpy as np

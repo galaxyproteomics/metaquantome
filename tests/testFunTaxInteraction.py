@@ -2,8 +2,8 @@ import unittest
 import numpy as np
 
 from metaquantome.analysis.expand import expand
-from tests.testutils import testfile
-import tests.testutils as tu
+from metaquantome.util.testutils import testfile
+import metaquantome.util.testutils as tu
 
 
 class TestFunctionTaxInteraction(unittest.TestCase):
