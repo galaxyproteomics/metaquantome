@@ -27,7 +27,7 @@ install:
   - python setup.py install
 
 script:
-  pwd && cd metaquantome && pwd && python -m unittest discover tests
+  pwd && python -m unittest discover tests
 
 notifications:
   email: false
