@@ -5,6 +5,7 @@ import json
 import re
 import logging
 
+from metaquantome.util.utils import stream_to_file_from_url
 
 class EnzymeDb:
     LEVEL_NAMES = ['ec0', 'ec1', 'ec2', 'ec3']
@@ -129,20 +130,15 @@ class EnzymeDb:
             logging.info('Using ENZYME files in ' + data_dir)
         else:
             logging.info('Downloading enzyme files from ftp.expasy.org to ' + data_dir)
-            with ftplib.FTP('ftp.expasy.org') as ftp:
-                ftp.login()
-                ftp.cwd('/databases/enzyme')
-                dat_file = open(dat_path, 'wb')
-                class_file = open(class_path, 'wb')
-                ftp.retrbinary('RETR enzyme.dat', dat_file.write)
-                ftp.retrbinary('RETR enzclass.txt', class_file.write)
-                dat_file.close()
-                class_file.close()
-                ec_path = os.path.join(data_dir, 'ec_id.json')
-                # create a simpler file from enzyme.dat
-                self._create_ec_num_enzyme_name_association_file(dat_path, ec_path)
-                # get clean enzclass.txt and dump to json
-                self._read_enzyme_class_to_json(data_dir)
+            enz_dat_url = 'ftp://ftp.expasy.org/databases/enzyme/enzyme.dat'
+            stream_to_file_from_url(enz_dat_url, dat_path)
+            enz_class_url = 'ftp://ftp.expasy.org/databases/enzyme/enzclass.txt'
+            stream_to_file_from_url(enz_class_url, class_path)
+            ec_path = os.path.join(data_dir, 'ec_id.json')
+            # create a simpler file from enzyme.dat
+            self._create_ec_num_enzyme_name_association_file(dat_path, ec_path)
+            # get clean enzclass.txt and dump to json
+            self._read_enzyme_class_to_json(data_dir)
         # load both
         combined = self._load_combined_enzyme_class_ec_id(data_dir)
         return combined

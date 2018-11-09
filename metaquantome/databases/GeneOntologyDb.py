@@ -3,7 +3,7 @@ import urllib.request as req
 import os
 import logging
 
-from metaquantome.util.utils import safe_cast_to_list
+from metaquantome.util.utils import safe_cast_to_list, stream_to_file_from_url
 
 class GeneOntologyDb:
     NAMESPACES = ['biological_process',
@@ -38,11 +38,11 @@ class GeneOntologyDb:
         else:
             full_obo_url = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
             logging.info('Downloading full GO obo file from ' + full_obo_url + ' to ' + obo_path)
-            self._download_obo(full_obo_url, obo_path)
+            stream_to_file_from_url(full_obo_url, obo_path)
 
             slim_obo_url = 'http://current.geneontology.org/ontology/subsets/goslim_metagenomics.obo'
             logging.info('Downloading generic slim GO obo file from ' + slim_obo_url + ' to ' + slim_path)
-            self._download_obo(slim_obo_url, slim_path)
+            stream_to_file_from_url(slim_obo_url, slim_path)
         # read gos
         go_dag = obo_parser.GODag(obo_path)
         if slim_down:

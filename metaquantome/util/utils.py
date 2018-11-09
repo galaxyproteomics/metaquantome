@@ -1,11 +1,20 @@
 import re
 import pkg_resources
 import os
+from urllib import request
 
 DATA_DIR = pkg_resources.resource_filename('metaquantome', 'data/')
 GO_SUBDIR = 'go'
 EC_SUBDIR = 'enzyme'
 TAX_SUBDIR = 'ncbi'
+
+
+def stream_to_file_from_url(url, tar):
+    f = request.urlopen(url)
+    data = f.read()
+    with open(tar, 'wb') as tarfile:
+        tarfile.write(data)
+    f.close()
 
 
 def define_ontology_data_dir(ontology):
