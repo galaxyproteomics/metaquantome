@@ -7,7 +7,6 @@ import os
 
 
 class TestCLI(unittest.TestCase):
-    os.chdir('..')
     def testSingleInt(self):
         out = testfile('cli_out.tab')
         command = '''python3 cli.py expand -m tax --pep_colname peptide --outfile ''' + out
