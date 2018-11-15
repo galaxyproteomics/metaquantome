@@ -19,6 +19,13 @@ def paste_func_set(goset, sep):
     return string
 
 def reduce_func(db, funclist, sep):
+    """
+    # todo:doc
+    :param db:
+    :param funclist:
+    :param sep:
+    :return:
+    """
     split = split_func_list(funclist, sep)
     reduced = make_set_nonredundant(db, split)
     pasted = paste_func_set(reduced, sep)

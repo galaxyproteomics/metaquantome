@@ -5,6 +5,7 @@ class AnnotationNode:
     """
     def __init__(self, id, intensity):
         """
+        # todo: doc
         :param id: unique id for the term
         :param intensity: a list with intensity for each sample.
         The order will be kept constant by referring to the SampleGroups() object when calling this.
@@ -19,6 +20,7 @@ class AnnotationNode:
         self.aggregated_intensity = None
 
     def add_peptide(self, intensity):
+        # todo: doc
         self.intensity += intensity
         if intensity > 0:
             self.npeptide += 1

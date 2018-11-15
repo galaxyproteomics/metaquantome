@@ -14,6 +14,7 @@ class GeneOntologyDb:
                      "cellular_component":'GO:0005575'}
 
     def __init__(self, data_dir, slim_down=False, overwrite=False):
+        # todo: doc
         gofull, goslim = self._go_database_handler(data_dir, slim_down, overwrite)
         self.gofull = gofull
         self.goslim = goslim

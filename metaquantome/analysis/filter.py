@@ -1,4 +1,5 @@
-import metaquantome.util.io as io
+import metaquantome.util.expand_io as expand_io
+import metaquantome.util.stat_io as stat_io
 from metaquantome.SampleGroups import SampleGroups
 
 
@@ -6,11 +7,12 @@ def run_filter(file, sinfo, ontology, mode,
                qthreshold,
                min_child_non_leaf, min_child_nsamp,
                min_peptides, min_pep_nsamp, outfile=None):
+    # todo: doc
     # create sample groups object
     samp_grps = SampleGroups(sinfo)
 
     # read in df
-    df = io.read_expanded_table(file, samp_grps)
+    df = stat_io.read_expanded_table(file, samp_grps)
 
     # filter to a minimum number of observed intensities per group
     samp_loc = samp_grps.grp_names.copy()
@@ -38,8 +40,8 @@ def run_filter(file, sinfo, ontology, mode,
 
     # write out
     if outfile:
-        cols = io.define_outfile_cols_expand(samp_grps, ontology, mode)
-        io.write_out(filtered_df, outfile, cols)
+        cols = expand_io.define_outfile_cols_expand(samp_grps, ontology, mode)
+        expand_io.write_out_general(filtered_df, outfile, cols)
     return filtered_df
 
 

@@ -1,7 +1,7 @@
 import numpy as np
 
+import metaquantome.util.expand_io as expand_io
 from metaquantome.SampleAnnotations import SampleAnnotations
-from metaquantome.util import io
 from metaquantome.analysis.functional_analysis import functional_analysis
 from metaquantome.analysis.taxonomy_analysis import taxonomy_analysis
 from metaquantome.analysis.function_taxonomy_interaction import function_taxonomy_analysis
@@ -11,19 +11,19 @@ from metaquantome.SampleGroups import SampleGroups
 def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None,
            func_file=None, func_colname=None, ontology='go', slim_down=False, tax_file=None, tax_colname=None,
            nopep=False, nopep_file=None, ft_func_data_dir=None, ft_tax_data_dir=None, ft_tar_rank='genus'):
-
+    # todo: doc
     samp_grps = SampleGroups(samps)
 
     # read and join files - depending on pep/nopep
     if nopep:
-        df = io.read_nopep_table(file=nopep_file, samp_grps=samp_grps,
-                                 mode=mode,func_colname=func_colname,
-                                 tax_colname=tax_colname)
+        df = expand_io.read_nopep_table(file=nopep_file, samp_grps=samp_grps,
+                                        mode=mode, func_colname=func_colname,
+                                        tax_colname=tax_colname)
     else:
-        df = io.read_and_join_files(mode, pep_colname, samp_grps,
-                                    int_file=int_file,
-                                    func_file=func_file, func_colname=func_colname,
-                                    tax_colname=tax_colname, tax_file=tax_file)
+        df = expand_io.read_and_join_files(mode, pep_colname, samp_grps,
+                                           int_file=int_file,
+                                           func_file=func_file, func_colname=func_colname,
+                                           tax_colname=tax_colname, tax_file=tax_file)
     # run analysis based on modes
     if mode == 'fn':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, ontology=ontology,
@@ -41,8 +41,8 @@ def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, ove
 
     # set up written output
     if outfile:
-        cols = io.define_outfile_cols_expand(samp_grps, ontology, mode)
-        results.to_csv(outfile, columns=cols, sep="\t", header=True, index=False, na_rep="NA")
+        cols = expand_io.define_outfile_cols_expand(samp_grps, ontology, mode)
+        expand_io.write_out_general(results, outfile=outfile, cols=cols)
     # whether writing out or not, return result data frame
     return results
 

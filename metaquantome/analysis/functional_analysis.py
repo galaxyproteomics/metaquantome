@@ -9,7 +9,7 @@ from metaquantome.util import utils, funcutils
 def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir, overwrite):
     """
     Expand functional terms and aggregate intensities.
-    :param df: A DataFrame. Missing values should be 0. There may be multiple
+    :param df: A DataFrame. Missing values are 0. There may be multiple
     functional terms in each row.
     :param func_colname: The name of the column with functional terms.
     :param samp_grps: A SampleGroups() object.

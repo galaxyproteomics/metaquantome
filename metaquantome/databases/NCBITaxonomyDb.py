@@ -56,9 +56,11 @@ UNIDENTIFIED = 32644
 
 class NCBITaxonomyDb:
     def __init__(self, data_dir):
+        # todo: doc
         self.ncbi = self._ncbi_database_handler(data_dir)
 
     def is_in_db(self, taxid):
+        # todo: doc
         rank_dict = self.ncbi.get_rank([taxid])
         if taxid in rank_dict.keys():
             return True
@@ -67,6 +69,7 @@ class NCBITaxonomyDb:
 
     @staticmethod
     def _ncbi_database_handler(data_dir):
+        # todo: doc
         with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
             warnings.simplefilter('ignore')
             tax_path = os.path.join(data_dir, 'taxa.sqlite')
@@ -83,6 +86,7 @@ class NCBITaxonomyDb:
         return ncbi
 
     def map_id_to_desired_ranks(self, ranks2get, taxid):
+        # todo: doc
         rank_of_query = self.get_rank(taxid)
         num_rank_of_query = NUMERIC_RANK[rank_of_query]
         lineage = self.ncbi.get_lineage(taxid)
@@ -119,16 +123,19 @@ class NCBITaxonomyDb:
         return expanded_sample_set
 
     def filter_to_desired_ranks(self, taxids, desired_ranks=BASIC_TAXONOMY_TREE):
+        # todo: doc
         ranks = self.ncbi.get_rank(taxids)
         relevant_ranks = {k for k, v in ranks.items() if v in desired_ranks}
         return relevant_ranks
 
     def get_rank(self, taxid):
+        # todo: doc
         # get the rank of the query, as a number
         query_rank = self.ncbi.get_rank([taxid])[taxid]
         return query_rank
 
     def get_children(self, taxid):
+        # todo: doc
         # get the rank of the query, as a number
         query_rank = self.get_rank(taxid)
         # get number of query rank
@@ -147,12 +154,14 @@ class NCBITaxonomyDb:
         return immed_children
 
     def get_descendants(self, taxid):
+        # todo: doc
         all_descendants = self.ncbi.get_descendant_taxa(taxid, intermediate_nodes=True)
         # only return those in BASIC_TAXONOMY_TREE
         relevant_descendants = self.filter_to_desired_ranks(all_descendants, desired_ranks=BASIC_TAXONOMY_TREE)
         return relevant_descendants
 
     def get_parents(self, taxid):
+        # todo: doc
         rank_of_query = self.get_rank(taxid)  # needs to be list
         num_query_rank = NUMERIC_RANK[rank_of_query]
         # which major rank is the lowest with lower rank? (i.e., more general)
@@ -172,6 +181,7 @@ class NCBITaxonomyDb:
         return parents
 
     def get_ancestors(self, taxid):
+        # todo: doc
         rank_of_query = self.get_rank(taxid)
         num_query_rank = NUMERIC_RANK[rank_of_query]
         # which ranks are more general?
@@ -187,6 +197,7 @@ class NCBITaxonomyDb:
         return ancestors
 
     def convert_taxid_to_name(self, taxids):
+        # todo: doc
         """
         :param taxids: a list or Series of taxids
         :return: list of ncbi names
@@ -197,6 +208,7 @@ class NCBITaxonomyDb:
         return names
 
     def convert_name_to_taxid(self, names):
+        # todo: doc
         """
         Converts the name of a given taxon to its numerical NCBI taxonomy id.
         If a name maps to multiple IDs, the first in the list is taken - this is somewhat unpredictable,

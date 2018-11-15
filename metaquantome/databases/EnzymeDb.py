@@ -1,4 +1,3 @@
-import ftplib
 import Bio.ExPASy.Enzyme as Enz
 import os
 import json

@@ -1,9 +1,7 @@
-import os
 import pandas as pd
 
-
-MISSING_VALUES = ["", "0", "NA", "NaN", "0.0"]
-ONTOLOGIES = ['cog', 'go', 'ec']
+from metaquantome.util.check_args import function_check, tax_check
+from metaquantome.util.constants import MISSING_VALUES
 
 
 def read_and_join_files(mode, pep_colname,
@@ -11,6 +9,18 @@ def read_and_join_files(mode, pep_colname,
                         tax_file=None, func_file=None,
                         func_colname=None,
                         tax_colname=None):
+    """
+    todo: doc
+    :param mode:
+    :param pep_colname:
+    :param samp_groups:
+    :param int_file:
+    :param tax_file:
+    :param func_file:
+    :param func_colname:
+    :param tax_colname:
+    :return: joined dataframe; missing intensities as 0.
+    """
 
     # intensity
     int = read_intensity_table(int_file, samp_groups, pep_colname)
@@ -31,6 +41,13 @@ def read_and_join_files(mode, pep_colname,
 
 
 def read_intensity_table(file, samp_grps, pep_colname):
+    """
+
+    :param file:
+    :param samp_grps:
+    :param pep_colname:
+    :return: intensity table; missing values as 0
+    """
     # read in data
     df = pd.read_table(file, sep="\t", index_col=pep_colname,
                        dtype=samp_grps.dict_numeric_cols,
@@ -70,6 +87,7 @@ def read_taxonomy_table(file, pep_colname, tax_colname):
 
 def read_function_table(file, pep_colname, func_colname):
     """
+    todo:doc
     :param file:
     :param pep_colname:
     :return:
@@ -83,6 +101,15 @@ def read_function_table(file, pep_colname, func_colname):
 
 
 def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None):
+    """
+
+    :param file: file with intensity and functional or taxonomic terms
+    :param mode: fn, tax, or taxfn
+    :param samp_grps: SampleGroups() object
+    :param func_colname: name of column with functional terms
+    :param tax_colname: name of column with taxonomic annotations
+    :return: dataframe, missing values as 0
+    """
     newdict = samp_grps.dict_numeric_cols.copy()
     newdict[func_colname] = object
     newdict[tax_colname] = object
@@ -108,15 +135,8 @@ def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None)
     return df
 
 
-def read_expanded_table(file, samp_grps):
-    df = pd.read_table(file, sep="\t",
-                       dtype=samp_grps.dict_numeric_cols_expanded,
-                       na_values=MISSING_VALUES,
-                       low_memory=False)
-    return df
-
-
 def join_on_peptide(dfs):
+    # todo: doc
     # join inner means that only peptides present in all dfs will be kept
     df_all = dfs.pop(0)
     while len(dfs) > 0:
@@ -125,25 +145,8 @@ def join_on_peptide(dfs):
     return df_all
 
 
-def function_check(func_file, func_colname):
-    if not func_file:
-        raise IOError('Function tabular file not provided (--func_file)')
-    if not os.path.exists(func_file):
-        raise FileNotFoundError('func_file does not exist. Please check filename')
-    if not func_colname:
-        raise ValueError('func_colname=None. Please provide a function column name (--func_colname)')
-
-
-def tax_check(tax_file, tax_colname):
-    if not tax_file:
-        raise IOError('Taxonomy tabular file not provided (--tax_file)')
-    if not os.path.exists(tax_file):
-        raise FileNotFoundError('func_file does not exist. Please check filename')
-    if not tax_colname:
-        raise ValueError('tax_colname=None. Please provide a taxonomy column name (--tax_colname)')
-
-
-def write_out(df, outfile, cols):
+def write_out_general(df, outfile, cols):
+    # todo: doc
     df.to_csv(outfile,
               columns=cols,
               sep="\t",
@@ -151,7 +154,9 @@ def write_out(df, outfile, cols):
               index=False,
               na_rep="NA")
 
+
 def define_outfile_cols_expand(samp_grps, ontology, mode):
+    # todo: doc
     int_cols = []
     int_cols += samp_grps.mean_names + samp_grps.all_intcols
     node_cols = []
