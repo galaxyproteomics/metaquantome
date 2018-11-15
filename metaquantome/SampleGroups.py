@@ -5,15 +5,8 @@ import numpy as np
 
 
 class SampleGroups:
-    """
-    flatten sample names list
-    :param sample_names: dictionary of lists, where the keys are the group names and
-    the values are lists of column names within that group
-    :return:
-    """
-
     def __init__(self, sinfo):
-
+        # todo: doc
         # top level dictionary
         sample_names = self.read_samp_info(sinfo)
         self.sample_names = sample_names
@@ -60,6 +53,7 @@ class SampleGroups:
             self.fc_name = 'log2fc_' + grp1 + '_over_' + grp2
 
     def read_samp_info(self, sinfo):
+        # todo: doc
         # check if sinfo is a file name
         if os.path.exists(sinfo):
             samp_names = dict()
@@ -82,6 +76,7 @@ class SampleGroups:
 
     # thanks to https://stackoverflow.com/questions/5508509/how-do-i-check-if-a-string-is-valid-json-in-python
     def to_json(self, obj):
+        # todo: doc
         try:
             json_object = json.loads(obj)
             return True, json_object

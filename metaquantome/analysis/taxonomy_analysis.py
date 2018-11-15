@@ -4,6 +4,7 @@ from metaquantome.util import utils
 
 
 def taxonomy_analysis(df, samp_grps, data_dir, tax_colname='lca'):
+    # todo: doc
     if not data_dir:
         data_dir = utils.define_ontology_data_dir('taxonomy')
     # load ncbi database

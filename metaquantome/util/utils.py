@@ -10,6 +10,7 @@ TAX_SUBDIR = 'ncbi'
 
 
 def stream_to_file_from_url(url, tar):
+    # todo: doc
     f = request.urlopen(url)
     data = f.read()
     with open(tar, 'wb') as tarfile:
@@ -18,6 +19,7 @@ def stream_to_file_from_url(url, tar):
 
 
 def define_ontology_data_dir(ontology):
+    # todo: doc
     base_ddir = DATA_DIR
     if ontology == "go":
         dir = GO_SUBDIR
@@ -32,6 +34,7 @@ def define_ontology_data_dir(ontology):
 
 
 def safe_cast_to_list(obj):
+    # todo: doc
     if not isinstance(obj, list):
         return [obj]
     else:
@@ -39,6 +42,7 @@ def safe_cast_to_list(obj):
 
 
 def split_func_list(df, sep, func_colname):
+    # todo: doc
     # replace old func colname with reduced
     new_df = tidy_split(df, func_colname, sep=sep, keep=False)
     return new_df
@@ -82,13 +86,13 @@ def tidy_split(df, column, sep='|', keep=False):
 
 
 def sniff_tax_names(df, tax_colname):  # todo: move to NCBI database
-    '''
+    """
     if greater than 90% of entries contain numbers, then we say it is numeric
     otherwise, we attempt to convert the names to taxids
     :param df:
     :param tax_colname:
     :return:
-    '''
+    """
     pattern = re.compile(r'[0-9]')  # little bit faster to compile
     is_numeric = df[tax_colname].str.contains(pattern)
     if is_numeric.mean() > 0.9:

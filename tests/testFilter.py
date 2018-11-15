@@ -1,7 +1,7 @@
 import unittest
 
 from metaquantome.util.testutils import testfile, TTEST_SINFO
-from metaquantome.util import io
+from metaquantome.util import stat_io
 from metaquantome.SampleGroups import SampleGroups
 from metaquantome.analysis.filter import run_filter
 from metaquantome.analysis.expand import expand
@@ -11,7 +11,7 @@ class TestFilter(unittest.TestCase):
     def testRead(self):
         samp_grps = SampleGroups('{"samp1": "int"}')
         infile = testfile('taxonomy_write_simple.tab')
-        df = io.read_expanded_table(infile, samp_grps)
+        df = stat_io.read_expanded_table(infile, samp_grps)
         self.assertIn('Helicobacter', df['taxon_name'].tolist())
 
     def testFilter(self):

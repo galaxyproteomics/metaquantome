@@ -19,9 +19,16 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrit
     6. Map each taxon to its desired rank - new column
     7. Group by the new taxon column and the new GO term column
     :param df: joined taxonomy, intensity, and function tables
-    :param cog_name: name of COG column in dataframe
+    :param func_colname: name of function column in dataframe
+    :param pep_colname: name of peptide column in dataframe
+    :param ontology: name of functional ontology. must be 'go'
+    :param overwrite: whether to overwrite GO file
+    :param slim_down: whether to map full GO terms to metagenomics slim GO terms
     :param tax_colname: name of LCA column in dataframe.
     :param samp_grps: a SampleGroups object for this analysis
+    :param ft_tar_rank: rank at which to group taxonomy. Default is 'genus'
+    :param ft_func_data_dir: data directory for the gene ontology OBO files
+    :param ft_tax_data_dir: data directory for the NCBI taxonomy files
     :return: dataframe with taxon-function pairs and their associated total intensity
     """
     # ---- arg checks ---- #
@@ -96,8 +103,8 @@ def des_rank_mapper(des_rank, taxid, ncbi):
     :param ncbi:
     :return:
     """
-    dict_mapper = ncbi.map_id_to_desired_ranks([des_rank], int(taxid))
-    if len(dict_mapper) == 1:
+    dict_mapper = ncbi.map_id_to_desired_ranks([des_rank], int(taxid))  # todo: fix if taxid is already int
+    if len(dict_mapper) == 1:  # this should always just be 1 or 0, because we're querying with one term
         return dict_mapper[des_rank]
     else:
         return 0

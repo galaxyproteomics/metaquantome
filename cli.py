@@ -2,7 +2,6 @@ import sys
 import argparse
 import logging
 
-
 from metaquantome.analysis.expand import expand
 from metaquantome.analysis.filter import run_filter
 from metaquantome.analysis.stat import stat

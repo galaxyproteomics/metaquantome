@@ -1,16 +1,21 @@
 import numpy as np
-import pandas as pd
 from scipy import stats as sps
 from statsmodels.sandbox.stats import multicomp as mc
 
-from metaquantome.util.io import MISSING_VALUES, define_outfile_cols_expand
 from metaquantome.SampleGroups import SampleGroups
+from metaquantome.util.constants import P_COLNAME, P_CORR_COLNAME
+from metaquantome.util.stat_io import read_expanded_table, write_test
 
 
 def stat(infile, samps, paired, parametric, ontology, mode, outfile):
-    df = read_expanded(infile)
+    # todo: doc
+
     # define sample groups
     samp_grps = SampleGroups(samps)
+
+    # read in
+    df = read_expanded_table(infile, samp_grps)
+
     if samp_grps.ngrps != 2:
         ValueError('testing is only available for 2 experimental conditions.')
     # run test
@@ -22,27 +27,11 @@ def stat(infile, samps, paired, parametric, ontology, mode, outfile):
     return df_test
 
 
-def read_expanded(file):
-    df = pd.read_table(file, sep="\t",
-                       na_values=MISSING_VALUES)
-    return df
-
-
-def write_test(df,outfile, samp_grps, ontology, mode):
-    cols = define_outfile_cols_expand(samp_grps, ontology, mode) +\
-        [samp_grps.fc_name, P_COLNAME, P_CORR_COLNAME]
-    df.to_csv(outfile, columns=cols, sep="\t", header=True, index=False, na_rep="NA")
-
-
-P_COLNAME = 'p'
-P_CORR_COLNAME = 'corrected_p'
-
-
 def test_norm_intensity(df, samp_grps, paired, parametric):
     """
-
+    todo: doc
     :param parametric:
-    :param df:
+    :param df: intensity df, missing values are NaN
     :param samp_grps: is a SampleGroups() object
     :param paired:
     :return:
@@ -84,6 +73,13 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
 
 
 def fold_change(df, samp_grps, log=False):
+    """
+    todo: doc
+    :param df:
+    :param samp_grps:
+    :param log:
+    :return:
+    """
     mean1 = samp_grps.mean_names[0]
     mean2 = samp_grps.mean_names[1]
     if log:

@@ -43,6 +43,7 @@ class AnnotationHierarchy:
         self._define_sample_children()
 
     def to_dataframe(self):
+        # todo: doc
         nodes = self.nodes
         node_rows = [0]*len(nodes)
         index = 0
@@ -57,6 +58,7 @@ class AnnotationHierarchy:
         return df
 
     def _add_node(self, term, intensity):
+        # todo: doc
         if term not in self.nodes.keys():
             # create new node
             self.nodes[term] = anode.AnnotationNode(term, intensity)
@@ -74,6 +76,7 @@ class AnnotationHierarchy:
             self._add_node(par, intensity)
 
     def _define_sample_children(self):
+        # todo: doc
         for term in self.nodes.keys():
             node = self.nodes[term]
             ref_children = self.db.get_children(term)
