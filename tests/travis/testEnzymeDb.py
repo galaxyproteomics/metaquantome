@@ -2,31 +2,11 @@ import unittest
 from metaquantome.databases.EnzymeDb import EnzymeDb
 from metaquantome.util.utils import DATA_DIR
 import os
-import shutil
 
 
 class TestEC(unittest.TestCase):
     TEST_DIR = os.path.join(DATA_DIR, 'test', 'ec_cache')  # downloaded 8/28/18
     ec = EnzymeDb(TEST_DIR)
-
-    def testEnzymeDatabaseHandler(self):
-        # make tmp dir for testing download
-        tmp_dir = os.path.join(DATA_DIR, 'tmp_test_data_dwnld')
-        os.mkdir(tmp_dir)
-        try:
-            enzyme_db = EnzymeDb(tmp_dir, False)
-            expected_contents = [os.path.join(tmp_dir, file)
-                                 for file in ['enzclass.txt', 'enzyme.dat', 'ec_id.json', 'enzclass.json']]
-            for content in expected_contents:
-                self.assertTrue(os.path.exists(content))
-            # make sure parsed correctly
-            # this is from enzyme.dat
-            self.assertEqual(enzyme_db.ecdb['1.2.3.4']['descript'], 'Oxalate oxidase.')
-
-            # from enzclass.txt
-            self.assertEqual(enzyme_db.ecdb['6.1.-.-']['descript'], 'Forming carbon-oxygen bonds.')
-        finally:
-            shutil.rmtree(tmp_dir)
 
     def testAnnotateEcDatabase(self):
         testdb = {'1.-.-.-': "a description",

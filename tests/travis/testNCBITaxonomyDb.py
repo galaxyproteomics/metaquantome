@@ -1,27 +1,16 @@
 import unittest
 import os
-import metaquantome.databases.NCBITaxonomyDb as td
-import shutil
-from metaquantome.util.testutils import testfile
 import pandas as pd
-from metaquantome.util.utils import DATA_DIR, define_ontology_data_dir
 import numpy as np
+
+import metaquantome.databases.NCBITaxonomyDb as td
+from metaquantome.util.utils import DATA_DIR, define_ontology_data_dir
+from metaquantome.util.testutils import testfile
 
 
 class TestTaxonomyDatabase(unittest.TestCase):
     ddir = define_ontology_data_dir('taxonomy')
     ncbi = td.NCBITaxonomyDb(ddir)
-
-    def testDownloadTaxonomy(self):
-        # make tmp dir for testing download
-        tmp_dir = os.path.join(DATA_DIR, 'tmp_test_tax_dwnld')
-        os.mkdir(tmp_dir)
-        try:
-            ncbi = td.NCBITaxonomyDb(tmp_dir)
-            lineage = ncbi.get_ancestors(1919)
-            self.assertTrue(1760 in lineage)
-        finally:
-            shutil.rmtree(tmp_dir)
 
     def testMapIdToDesiredRanks(self):
         # human genus
