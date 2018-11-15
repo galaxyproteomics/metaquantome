@@ -10,20 +10,6 @@ class TestGeneOntologyDb(unittest.TestCase):
     TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 11/5/18
     db = godb.GeneOntologyDb(TEST_DIR, slim_down=True, overwrite=False)
 
-    def testDownloadGO(self):
-        tmp_dir = os.path.join(DATA_DIR, 'tmp_go_data_dwnld')
-        os.mkdir(tmp_dir)
-        try:
-            go = godb.GeneOntologyDb(tmp_dir, slim_down=True)
-            expected_contents = [os.path.join(tmp_dir, file)
-                                 for file in ['go-basic.obo', 'goslim_metagenomics.obo']]
-            for content in expected_contents:
-                self.assertTrue(os.path.exists(content))
-            # make sure parsed correctly
-            self.assertEqual('biological_process', go.gofull['GO:0008150'].name)
-        finally:
-            shutil.rmtree(tmp_dir)
-
     def testMapIdToSlim(self):
         # the case where the test term has a parent in the slim set
         testid = "GO:0009343" # biotin carboxylase complex
