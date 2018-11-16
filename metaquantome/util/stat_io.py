@@ -9,6 +9,7 @@ def read_expanded_table(file, samp_grps):
                        dtype=samp_grps.dict_numeric_cols_expanded,
                        na_values=MISSING_VALUES,
                        low_memory=False)
+    df.fillna(0, inplace=True)
     return df
 
 

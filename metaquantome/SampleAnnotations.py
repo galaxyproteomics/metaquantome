@@ -63,7 +63,6 @@ class SampleAnnotations:
         fills NAs with 0s, for adding up
         :return: concatenated dataframe, missing values are 0
         """
-        # import pdb; pdb.set_trace()
         n_hier = len(self.hierarchies)
         loc_hier = self.hierarchies.copy()
         hierarchy_dfs = list()

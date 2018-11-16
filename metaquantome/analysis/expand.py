@@ -48,8 +48,6 @@ def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, ove
 
 
 def common_hierarchical_analysis(db, df, annot_colname, samp_grps, hierarchical=True):
-
-    # import pdb; pdb.set_trace()
     if hierarchical:
         samp_annot = SampleAnnotations(db)
         # make a hierarchy for each sample
