@@ -48,6 +48,7 @@ def run_filter(file, sinfo, ontology, mode,
 def get_rows_to_keep(df, grp, samp_grps, qthreshold,
                      min_child_non_leaf, min_child_nsamp,
                      min_peptides, min_pep_nsamp):
+    # import pdb; pdb.set_trace()
     # intensity
     intcols = samp_grps.sample_names[grp]
     keep_int = (df[intcols] > 0).apply(sum, axis=1) >= qthreshold
@@ -55,7 +56,7 @@ def get_rows_to_keep(df, grp, samp_grps, qthreshold,
     # child non leaf
     child_cols = samp_grps.samp_children_names_dict[grp]
     if min_child_nsamp == "all":
-        keep_child = (df[child_cols] > 0).all()
+        keep_child = (df[child_cols] >= min_child_non_leaf).all(axis=1)
     else:
         keep_child = (df[child_cols] >= min_child_non_leaf).\
                          apply(sum, axis=1) >= min_child_nsamp
@@ -63,7 +64,7 @@ def get_rows_to_keep(df, grp, samp_grps, qthreshold,
     # peptides
     peptide_cols = samp_grps.n_peptide_names_dict[grp]
     if min_pep_nsamp == "all":
-        keep_peptide = (df[peptide_cols] > 0).all()
+        keep_peptide = (df[peptide_cols] > 0).all(axis=1)
     else:
         keep_peptide = (df[peptide_cols] >= min_peptides).\
                            apply(sum, axis=1) >= min_pep_nsamp

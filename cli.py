@@ -21,14 +21,16 @@ def cli():
     elif args.command == "filter":
         run_filter(file=args.expand_file, sinfo=args.samps,
                    ontology=args.ontology, mode=args.mode,
-                   qthreshold=args.threshold,
+                   qthreshold=args.qthreshold,
                    min_child_non_leaf=args.min_children_non_leaf, min_child_nsamp=args.min_child_nsamp,
                    min_peptides=args.min_peptides, min_pep_nsamp=args.min_pep_nsamp, outfile=args.outfile)
-    elif args.command == "test":
+    elif args.command == "stat":
         stat(infile=args.file, samps=args.samps, paired=args.paired, parametric=args.parametric,
              ontology=args.ontology, mode=args.mode, outfile=args.outfile)
     elif args.command == "viz":
         print('viz')
+    else:
+        ValueError('incorrect mode. please provide one of "expand", "filter", "stat", or "viz".')
     sys.exit(0)
 
 
