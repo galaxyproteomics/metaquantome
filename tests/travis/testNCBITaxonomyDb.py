@@ -4,13 +4,13 @@ import pandas as pd
 import numpy as np
 
 import metaquantome.databases.NCBITaxonomyDb as td
-from metaquantome.util.utils import DATA_DIR, define_ontology_data_dir
+from metaquantome.util.utils import DATA_DIR
 from metaquantome.util.testutils import testfile
+from metaquantome.util.constants import TAX_TEST_DIR
 
 
 class TestTaxonomyDatabase(unittest.TestCase):
-    ddir = define_ontology_data_dir('taxonomy')
-    ncbi = td.NCBITaxonomyDb(ddir)
+    ncbi = td.NCBITaxonomyDb(TAX_TEST_DIR)
 
     def testMapIdToDesiredRanks(self):
         # human genus

@@ -1,7 +1,9 @@
 import unittest
-import metaquantome.SampleGroups
 import os
+
+import metaquantome.SampleGroups
 from metaquantome.util import utils
+
 
 class TestSampleGroups(unittest.TestCase):
 

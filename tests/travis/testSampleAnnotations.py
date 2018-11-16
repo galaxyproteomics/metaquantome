@@ -5,12 +5,11 @@ from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 from metaquantome.util.utils import define_ontology_data_dir
 from metaquantome.SampleAnnotations import SampleAnnotations
 from metaquantome.SampleGroups import SampleGroups
-
+from metaquantome.util.constants import TAX_TEST_DIR
 
 
 class TestSampleAnnotations(unittest.TestCase):
-    ddir = define_ontology_data_dir('taxonomy')
-    ncbi = NCBITaxonomyDb(ddir)
+    ncbi = NCBITaxonomyDb(TAX_TEST_DIR)
 
     # todo: add test init
 

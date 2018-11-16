@@ -2,6 +2,7 @@ import unittest
 
 from metaquantome.util.testutils import testfile, TTEST_SINFO
 from metaquantome.util import stat_io
+from metaquantome.util.constants import TAX_TEST_DIR
 from metaquantome.SampleGroups import SampleGroups
 from metaquantome.analysis.filter import run_filter
 from metaquantome.analysis.expand import expand
@@ -23,7 +24,8 @@ class TestFilter(unittest.TestCase):
                           int_file = intfile,
                           tax_file=taxfile,
                           tax_colname='lca',
-                          outfile=expandfile)
+                          outfile=expandfile,
+                          data_dir=TAX_TEST_DIR)
         exp_ids = set(expanded['id'])
 
         # no filtering
@@ -52,4 +54,3 @@ class TestFilter(unittest.TestCase):
         filt3_ids = set(filt3['id'])
         self.assertNotIn(1496, filt3_ids)
         self.assertNotIn(1870884, filt3_ids)
-        # os.remove(expandfile)

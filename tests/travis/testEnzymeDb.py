@@ -1,12 +1,11 @@
 import unittest
+
 from metaquantome.databases.EnzymeDb import EnzymeDb
-from metaquantome.util.utils import DATA_DIR
-import os
+from metaquantome.util.constants import EC_TEST_DIR
 
 
 class TestEC(unittest.TestCase):
-    TEST_DIR = os.path.join(DATA_DIR, 'test', 'ec_cache')  # downloaded 8/28/18
-    ec = EnzymeDb(TEST_DIR)
+    ec = EnzymeDb(EC_TEST_DIR)
 
     def testAnnotateEcDatabase(self):
         testdb = {'1.-.-.-': "a description",
@@ -47,14 +46,6 @@ class TestEC(unittest.TestCase):
         test_ecid2 = '4.5.2.-'
         self.assertEqual(self.ec._assign_levels(test_ecid0), ['1', '-', '-', '-'])
         self.assertEqual(self.ec._assign_levels(test_ecid2), ['4', '5', '2', '-'])
-
-    # def testExpandEC(self):
-    #     test_ec = '1.2.-.-'
-    #     df = ec.expand_ec(test_ec)
-    #     # should have two levels (the first two)
-    #     self.assertEqual(df.loc[ec.LEVEL_NAMES[0]], '1.-.-.-')
-    #     self.assertEqual(df.loc[ec.LEVEL_NAMES[1]], '1.2.-.-')
-    #     self.assertTrue(ec.LEVEL_NAMES[2] not in df.index)
 
     def testGetChildren(self):
         # Oxidoreductases, Acting on the CH-OH group of donors, With a disulfide as acceptor

@@ -1,14 +1,11 @@
 import unittest
+
 from metaquantome.databases import GeneOntologyDb as godb
-from metaquantome.util.utils import DATA_DIR
-import os
-import shutil
-import pandas as pd
+from metaquantome.util.constants import GO_TEST_DIR
 
 
 class TestGeneOntologyDb(unittest.TestCase):
-    TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 11/5/18
-    db = godb.GeneOntologyDb(TEST_DIR, slim_down=True, overwrite=False)
+    db = godb.GeneOntologyDb(GO_TEST_DIR, slim_down=True, overwrite=False)
 
     def testMapIdToSlim(self):
         # the case where the test term has a parent in the slim set
