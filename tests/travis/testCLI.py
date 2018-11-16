@@ -31,11 +31,12 @@ class TestCLI(unittest.TestCase):
 
         test_out = testfile('cli_mult_test_out.tab')
         test_command = "python3 cli.py stat -m fn --outfile " + test_out + ' --file ' + exp_out
-        test_command += ''' --ontology cog ''' + " --samps '" + TTEST_SINFO + "'"
+        test_command += ''' --ontology cog ''' + " --samps '" + TTEST_SINFO + "'" + ' --parametric True '
         test_status = subprocess.call(test_command, shell=True)
         self.assertEqual(test_status, 0)
 
         test_df = pd.read_csv(test_out, sep="\t", index_col='id')
+        print(test_df)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(test_df['corrected_p']['C'] > 0.05)
         self.assertTrue(test_df['corrected_p'][['N','D']].le(0.05).all())

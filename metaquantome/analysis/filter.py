@@ -19,22 +19,15 @@ def run_filter(file, sinfo, ontology, mode,
 
     # get the columns for the first sample group
     grp0 = samp_loc.pop(0)
-    keep = get_rows_to_keep(df, grp0,
-                            samp_grps, qthreshold=qthreshold,
-                            min_child_non_leaf=min_child_non_leaf,
-                            min_child_nsamp=min_child_nsamp,
-                            min_peptides=min_peptides,
-                            min_pep_nsamp=min_pep_nsamp)
+    keep = get_rows_to_keep(mode, df, grp0, samp_grps, qthreshold=qthreshold, min_child_non_leaf=min_child_non_leaf,
+                            min_child_nsamp=min_child_nsamp, min_peptides=min_peptides, min_pep_nsamp=min_pep_nsamp)
 
     # now, iterate over the rest
     while len(samp_loc) > 0:
         grp_i = samp_loc.pop(0)
-        ith_keep = get_rows_to_keep(df, grp_i,
-                                    samp_grps, qthreshold=qthreshold,
-                                    min_child_non_leaf=min_child_non_leaf,
-                                    min_child_nsamp=min_child_nsamp,
-                                    min_peptides=min_peptides,
-                                    min_pep_nsamp=min_pep_nsamp)
+        ith_keep = get_rows_to_keep(mode, df, grp_i, samp_grps, qthreshold=qthreshold,
+                                    min_child_non_leaf=min_child_non_leaf, min_child_nsamp=min_child_nsamp,
+                                    min_peptides=min_peptides, min_pep_nsamp=min_pep_nsamp)
         keep &= ith_keep
     filtered_df = df.loc[keep].copy()
 
@@ -45,29 +38,29 @@ def run_filter(file, sinfo, ontology, mode,
     return filtered_df
 
 
-def get_rows_to_keep(df, grp, samp_grps, qthreshold,
-                     min_child_non_leaf, min_child_nsamp,
-                     min_peptides, min_pep_nsamp):
-    # import pdb; pdb.set_trace()
+def get_rows_to_keep(mode, df, grp, samp_grps, qthreshold, min_child_non_leaf, min_child_nsamp, min_peptides,
+                     min_pep_nsamp):
     # intensity
     intcols = samp_grps.sample_names[grp]
     keep_int = (df[intcols] > 0).apply(sum, axis=1) >= qthreshold
 
-    # child non leaf
-    child_cols = samp_grps.samp_children_names_dict[grp]
-    if min_child_nsamp == "all":
-        keep_child = (df[child_cols] >= min_child_non_leaf).all(axis=1)
-    else:
-        keep_child = (df[child_cols] >= min_child_non_leaf).\
-                         apply(sum, axis=1) >= min_child_nsamp
-
     # peptides
     peptide_cols = samp_grps.n_peptide_names_dict[grp]
+    peptide_keep_series = (df[peptide_cols] > min_peptides)
     if min_pep_nsamp == "all":
-        keep_peptide = (df[peptide_cols] > 0).all(axis=1)
+        keep_peptide = peptide_keep_series.all(axis=1)
     else:
-        keep_peptide = (df[peptide_cols] >= min_peptides).\
-                           apply(sum, axis=1) >= min_pep_nsamp
+        keep_peptide = peptide_keep_series.apply(sum, axis=1) >= int(min_pep_nsamp)
 
-    all_keep = keep_int & keep_child & keep_peptide
+    if mode != 'taxfn':
+        # child non leaf
+        child_cols = samp_grps.samp_children_names_dict[grp]
+        child_keep_series = (df[child_cols] >= min_child_non_leaf) | (df[child_cols] == 0)
+        if min_child_nsamp == "all":
+            keep_child = child_keep_series.all(axis=1)
+        else:
+            keep_child = child_keep_series.apply(sum, axis=1) >= int(min_child_nsamp)
+        all_keep = keep_int & keep_child & keep_peptide
+    else:
+        all_keep = keep_int & keep_peptide
     return all_keep
