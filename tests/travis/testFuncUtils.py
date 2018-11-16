@@ -1,17 +1,15 @@
-from metaquantome.databases import GeneOntologyDb as godb
-from metaquantome.util.utils import DATA_DIR
-from metaquantome.util import funcutils as fu
-from metaquantome.databases import EnzymeDb as ecdb
-
 import unittest
 import os
 import pandas as pd
 
+from metaquantome.databases import GeneOntologyDb as godb
+from metaquantome.util import funcutils as fu
+from metaquantome.databases import EnzymeDb as ecdb
+from metaquantome.util.constants import GO_TEST_DIR, EC_TEST_DIR
+
 
 class TestFuncUtils(unittest.TestCase):
-    GO_TEST_DIR = os.path.join(DATA_DIR, 'test', 'go_cache')  # downloaded 8/27/18
     go_db = godb.GeneOntologyDb(GO_TEST_DIR, slim_down=True)
-    EC_TEST_DIR = os.path.join(DATA_DIR, 'test', 'ec_cache')  # downloaded 8/28/18
     ec_db = ecdb.EnzymeDb(EC_TEST_DIR)
 
     def testSplitFuncListGO(self):

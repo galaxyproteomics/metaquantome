@@ -1,6 +1,6 @@
 import unittest
+
 from metaquantome.AnnotationNode import AnnotationNode
-import numpy as np
 
 
 class TestAnnotationNode(unittest.TestCase):

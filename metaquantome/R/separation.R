@@ -2,6 +2,8 @@
 # calculate the avg distance between n clusters
 # divided by the total variation within clusters
 sep_n <- function(clust){
+    # clust is a list of dataframes, where the columns in each dataframe are the
+    #
     nclust <- length(clust)
     means <- lapply(clust, colMeans)
     possible_dists <- combn(1:nclust, 2)

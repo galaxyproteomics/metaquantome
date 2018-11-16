@@ -2,6 +2,7 @@
 metaquantome/data/enzyme/*
 metaquantome/data/go/*
 metaquantome/data/ncbi/*
+metaquantome/data/test/ncbi_test/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
