@@ -4,6 +4,14 @@ from metaquantome.util import utils
 
 
 def taxonomy_analysis(df, samp_grps, data_dir, tax_colname='lca'):
+    """
+    Expand taxonomy annotations
+    :param df: joined dataframe
+    :param samp_grps: SampleGroups object
+    :param data_dir: parent directory for the taxonomy database
+    :param tax_colname: column with taxonomic annotations
+    :return: dataframe with taxa and intensities
+    """
     # todo: doc
     if not data_dir:
         data_dir = utils.define_ontology_data_dir('taxonomy')

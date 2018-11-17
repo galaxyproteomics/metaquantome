@@ -7,11 +7,21 @@ from metaquantome.util.constants import P_COLNAME, P_CORR_COLNAME
 from metaquantome.util.stat_io import read_expanded_table, write_test
 
 
-def stat(infile, samps, paired, parametric, ontology, mode, outfile):
-    # todo: doc
+def stat(infile, sinfo, paired, parametric, ontology, mode, outfile):
+    """
+    Module function that tests differential expression between 2 experimental conditions
+    :param infile: path to filtered file
+    :param sinfo: path to experimental design file or JSON string
+    :param paired: Whether or not the sample should be analyzed as paired samples
+    :param parametric: whether or not parameteric tests should be used
+    :param ontology: for function, is either 'go', 'ec', or 'cog'
+    :param mode: 'tax', 'fn', or 'taxfn'
+    :param outfile: path to write to
+    :return: original dataframe with p value and fold change columns appended
+    """
 
     # define sample groups
-    samp_grps = SampleGroups(samps)
+    samp_grps = SampleGroups(sinfo)
 
     # read in
     df = read_expanded_table(infile, samp_grps)
@@ -29,12 +39,12 @@ def stat(infile, samps, paired, parametric, ontology, mode, outfile):
 
 def test_norm_intensity(df, samp_grps, paired, parametric):
     """
-    todo: doc
-    :param parametric:
+    run t-tests (or nonparametric tests) on dataframe.
+    :param parametric: Whether or not to use a parametric test
     :param df: intensity df, missing values are NaN
     :param samp_grps: is a SampleGroups() object
-    :param paired:
-    :return:
+    :param paired: whether or not to use a paired test
+    :return: dataframe with appended pvalue columns
     """
 
     grp1_intcols = samp_grps.sample_names[samp_grps.grp_names[0]]
@@ -74,11 +84,12 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
 
 def fold_change(df, samp_grps, log=False):
     """
-    todo: doc
-    :param df:
-    :param samp_grps:
-    :param log:
-    :return:
+    calculate fold change
+    :param df: expanded and or filtered dataframe
+    :param samp_grps: SampleGroups() object
+    :param log: whether or not the intensities have already been logged. If so, the fold change is
+    calculated by subtracting one from the other.
+    :return: dataframe with fold change column appended
     """
     mean1 = samp_grps.mean_names[0]
     mean2 = samp_grps.mean_names[1]

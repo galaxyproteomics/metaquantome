@@ -8,25 +8,28 @@ from metaquantome.analysis.stat import stat
 
 
 def cli():
+    """
+    Command line interface; main entry point to metaQuantome
+    :return: exit code
+    """
     # initialize logger
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
     args = parse_args_cli()
     if args.command == "expand":
-        expand(mode=args.mode, samps=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
+        expand(mode=args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
                data_dir=args.data_dir, overwrite=args.overwrite, outfile=args.outfile, func_file=args.func_file,
                func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down, tax_file=args.tax_file,
                tax_colname=args.tax_colname, nopep=args.nopep, nopep_file=args.nopep_file,
                ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir,
                ft_tar_rank=args.ft_tar_rank)
     elif args.command == "filter":
-        run_filter(file=args.expand_file, sinfo=args.samps,
-                   ontology=args.ontology, mode=args.mode,
-                   qthreshold=args.qthreshold,
-                   min_child_non_leaf=args.min_children_non_leaf, min_child_nsamp=args.min_child_nsamp,
-                   min_peptides=args.min_peptides, min_pep_nsamp=args.min_pep_nsamp, outfile=args.outfile)
+        run_filter(expanded_file=args.expand_file, sinfo=args.samps, ontology=args.ontology, mode=args.mode,
+                   qthreshold=args.qthreshold, min_child_non_leaf=args.min_children_non_leaf,
+                   min_child_nsamp=args.min_child_nsamp, min_peptides=args.min_peptides,
+                   min_pep_nsamp=args.min_pep_nsamp, outfile=args.outfile)
     elif args.command == "stat":
-        stat(infile=args.file, samps=args.samps, paired=args.paired, parametric=args.parametric,
-             ontology=args.ontology, mode=args.mode, outfile=args.outfile)
+        stat(infile=args.file, sinfo=args.samps, paired=args.paired, parametric=args.parametric, ontology=args.ontology,
+             mode=args.mode, outfile=args.outfile)
     elif args.command == "viz":
         print('viz')
     else:
@@ -35,6 +38,10 @@ def cli():
 
 
 def parse_args_cli():
+    """
+    parse the command line arguments
+    :return: parsed arguments
+    """
     parser = argparse.ArgumentParser()
 
     # split this into three submodules
