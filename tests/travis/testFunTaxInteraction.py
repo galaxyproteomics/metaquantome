@@ -20,7 +20,7 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         # todo - add test for non-slim
 
         tax=testfile('multiple_tax.tab')
-        ft_df = expand(mode='taxfn', samps=tu.TTEST_SINFO, int_file=int, func_file=func, func_colname='go',
+        ft_df = expand(mode='taxfn', sinfo=tu.TTEST_SINFO, int_file=int, func_file=func, func_colname='go',
                        ontology='go', slim_down=True, tax_file=tax, tax_colname='lca',
                        ft_func_data_dir=GO_TEST_DIR, ft_tax_data_dir=TAX_TEST_DIR)
         # make sure calculated mean is accurate

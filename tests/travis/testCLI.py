@@ -26,6 +26,7 @@ class TestCLI(unittest.TestCase):
         exp_command = '''python3 cli.py expand -m fn --pep_colname peptide --outfile ''' + exp_out
         exp_command += ''' -i metaquantome/data/test/int_ttest.tab --func_file metaquantome/data/test/multiple_func.tab '''
         exp_command += ''' --func_colname cog --ontology cog ''' + " --samps '" + TTEST_SINFO + "' "
+        print(exp_command)
         exp_status = subprocess.call(exp_command, shell=True)
         self.assertEqual(exp_status, 0)
 

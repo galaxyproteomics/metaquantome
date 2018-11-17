@@ -8,11 +8,33 @@ from metaquantome.analysis.function_taxonomy_interaction import function_taxonom
 from metaquantome.SampleGroups import SampleGroups
 
 
-def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None,
+def expand(mode, sinfo, int_file=None, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None,
            func_file=None, func_colname=None, ontology='go', slim_down=False, tax_file=None, tax_colname=None,
            nopep=False, nopep_file=None, ft_func_data_dir=None, ft_tax_data_dir=None, ft_tar_rank='genus'):
-    # todo: doc
-    samp_grps = SampleGroups(samps)
+    """
+    Expand the directly annotated hierarchy to one with all ancestors.
+    :param mode: either 'tax', 'fn', or 'taxfn'
+    :param sinfo: Either a json string with experimental information or a path to a tabular file
+    :param int_file: Path to the tabular intensity file
+    :param pep_colname: peptide column name in int_file, func_file, and tax_file
+    :param data_dir: Parent directory of database files.
+    :param overwrite: update database files
+    :param outfile: path to write results to
+    :param func_file: path to functional annotations
+    :param func_colname: column name for the functional annotations
+    :param ontology: for function mode only. either 'go', 'ec', or 'cog'
+    :param slim_down: if True, maps full GO terms to slim
+    :param tax_file: path to taxonomy file
+    :param tax_colname: column name with taxonomy annotations
+    :param nopep: if True, do nopep analysis
+    :param nopep_file: path to file without peptides
+    :param ft_func_data_dir: path to parent directory of function database
+    :param ft_tax_data_dir: path to parent directory of taxonomy databases
+    :param ft_tar_rank: in fntax mode, all taxonomy are mapped to this rank if possible.
+    :return: returns a dataframe of functional or taxonomic terms with intensities. Missing values are
+    represented as 0.
+    """
+    samp_grps = SampleGroups(sinfo)
 
     # read and join files - depending on pep/nopep
     if nopep:
@@ -48,6 +70,16 @@ def expand(mode, samps, int_file=None, pep_colname='peptide', data_dir=None, ove
 
 
 def common_hierarchical_analysis(db, df, annot_colname, samp_grps, hierarchical=True):
+    """
+    Create hierarchies from original dataframe
+    :param db: reference database
+    :param df: original dataframe.
+    :param annot_colname: column name containing either the functional or taxonomic annotations
+    :param samp_grps: SampleGroups object
+    :param hierarchical: False should be used in the case of COG, in which case it just adds up the intensities
+    for each term
+    :return: DataFrame with summarised intensities and other quantitative measures
+    """
     if hierarchical:
         samp_annot = SampleAnnotations(db)
         # make a hierarchy for each sample
@@ -73,6 +105,12 @@ def common_hierarchical_analysis(db, df, annot_colname, samp_grps, hierarchical=
 
 
 def calc_means(df, samp_grps):
+    """
+    Calculate the groupwise average for each term
+    :param df: expanded dataframe, non-transformed intensities
+    :param samp_grps: SampleGroups() object
+    :return: dataframe with a mean column, which is the log of the mean of the group-specific intensities
+    """
 
     for i in range(samp_grps.ngrps):
         grp_name = samp_grps.grp_names[i]

@@ -3,16 +3,29 @@ import metaquantome.util.stat_io as stat_io
 from metaquantome.SampleGroups import SampleGroups
 
 
-def run_filter(file, sinfo, ontology, mode,
-               qthreshold,
-               min_child_non_leaf, min_child_nsamp,
-               min_peptides, min_pep_nsamp, outfile=None):
-    # todo: doc
+def run_filter(expanded_file, sinfo, ontology, mode,
+               qthreshold, min_child_non_leaf, min_child_nsamp, min_peptides,
+               min_pep_nsamp, outfile=None):
+    """
+    Filter expanded dataframe to rows that satisfy filtering conditions.
+    :param expanded_file: path to expanded file
+    :param sinfo: Path to experimental design file
+    :param ontology: relevant for fn and taxfn modes. Either 'go', 'ec', or 'cog'
+    :param mode: either 'fn', 'tax', or 'taxfn'
+    :param qthreshold: minimum number of quantitations per grp
+    :param min_child_non_leaf: minimum number of children for terms that are not leaves
+    :param min_child_nsamp: minimum number of samples with sample children greater than min_child_non_leaf
+    :param min_peptides: minimum number of peptides for each term
+    :param min_pep_nsamp: minimum number of samples where the number of peptides has to be larger than
+    min_peptides
+    :param outfile: File to write to
+    :return: results dataframe
+    """
     # create sample groups object
     samp_grps = SampleGroups(sinfo)
 
     # read in df
-    df = stat_io.read_expanded_table(file, samp_grps)
+    df = stat_io.read_expanded_table(expanded_file, samp_grps)
 
     # filter to a minimum number of observed intensities per group
     samp_loc = samp_grps.grp_names.copy()
@@ -40,6 +53,21 @@ def run_filter(file, sinfo, ontology, mode,
 
 def get_rows_to_keep(mode, df, grp, samp_grps, qthreshold, min_child_non_leaf, min_child_nsamp, min_peptides,
                      min_pep_nsamp):
+    """
+    Use checking to find the rows (taxonomic or functional terms) that satisfy all of the filtering conditions for
+    the specified group
+    :param mode: either 'fn', 'tax', or 'taxfn'
+    :param df: data frame of functional and taxonomic terms. missing values are represented as 0.
+    :param grp: grp to check conditions for
+    :param samp_grps: SampleGroups() object
+    :param qthreshold: minimum number of quantitations per grp
+    :param min_child_non_leaf: minimum number of children for terms that are not leaves
+    :param min_child_nsamp: minimum number of samples with sample children greater than min_child_non_leaf
+    :param min_peptides: minimum number of peptides for each term
+    :param min_pep_nsamp: minimum number of samples where the number of peptides has to be larger than
+    min_peptides
+    :return: boolean Series with rows to keep as True
+    """
     # intensity
     intcols = samp_grps.sample_names[grp]
     keep_int = (df[intcols] > 0).apply(sum, axis=1) >= qthreshold

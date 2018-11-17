@@ -22,6 +22,16 @@ To run unittests for the project, run the following from the root directory:
 python -m unittest discover tests
 `
 
+# Basic usage
+
+We can use example files within the `examples` directory to demonstrate the use of the command line.
+
+```
+python3 cli.py expand -m fn \
+    --pep_colname peptide --outfile test.tmp -i example/int.tab \
+    --func_file example/func.tab  --func_colname go --ontology go \
+    --samps '{"s1": ["int1", "int2", "int3"], "s2": ["int4", "int5", "int6"]}'
+```
 
 # Roadmap
 
