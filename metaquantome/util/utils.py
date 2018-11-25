@@ -3,7 +3,8 @@ import pkg_resources
 import os
 from urllib import request
 
-DATA_DIR = pkg_resources.resource_filename('metaquantome', 'data/')
+BASE_DIR = pkg_resources.resource_filename('metaquantome', '/')
+DATA_DIR = os.path.join(BASE_DIR, 'data')
 GO_SUBDIR = 'go'
 EC_SUBDIR = 'enzyme'
 TAX_SUBDIR = 'ncbi'
@@ -20,6 +21,7 @@ def stream_to_file_from_url(url, tar):
 
 def define_ontology_data_dir(ontology):
     # todo: doc
+    dir = ""
     base_ddir = DATA_DIR
     if ontology == "go":
         dir = GO_SUBDIR
