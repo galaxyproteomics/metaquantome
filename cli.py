@@ -5,6 +5,7 @@ import logging
 from metaquantome.analysis.expand import expand
 from metaquantome.analysis.filter import run_filter
 from metaquantome.analysis.stat import stat
+from metaquantome.analysis.run_viz import run_viz
 
 
 def cli():
@@ -31,7 +32,15 @@ def cli():
         stat(infile=args.file, sinfo=args.samps, paired=args.paired, parametric=args.parametric, ontology=args.ontology,
              mode=args.mode, outfile=args.outfile)
     elif args.command == "viz":
-        print('viz')
+        run_viz(plottype=args.plottype,
+                img=args.img,
+                infile=args.infile,
+                mode=args.mode,
+                meancol=args.meancol,
+                nterms=args.nterms,
+                width=args.width,
+                height=args.height,
+                target_rank=args.target_rank)
     else:
         ValueError('incorrect mode. please provide one of "expand", "filter", "stat", or "viz".')
     sys.exit(0)
@@ -169,9 +178,20 @@ def parse_args_cli():
                              help='Perform paired tests.')
 
     # ---- METAQUANTOME VIZ ---- #
-
-    # todo
-
+    parser_viz.add_argument('--plottype', '-p', required=True, choices=['bar'],
+                            help="Select the type of plot to generate.")
+    parser_viz.add_argument('--img', required=True,
+                            help='Path to the PNG image file (must end in ".png").')
+    parser_viz.add_argument('--width',
+                            help="Width of the image in inches. Defaults vary by plot type.")
+    parser_viz.add_argument('--height',
+                            help="Height of the image in inches. Defaults vary by plot type.")
+    parser_viz.add_argument('--infile', '-i', required=True,
+                            help="Input file from stat or filter.")
+    parser_viz.add_argument('--meancol',
+                            help="Mean intensity column name for desired experimental condition. Only used for bar")
+    parser_viz.add_argument('--nterms', default=5,
+                            help="Number of taxa or functional terms to display. The default is 5.")
     args = parser.parse_args()
     return args
 
