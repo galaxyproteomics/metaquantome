@@ -8,6 +8,9 @@ from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 
 def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrite, slim_down, tax_colname, samp_grps,
                                ft_tar_rank, ft_func_data_dir, ft_tax_data_dir):
+    # todo: add normalization module for ft analysis
+    # choose bp, cc, or mf
+    # don't return bp, cc, or mf themselves
     """
     Runs the function-taxonomy interaction analysis. The use of GO terms is required.
     The process is as follows:
@@ -87,11 +90,13 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrit
     results.reset_index(inplace=True)
     # add go description
     gos = [godb.gofull[x] for x in results[func_colname]]
+    results['go_id'] = results[func_colname]
     results['name'] = [x.name for x in gos]
     results['namespace'] = [x.namespace for x in gos]
     # translate ids back to names
     taxids = results['des_rank']
     # get ranks
+    results['tax_id'] = taxids
     results['rank'] = [ncbi.get_rank(int(elem)) for elem in taxids]
     results['taxon_name'] = ncbi.convert_taxid_to_name(taxids)
     return results
