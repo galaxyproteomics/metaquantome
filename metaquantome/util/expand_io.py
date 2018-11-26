@@ -178,7 +178,7 @@ def define_outfile_cols_expand(samp_grps, ontology, mode):
     elif mode == 'tax':
         cols = ['id', 'taxon_name', 'rank'] + quant_cols
     elif mode == 'taxfn':
-        cols = [ontology, 'name', 'namespace', 'taxon_name', 'rank'] + quant_cols
+        cols = ['go_id', 'name', 'namespace', 'tax_id', 'taxon_name', 'rank'] + quant_cols
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
     return cols
