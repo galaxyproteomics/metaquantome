@@ -92,7 +92,70 @@ barplot_cli <- function(args){
 # pca function
 
 # volcano
-volcano_colors <- scale_color_manual(values = c("grey50", "seagreen3"), guide = FALSE)
+
+mq_volcano <- function(df, img, fc_name, width, height, textannot, gosplit){
+    # df is the dataframe after stat
+    # fc_name is the name of the column with the fold change data
+    # textcol is the name of the column with the text describing the term
+    df$fc <- df[, fc_name]
+    df$neglog10p <- -log10(df[, "corrected_p"])
+    df$de <- abs(df$fc) > 1 & df$corrected_p < 0.05
+    xmax <- max(df$fc) * 1.2
+    xmin <- min(df$fc) * 1.2
+    ymax <- max(df$neglog10p) * 1.2
+    ymin <- 0
+    volcano_colors <- scale_color_manual(values = c("grey50", "seagreen3"), guide=FALSE)
+    if (gosplit){
+        vplt <- ggplot(df, aes(x = fc, y = neglog10p)) +
+            geom_point(aes(color = de)) +
+            facet_grid(.~namespace)
+    } else {
+        vplt <- ggplot(df, aes(x = fc, y = neglog10p)) +
+            geom_point(aes(color = de))
+    }
+    if (!(textannot=="None")){
+        df$id <- df[, textannot]
+        vplt <- vplt +
+            geom_text(data = subset(df, de),
+                aes(label = id), check_overlap = TRUE, nudge_y = 0.15,
+                    size = 3)
+    }
+    vplt <- vplt +
+        geom_vline(xintercept = -1, lty = 2, alpha = 0.7) +
+        geom_vline(xintercept = 1, lty = 2, alpha = 0.7) +
+        geom_hline(yintercept = -log10(0.05), lty = 3) +
+        theme_bw(base_size=16) +
+        volcano_colors +
+        scale_x_continuous(limits = c(xmin, xmax)) +
+        scale_y_continuous(limits = c(ymin, ymax)) +
+        labs(x = "Log2 Fold Change", y = "-Log10 P Value")
+    vplt
+    ggsave(file=img, width=width, height=height, units="in", dpi=500)
+}
+
+volcano_cli <- function(args){
+    # args are as follows
+    # 1. plot type (guaranteed to be 'volcano')
+    # 2. pltfile - output image file
+    # 3. input tabular file
+    # 4. name of text annotation column
+    # 5. name of fold change column
+    # 6. whether to split GO by ontology/namespace
+    # 7. image width (default 5)
+    # 8. image height (default 5)
+    img <- args[2]
+    infile <- args[3]
+    textannot <- args[4]
+    fc_name <- args[5]
+    gosplit <- (args[6] == "True")
+    width <- as.numeric(args[7])
+    height <- as.numeric(args[8])
+    df <- read.delim(infile, sep="\t", stringsAsFactors=FALSE)
+    plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name, gosplit=gosplit, width=width, height=height)
+}
+
+
+
 
 
 # main arg parsing
@@ -101,6 +164,9 @@ main <- function(){
     plttype <- args[1]
     if (plttype == "bar"){
         barplot_cli(args)
+    }
+    if (plttype == "volcano"){
+        volcano_cli(args)
     }
 }
 
