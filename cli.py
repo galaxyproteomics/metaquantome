@@ -38,9 +38,12 @@ def cli():
                 mode=args.mode,
                 meancol=args.meancol,
                 nterms=args.nterms,
+                target_rank=args.target_rank,
+                textannot=args.textannot,
+                fc_name=args.fc_name,
+                gosplit=args.gosplit,
                 width=args.width,
-                height=args.height,
-                target_rank=args.target_rank)
+                height=args.height)
     else:
         ValueError('incorrect mode. please provide one of "expand", "filter", "stat", or "viz".')
     sys.exit(0)
@@ -178,7 +181,7 @@ def parse_args_cli():
                              help='Perform paired tests.')
 
     # ---- METAQUANTOME VIZ ---- #
-    parser_viz.add_argument('--plottype', '-p', required=True, choices=['bar'],
+    parser_viz.add_argument('--plottype', '-p', required=True, choices=['bar', 'volcano'],
                             help="Select the type of plot to generate.")
     parser_viz.add_argument('--img', required=True,
                             help='Path to the PNG image file (must end in ".png").')
@@ -189,9 +192,16 @@ def parse_args_cli():
     parser_viz.add_argument('--infile', '-i', required=True,
                             help="Input file from stat or filter.")
     parser_viz.add_argument('--meancol',
-                            help="Mean intensity column name for desired experimental condition. Only used for bar")
+                            help="(Bar). Mean intensity column name for desired experimental condition. Only used for bar")
     parser_viz.add_argument('--nterms', default=5,
-                            help="Number of taxa or functional terms to display. The default is 5.")
+                            help="(Bar). Number of taxa or functional terms to display. The default is 5.")
+    parser_viz.add_argument('--fc',
+                            help="(Volcano). Name of the fold change column in the stat dataframe.")
+    parser_viz.add_argument('--textannot',
+                            help="(Volcano). Name of the text annotation column to optionally include in the volcano." +
+                            " If missing, no text will be plotted. ")
+    parser_viz.add_argument('--gosplit', action="store_true",
+                            help="(Volcano). If using GO terms, whether to make one plot for each of BP, CC, and MF.")
     args = parser.parse_args()
     return args
 

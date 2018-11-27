@@ -6,10 +6,30 @@ from metaquantome.analysis.run_viz import run_viz
 
 
 class TestRunViz(unittest.TestCase):
-    def testBasicTax(self):
+    img=testfile('test.png')
+
+    def testBasicTaxBar(self):
         infile = testfile('taxonomy_write_simple.tab')
-        status = run_viz('bar', 'test.png', infile, 'tax',
-                nterms='2', meancol='samp1_mean',
-                target_rank="genus")
+        status = run_viz('bar', self.img, infile, 'tax',
+                         nterms='2', meancol='samp1_mean',
+                         target_rank="genus")
         self.assertEqual(status, 0)
-        os.remove('test.png')
+
+    def testVolcano(self):
+        infile = testfile('cli_mult_test_out.tab')
+        status = run_viz('volcano', self.img, infile,
+                         textannot="id",
+                         fc_name="log2fc_s1_over_s2")
+        self.assertEqual(status, 0)
+
+    def testGOVolcano(self):
+        infile = testfile('go_tested.tab')
+        status = run_viz('volcano', self.img, infile,
+                         textannot="id",
+                         fc_name="log2fc_s1_over_s2",
+                         gosplit=True)
+        self.assertEqual(status, 0)
+
+
+    def tearDown(self):
+        os.remove(self.img)

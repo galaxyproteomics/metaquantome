@@ -91,11 +91,12 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
         expanded=testfile('go_expanded_ttest.tab')
+        test_write=testfile('go_tested.tab')
         df_expd = expand('fn', sinfo=TTEST_SINFO, int_file=int, data_dir=GO_TEST_DIR, func_file=func,
                          func_colname='go', ontology='go',
                          outfile=expanded)
-        df_tst = stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology=None, mode=None,
-                      outfile=None)
+        df_tst = stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='go', mode='fn',
+                      outfile=test_write)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(df_tst['p']['GO:0008152'] > 0.05)
         self.assertTrue(df_tst['p'][['GO:0022610','GO:0000003','GO:0032505']].le(0.05).all())
