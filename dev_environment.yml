@@ -11,7 +11,8 @@ dependencies:
 - numpy==1.12.1
 - statsmodels==0.8.0
 - biopython==1.70
-- pandas==0.22.0
+- pandas==0.23.*
 - r-gplots==3.0.1
 - r-ggplot2==3.0.*
 - r-base>=3.4
+- r-jsonlite=1.5
