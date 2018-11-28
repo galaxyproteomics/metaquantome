@@ -1,0 +1,17 @@
+name: metaquantome
+channels:
+- defaults
+- bioconda
+- conda-forge
+- r
+dependencies:
+- python==3.5.*
+- ete3==3.1.1
+- goatools==0.7.11
+- numpy==1.12.1
+- statsmodels==0.8.0
+- biopython==1.70
+- pandas==0.22.0
+- r-gplots==3.0.1
+- r-ggplot2==3.0.*
+- r-base>=3.4
