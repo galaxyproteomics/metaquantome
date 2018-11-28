@@ -7,7 +7,7 @@ from metaquantome.SampleGroups import SampleGroups
 
 
 def run_viz(plottype, img, infile,
-            mode=None, meancol=None, nterms='5', target_rank=None,  # barplot
+            mode=None, meancol=None, nterms='5', target_rank=None, barcol=None,  # barplot
             textannot=None, fc_name=None, gosplit=False,  # volcano
             sinfo=None, filter_to_sig=False, alpha='0.05',  # heatmap
             calculate_sep=False,  # pca
@@ -24,7 +24,8 @@ def run_viz(plottype, img, infile,
                         nterms,
                         width,
                         height,
-                        target_rank])
+                        target_rank,
+                        barcol])
     if plottype == "volcano":
         subprocess.run(['Rscript',
                         r_script_path,

@@ -39,6 +39,7 @@ def cli():
                 meancol=args.meancol,
                 nterms=args.nterms,
                 target_rank=args.target_rank,
+                barcol=args.barcol,
                 textannot=args.textannot,
                 fc_name=args.fc_name,
                 gosplit=args.gosplit,
@@ -50,6 +51,16 @@ def cli():
         ValueError('incorrect mode. please provide one of "expand", "filter", "stat", or "viz".')
     sys.exit(0)
 
+
+def check_col_range(arg):
+    try:
+        value = int(arg)
+    except ValueError as err:
+        raise argparse.ArgumentTypeError(str(err))
+    if value not in [1, 2, 3, 4, 5, 6]:
+        message = "Expected value in [1, 2, 3, 4, 5, 6], got value = {}".format(value)
+        raise argparse.ArgumentTypeError(message)
+    return value
 
 def parse_args_cli():
     """
@@ -196,9 +207,14 @@ def parse_args_cli():
 
     bar = parser_viz.add_argument_group('Bar plot')
     bar.add_argument('--meancol',
-                            help="(Bar). Mean intensity column name for desired experimental condition. Only used for bar")
+                     help="(Bar). Mean intensity column name for desired experimental condition. Only used for bar")
     bar.add_argument('--nterms', default=5,
-                            help="(Bar). Number of taxa or functional terms to display. The default is 5.")
+                     help="(Bar). Number of taxa or functional terms to display. The default is 5.")
+    bar.add_argument('--barcol', type=check_col_range,
+                     help="Color for the bar fill. The color vector in R is " +
+                     'c("dodgerblue", "darkorange", "yellow2", "red2", "darkviolet", "black"), ' +
+                     ' so providing a 1 will give the "dodgerblue" color. These same colors are also used in the ' +
+                     ' heatmap and PCA plot, so the colors can be tweaked to match. ')
 
     volc = parser_viz.add_argument_group('Volcano Plot')
     volc.add_argument('--fc',
