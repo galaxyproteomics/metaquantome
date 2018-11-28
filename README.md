@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/galaxyproteomics/metaquantome.svg?branch=master)](https://travis-ci.org/galaxyproteomics/metaquantome)
 
+[![Coverage Status](https://coveralls.io/repos/github/galaxyproteomics/metaquantome/badge.svg?branch=master)](https://coveralls.io/github/galaxyproteomics/metaquantome?branch=master)
+
 # metaQuantome
 
 
