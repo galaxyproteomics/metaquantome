@@ -12,7 +12,7 @@ class TestRunViz(unittest.TestCase):
         infile = testfile('taxonomy_write_simple.tab')
         status = run_viz('bar', self.img, infile, 'tax',
                          nterms='2', meancol='samp1_mean',
-                         target_rank="genus")
+                         target_rank="genus", barcol="6")
         self.assertEqual(status, 0)
 
     def testVolcano(self):

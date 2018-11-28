@@ -83,7 +83,7 @@ get_colors_from_groups <- function(json_dump, all_intcols){
 #              BARPLOT             #
 ####### ==================== #######
 mq_barplot <- function(df, img, mode, meancol,
-                       nterms, width, height, target_rank){
+                       nterms, width, height, target_rank, int_barcol){
     if (!(meancol %in% names(df))){
         stop('Mean column name not found in dataframe. Check spelling and try again.',
              call. = FALSE)
@@ -94,7 +94,7 @@ mq_barplot <- function(df, img, mode, meancol,
         # list of available target ranks
         df <- df[df[, "rank"] == target_rank, ]
     }
-    png(file=img, height=height, width=width, units="in", res=300)
+
     df[, meancol] <- 2^df[, meancol]
     reord <- df[order(df[, meancol], decreasing=TRUE), ]
     sub_reord <- reord[1:nterms, ]
@@ -103,7 +103,11 @@ mq_barplot <- function(df, img, mode, meancol,
     } else {
         barnames = sub_reord[, "name"]
     }
-    barplot(names.arg = barnames,
+    # color mapping
+    barcol <- grp_color_values[int_barcol]
+    # plot
+    png(file=img, height=height, width=width, units="in", res=300)
+    barplot(names.arg = barnames, col=barcol,
             height = sub_reord[, meancol],
             las = 1, cex.names = 0.5,
             xlab = "Taxon",
@@ -124,6 +128,7 @@ barplot_cli <- function(args){
     # 7. image width (default 5)
     # 8. image height (default 5)
     # 9. target rank (taxonomy only)
+    # 10. bar color - integer from 1 to 6
     img <- args[2]
     infile <- args[3]
     df <- read_result(infile)
@@ -133,11 +138,12 @@ barplot_cli <- function(args){
     width <- as.numeric(args[7])
     height <- as.numeric(args[8])
     target_rank <- args[9]
+    barcol <- as.numeric(args[10])
     plt <- mq_barplot(df, img=img, mode=mode,
                       meancol=meancol,
                       nterms=nterms,
                       height=height, width=width,
-                      target_rank=target_rank)
+                      target_rank=target_rank, int_barcol=barcol)
 }
 
 ####### ==================== #######
