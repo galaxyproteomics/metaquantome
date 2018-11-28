@@ -1,12 +1,13 @@
 # options
-options(stringsAsFactors = FALSE, message=FALSE)
+options(stringsAsFactors = FALSE, message=FALSE, warnings=FALSE)
 
 ####### ==================== #######
 #              LIBRARIES           #
 ####### ==================== #######
-suppressMessages(library(ggplot2))
+suppressWarnings(suppressMessages(library(ggplot2)))
 suppressMessages(library(gplots))
 suppressMessages(library(jsonlite))
+
 
 
 ####### ==================== #######
@@ -56,7 +57,7 @@ get_colors_from_groups <- function(json_dump, all_intcols){
     # read in json dump from SampleGroups() basic dictionary
     # will be a list
     grp_list <- fromJSON(json_dump)
-    grps <- names(grp_list)
+    grps <- sort(names(grp_list))
     ngrps <- length(grps)
 
     # create grps to color mapping
@@ -106,12 +107,14 @@ mq_barplot <- function(df, img, mode, meancol,
     # color mapping
     barcol <- grp_color_values[int_barcol]
     # plot
-    png(file=img, height=height, width=width, units="in", res=300)
+    png(file=img, height=height, width=width, units="in", res=500)
+    par(mar=c(5.1, 6.1, 4.1, 2.1))
     barplot(names.arg = barnames, col=barcol,
             height = sub_reord[, meancol],
-            las = 1, cex.names = 0.5,
+            las = 1, cex.names = 0.7,
             xlab = "Taxon",
-            ylab = "Total Peptide Intensity")
+            ylab = "")
+    mtext(text="Total Peptide Intensity", side=2, line=5)
     grid()
     # send the message to the ether
     ether <- dev.off()
@@ -333,11 +336,14 @@ prcomp_cli <- function(args){
 ####### ==================== #######
 #              VOLCANO             #
 ####### ==================== #######
-mq_volcano <- function(df, img, fc_name, width, height, textannot, gosplit){
+mq_volcano <- function(df, img, fc_name, flip_fc, width, height, textannot, gosplit){
     # df is the dataframe after stat
     # fc_name is the name of the column with the fold change data
     # textcol is the name of the column with the text describing the term
     df$fc <- df[, fc_name]
+    if (flip_fc){
+        df$fc <- (-1)*df$fc
+    }
     df$neglog10p <- -log10(df[, "corrected_p"])
     df$de <- abs(df$fc) > 1 & df$corrected_p < 0.05
     xmax <- max(df$fc) * 1.2
@@ -348,7 +354,7 @@ mq_volcano <- function(df, img, fc_name, width, height, textannot, gosplit){
     if (gosplit){
         vplt <- ggplot(df, aes(x = fc, y = neglog10p)) +
             geom_point(aes(color = de)) +
-            facet_grid(.~namespace)
+            facet_grid(namespace~.)
     } else {
         vplt <- ggplot(df, aes(x = fc, y = neglog10p)) +
             geom_point(aes(color = de))
@@ -357,7 +363,7 @@ mq_volcano <- function(df, img, fc_name, width, height, textannot, gosplit){
         df$id <- df[, textannot]
         vplt <- vplt +
             geom_text(data = subset(df, de),
-                aes(label = id), check_overlap = TRUE, nudge_y = 0.15,
+                aes(label = id), check_overlap = TRUE, nudge_y = 0.05,
                     size = 3)
     }
     vplt <- vplt +
@@ -380,18 +386,20 @@ volcano_cli <- function(args){
     # 3. input tabular file
     # 4. name of text annotation column
     # 5. name of fold change column
-    # 6. whether to split GO by ontology/namespace
-    # 7. image width (default 5)
-    # 8. image height (default 5)
+    # 6. whether to flip fc
+    # 7. whether to split GO by ontology/namespace
+    # 8. image width (default 5)
+    # 9. image height (default 5)
     img <- args[2]
     infile <- args[3]
     df <- read_result(infile)
     textannot <- args[4]
     fc_name <- args[5]
-    gosplit <- (args[6] == "True")
-    width <- as.numeric(args[7])
-    height <- as.numeric(args[8])
-    plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name, gosplit=gosplit, width=width, height=height)
+    flip_fc <- (args[6] == "True")
+    gosplit <- (args[7] == "True")
+    width <- as.numeric(args[8])
+    height <- as.numeric(args[9])
+    plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name, flip_fc=flip_fc, gosplit=gosplit, width=width, height=height)
 }
 
 

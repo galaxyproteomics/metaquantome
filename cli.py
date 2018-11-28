@@ -41,7 +41,9 @@ def cli():
                 target_rank=args.target_rank,
                 barcol=args.barcol,
                 textannot=args.textannot,
+                calculate_sep=args.calculate_sep,
                 fc_name=args.fc_name,
+                flip_fc=args.flip_fc,
                 gosplit=args.gosplit,
                 sinfo=args.samps,
                 alpha=args.alpha,
@@ -194,13 +196,13 @@ def parse_args_cli():
                              help='Perform paired tests.')
 
     # ---- METAQUANTOME VIZ ---- #
-    parser_viz.add_argument('--plottype', '-p', required=True, choices=['bar', 'volcano'],
+    parser_viz.add_argument('--plottype', '-p', required=True, choices=['bar', 'volcano', 'heatmap', 'pca'],
                             help="Select the type of plot to generate.")
     parser_viz.add_argument('--img', required=True,
                             help='Path to the PNG image file (must end in ".png").')
-    parser_viz.add_argument('--width',
+    parser_viz.add_argument('--width', default="5",
                             help="Width of the image in inches. Defaults vary by plot type.")
-    parser_viz.add_argument('--height',
+    parser_viz.add_argument('--height', default="5",
                             help="Height of the image in inches. Defaults vary by plot type.")
     parser_viz.add_argument('--infile', '-i', required=True,
                             help="Input file from stat or filter.")
@@ -208,27 +210,31 @@ def parse_args_cli():
     bar = parser_viz.add_argument_group('Bar plot')
     bar.add_argument('--meancol',
                      help="(Bar). Mean intensity column name for desired experimental condition. Only used for bar")
-    bar.add_argument('--nterms', default=5,
+    bar.add_argument('--nterms', default='5',
                      help="(Bar). Number of taxa or functional terms to display. The default is 5.")
     bar.add_argument('--barcol', type=check_col_range,
                      help="Color for the bar fill. The color vector in R is " +
                      'c("dodgerblue", "darkorange", "yellow2", "red2", "darkviolet", "black"), ' +
                      ' so providing a 1 will give the "dodgerblue" color. These same colors are also used in the ' +
                      ' heatmap and PCA plot, so the colors can be tweaked to match. ')
+    bar.add_argument('--target_rank',
+                     help="Taxonomic rank to restrict to in the plot. ")
 
     volc = parser_viz.add_argument_group('Volcano Plot')
-    volc.add_argument('--fc',
-                            help="(Volcano). Name of the fold change column in the stat dataframe.")
+    volc.add_argument('--fc_name',
+                      help="Name of the fold change column in the stat dataframe.")
     volc.add_argument('--textannot',
-                            help="(Volcano). Name of the text annotation column to optionally include in the volcano." +
-                            " If missing, no text will be plotted. ")
+                      help="Name of the text annotation column to optionally include in the volcano." +
+                           " If missing, no text will be plotted. ")
     volc.add_argument('--gosplit', action="store_true",
-                            help="(Volcano). If using GO terms, whether to make one plot for each of BP, CC, and MF.")
+                      help="If using GO terms, whether to make one plot for each of BP, CC, and MF.")
+    volc.add_argument('--flip_fc', action="store_true",
+                      help="Flag. Whether to flip the fold change (i.e., multiply log fold change by -1)")
 
     heat = parser_viz.add_argument_group('Heatmap')
     heat.add_argument("--filter_to_sig", action="store_true",
                       help="Flag. Only plot significant terms? Necessitates use of results from `test`.")
-    heat.add_argument('--alpha', default=0.05,
+    heat.add_argument('--alpha', default='0.05',
                       help="If filter_to_sig, the q-value significance level.")
 
     pca = parser_viz.add_argument_group('Principal Components Analysis')
