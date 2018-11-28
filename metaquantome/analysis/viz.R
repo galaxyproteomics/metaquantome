@@ -1,30 +1,47 @@
 # options
 options(stringsAsFactors = FALSE, message=FALSE)
 
-# libraries
+####### ==================== #######
+#              LIBRARIES           #
+####### ==================== #######
 suppressMessages(library(ggplot2))
 suppressMessages(library(dplyr))
+suppressMessages(library(gplots))
+suppressMessages(library(jsonlite))
 
-
-# constants
-grp_color_values <- c("dodgerblue", "darkorange2")
-
-# ns_ws_colors <- rep(ns_ws_color_values, 11)
-
-# from brewer.pal(name = 'PuBu', n = 9)
-heatmap_colors <- c("#FFF7FB", "#ECE7F2", "#D0D1E6", "#A6BDDB", "#74A9CF",
-                    "#3690C0", "#0570B0", "#045A8D", "#023858")
-
-# read in result table
+####### ==================== #######
+#         UTILITY FUNCTIONS        #
+####### ==================== #######
 read_result <- function(file){
     df <- read.delim(file, sep="\t", stringsAsFactors=FALSE)
     return(df)
 }
 
-df <- data.frame(taxon_name = c('a', 'b', 'c'),
-                      NS_mean = c(1, 10, 5), stringsAsFactors = FALSE)
+impute <- function(mat) {
+    mat[mat == 0] <- NA
+    mat[is.na(mat)] <- min(mat, na.rm = TRUE) * 1e-3
+    mat
+}
 
-# barplot function
+pad <- function(data, multiple){
+    mind <- min(data)
+    maxd <- max(data)
+    if (mind >= 0){
+        pmind <- mind - mind * (multiple - 1)
+    } else {
+        pmind <- mind + mind * (multiple - 1)
+    }
+    if (maxd >= 0){
+        pmaxd <- maxd * multiple
+    } else {
+        pmaxd <- maxd - maxd * (multiple - 1)
+    }
+    c(pmind, pmaxd)
+}
+
+####### ==================== #######
+#              BARPLOT             #
+####### ==================== #######
 mq_barplot <- function(df, img, mode, meancol,
                        nterms, width, height, target_rank){
     if (!(meancol %in% names(df))){
@@ -56,8 +73,6 @@ mq_barplot <- function(df, img, mode, meancol,
     ether <- dev.off()
 }
 
-# mq_barplot('test.png', grpmean = "NS_mean", df=df, ntaxa=5)
-
 barplot_cli <- function(args){
     # args are as follows
     # 1. plot type (guaranteed to be 'bar')
@@ -85,14 +100,115 @@ barplot_cli <- function(args){
                       target_rank=target_rank)
 }
 
-# heatmap function
+####### ==================== #######
+#              HEATMAP             #
+####### ==================== #######
+cor.dist <- function(x){
+    as.dist(1-cor(t(x)))
+}
+hclust.ward <- function(x) {
+    hclust(x,method="ward.D")
+}
 
-# clust sep function
+grp_color_values <- c("dodgerblue", "darkorange", "yellow2", "red2", "darkviolet", "black")
 
-# pca function
 
-# volcano
+# from brewer.pal(name = 'PuBu', n = 9)
+heatmap_colors <- c("#FFF7FB", "#ECE7F2", "#D0D1E6", "#A6BDDB", "#74A9CF",
+                    "#3690C0", "#0570B0", "#045A8D", "#023858")
 
+mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height){
+    # df is the output from either expand, stat, or filter
+    # samp_columns is a vector of all columns with the term intensities
+    # colSide colors is a vector of colors for the groups. Must be in the same order as samp_columns
+    # filter to sig
+    if (filter_to_sig){
+        print(df)
+        df <- df[df$corrected_p < alpha, ]
+        print(df)
+    }
+
+    # impute
+    mat <- impute(data.matrix(df[, all_intcols]))
+
+    # scale rows
+    datmat.scale <- t(apply(mat, 1, scale))
+    rownames(datmat.scale) <- df$id
+    colnames(datmat.scale) <- colnames(df[, all_intcols])
+    par(mar = rep(5, 4))
+    feature.dend <- as.dendrogram(hclust.ward(cor.dist(datmat.scale)))
+    sample.dend <- as.dendrogram(hclust.ward(cor.dist(t(datmat.scale))))
+    png(img, width=width, height=height, res=500, units="in")
+    heatmap.2(datmat.scale,
+              Colv = sample.dend,
+              Rowv = feature.dend,
+              distfun = cor.dist,
+              hclustfun = hclust.ward,
+              trace="none",
+              col = heatmap_colors,
+              margins = c(10, 10),
+              cexRow = 0.3,
+              ColSideColors = colSideColors,
+              density.info = "none")
+    ether <- dev.off()
+}
+
+heatmap_cli <- function(args){
+    # 1. plot type (guaranteed to be 'heatmap')
+    # 2. pltfile - output image file
+    # 3. input tabular file
+    # 4. all intcols from SampleGroups, as comma-separated list
+    # 5. json dump from SampleGroups() top-level dictionary
+    # 6. filter to sig ("True" if TRUE)
+    # 7. alpha - significance level
+    # 8. image width (default 5)
+    # 9. image height (default 5)
+
+    img <- args[2]
+    infile <- args[3]
+    df <- read.delim(infile, sep="\t", stringsAsFactors=FALSE)
+
+    # split all_intcols from SampleGroups(), for samp_columns vector
+    all_intcols <- unlist(strsplit(args[4], ","))
+    nsamps <- length(all_intcols)
+
+    # read in json dump from SampleGroups() basic dictionary
+    # will be a list
+    jsonDump <- fromJSON(args[5])
+    grps <- names(jsonDump)
+    ngrps <- length(grps)
+
+    # create grps to color mapping
+    grp_col_mapping <- grp_color_values[1:ngrps]
+    names(grp_col_mapping) <- grps
+
+    # we need sample -> group mapping
+    colSideColors <- rep(0, nsamps)
+    for (i in 1:nsamps){
+        this_intcol <- all_intcols[i]
+        for (j in 1:ngrps){
+            samps_in_grp <- jsonDump[[grps[j]]]
+            if (this_intcol %in% samps_in_grp){
+                colSideColors[i] <- grp_col_mapping[grps[j]]
+            }
+        }
+    }
+    filter_to_sig <- (args[6] == "True")
+    alpha <- as.numeric(args[7])
+    width <- as.numeric(args[8])
+    height <- as.numeric(args[9])
+    mq_heatmap(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height)
+}
+
+####### ==================== #######
+#              PCA             #
+####### ==================== #######
+
+
+
+####### ==================== #######
+#              VOLCANO             #
+####### ==================== #######
 mq_volcano <- function(df, img, fc_name, width, height, textannot, gosplit){
     # df is the dataframe after stat
     # fc_name is the name of the column with the fold change data
@@ -155,10 +271,9 @@ volcano_cli <- function(args){
 }
 
 
-
-
-
-# main arg parsing
+####### ==================== #######
+#              MAIN                #
+####### ==================== #######
 main <- function(){
     args <- commandArgs(trailingOnly=TRUE)
     plttype <- args[1]
@@ -167,6 +282,9 @@ main <- function(){
     }
     if (plttype == "volcano"){
         volcano_cli(args)
+    }
+    if (plttype == "heatmap"){
+        heatmap_cli(args)
     }
 }
 

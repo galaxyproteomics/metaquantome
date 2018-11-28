@@ -42,6 +42,8 @@ def cli():
                 textannot=args.textannot,
                 fc_name=args.fc_name,
                 gosplit=args.gosplit,
+                sinfo=args.samps,
+                alpha=args.alpha,
                 width=args.width,
                 height=args.height)
     else:
@@ -191,17 +193,27 @@ def parse_args_cli():
                             help="Height of the image in inches. Defaults vary by plot type.")
     parser_viz.add_argument('--infile', '-i', required=True,
                             help="Input file from stat or filter.")
-    parser_viz.add_argument('--meancol',
+
+    bar = parser_viz.add_argument_group('Bar plot')
+    bar.add_argument('--meancol',
                             help="(Bar). Mean intensity column name for desired experimental condition. Only used for bar")
-    parser_viz.add_argument('--nterms', default=5,
+    bar.add_argument('--nterms', default=5,
                             help="(Bar). Number of taxa or functional terms to display. The default is 5.")
-    parser_viz.add_argument('--fc',
+
+    volc = parser_viz.add_argument_group('Volcano Plot')
+    volc.add_argument('--fc',
                             help="(Volcano). Name of the fold change column in the stat dataframe.")
-    parser_viz.add_argument('--textannot',
+    volc.add_argument('--textannot',
                             help="(Volcano). Name of the text annotation column to optionally include in the volcano." +
                             " If missing, no text will be plotted. ")
-    parser_viz.add_argument('--gosplit', action="store_true",
+    volc.add_argument('--gosplit', action="store_true",
                             help="(Volcano). If using GO terms, whether to make one plot for each of BP, CC, and MF.")
+
+    heat = parser_viz.add_argument_group('Heatmap')
+    heat.add_argument("--filter_to_sig", action="store_true",
+                      help="Flag. Only plot significant terms? Necessitates use of results from `test`.")
+    heat.add_argument('--alpha', default=0.05,
+                      help="If filter_to_sig, the q-value significance level.")
     args = parser.parse_args()
     return args
 
