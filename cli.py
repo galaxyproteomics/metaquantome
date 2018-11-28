@@ -214,6 +214,11 @@ def parse_args_cli():
                       help="Flag. Only plot significant terms? Necessitates use of results from `test`.")
     heat.add_argument('--alpha', default=0.05,
                       help="If filter_to_sig, the q-value significance level.")
+
+    pca = parser_viz.add_argument_group('Principal Components Analysis')
+    pca.add_argument("--calculate_sep", action="store_true",
+                     help="Flag. Calculate separation between groups and include in title?")
+
     args = parser.parse_args()
     return args
 
