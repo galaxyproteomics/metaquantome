@@ -6,7 +6,7 @@ from metaquantome.analysis.run_viz import run_viz
 
 
 class TestRunViz(unittest.TestCase):
-    img=testfile('test.png')
+    img = testfile('test.png')
 
     def testBasicTaxBar(self):
         infile = testfile('taxonomy_write_simple.tab')
@@ -36,6 +36,14 @@ class TestRunViz(unittest.TestCase):
                          sinfo=TTEST_SINFO)
         self.assertEqual(status, 0)
 
+    def testPCA(self):
+        infile = testfile('go_tested.tab')
+        status = run_viz('pca', self.img, infile,
+                         sinfo=TTEST_SINFO,
+                         calculate_sep=False)
+        self.assertEqual(status, 0)
+
+    # comment this out for test plot inspection
     def tearDown(self):
         if os.path.exists(self.img):
             os.remove(self.img)

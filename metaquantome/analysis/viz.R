@@ -5,9 +5,16 @@ options(stringsAsFactors = FALSE, message=FALSE)
 #              LIBRARIES           #
 ####### ==================== #######
 suppressMessages(library(ggplot2))
-suppressMessages(library(dplyr))
 suppressMessages(library(gplots))
 suppressMessages(library(jsonlite))
+
+
+####### ==================== #######
+#             CONSTANTS            #
+####### ==================== #######
+grp_color_values <- c("dodgerblue", "darkorange",
+    "yellow2", "red2", "darkviolet", "black")
+
 
 ####### ==================== #######
 #         UTILITY FUNCTIONS        #
@@ -39,6 +46,39 @@ pad <- function(data, multiple){
     c(pmind, pmaxd)
 }
 
+get_all_intcols <- function(str_intcols){
+   # split all_intcols from SampleGroups(), for samp_columns vector
+    all_intcols <- unlist(strsplit(str_intcols, ","))
+    return(all_intcols)
+}
+
+get_colors_from_groups <- function(json_dump, all_intcols){
+    # read in json dump from SampleGroups() basic dictionary
+    # will be a list
+    grp_list <- fromJSON(json_dump)
+    grps <- names(grp_list)
+    ngrps <- length(grps)
+
+    # create grps to color mapping
+    grp_col_mapping <- grp_color_values[1:ngrps]
+    names(grp_col_mapping) <- grps
+
+    # we need sample -> group mapping
+    nsamps <- length(all_intcols)
+    colSideColors <- rep(0, nsamps)
+    for (i in 1:nsamps){
+        this_intcol <- all_intcols[i]
+        for (j in 1:ngrps){
+            samps_in_grp <- grp_list[[grps[j]]]
+            if (this_intcol %in% samps_in_grp){
+                colSideColors[i] <- grp_col_mapping[grps[j]]
+            }
+        }
+    }
+    return(colSideColors)
+}
+
+
 ####### ==================== #######
 #              BARPLOT             #
 ####### ==================== #######
@@ -54,7 +94,7 @@ mq_barplot <- function(df, img, mode, meancol,
         # list of available target ranks
         df <- df[df[, "rank"] == target_rank, ]
     }
-    png(img, height=height, width=width, units="in", res=300)
+    png(file=img, height=height, width=width, units="in", res=300)
     df[, meancol] <- 2^df[, meancol]
     reord <- df[order(df[, meancol], decreasing=TRUE), ]
     sub_reord <- reord[1:nterms, ]
@@ -86,13 +126,13 @@ barplot_cli <- function(args){
     # 9. target rank (taxonomy only)
     img <- args[2]
     infile <- args[3]
+    df <- read_result(infile)
     mode <- args[4]
     meancol <- args[5]
     nterms <- args[6]
     width <- as.numeric(args[7])
     height <- as.numeric(args[8])
     target_rank <- args[9]
-    df <- read.delim(infile, sep="\t", stringsAsFactors=FALSE)
     plt <- mq_barplot(df, img=img, mode=mode,
                       meancol=meancol,
                       nterms=nterms,
@@ -110,8 +150,6 @@ hclust.ward <- function(x) {
     hclust(x,method="ward.D")
 }
 
-grp_color_values <- c("dodgerblue", "darkorange", "yellow2", "red2", "darkviolet", "black")
-
 
 # from brewer.pal(name = 'PuBu', n = 9)
 heatmap_colors <- c("#FFF7FB", "#ECE7F2", "#D0D1E6", "#A6BDDB", "#74A9CF",
@@ -123,9 +161,7 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     # colSide colors is a vector of colors for the groups. Must be in the same order as samp_columns
     # filter to sig
     if (filter_to_sig){
-        print(df)
         df <- df[df$corrected_p < alpha, ]
-        print(df)
     }
 
     # impute
@@ -135,10 +171,12 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     datmat.scale <- t(apply(mat, 1, scale))
     rownames(datmat.scale) <- df$id
     colnames(datmat.scale) <- colnames(df[, all_intcols])
-    par(mar = rep(5, 4))
+
     feature.dend <- as.dendrogram(hclust.ward(cor.dist(datmat.scale)))
     sample.dend <- as.dendrogram(hclust.ward(cor.dist(t(datmat.scale))))
-    png(img, width=width, height=height, res=500, units="in")
+
+    png(filename=img, width=width, height=height, res=500, units="in")
+    par(mar = rep(5, 4))
     heatmap.2(datmat.scale,
               Colv = sample.dend,
               Rowv = feature.dend,
@@ -166,33 +204,13 @@ heatmap_cli <- function(args){
 
     img <- args[2]
     infile <- args[3]
-    df <- read.delim(infile, sep="\t", stringsAsFactors=FALSE)
+    df <- read_result(infile)
 
     # split all_intcols from SampleGroups(), for samp_columns vector
-    all_intcols <- unlist(strsplit(args[4], ","))
-    nsamps <- length(all_intcols)
+    all_intcols <- get_all_intcols(args[4])
 
-    # read in json dump from SampleGroups() basic dictionary
-    # will be a list
-    jsonDump <- fromJSON(args[5])
-    grps <- names(jsonDump)
-    ngrps <- length(grps)
-
-    # create grps to color mapping
-    grp_col_mapping <- grp_color_values[1:ngrps]
-    names(grp_col_mapping) <- grps
-
-    # we need sample -> group mapping
-    colSideColors <- rep(0, nsamps)
-    for (i in 1:nsamps){
-        this_intcol <- all_intcols[i]
-        for (j in 1:ngrps){
-            samps_in_grp <- jsonDump[[grps[j]]]
-            if (this_intcol %in% samps_in_grp){
-                colSideColors[i] <- grp_col_mapping[grps[j]]
-            }
-        }
-    }
+    # get color mapping
+    colSideColors <- get_colors_from_groups(args[5], all_intcols)
     filter_to_sig <- (args[6] == "True")
     alpha <- as.numeric(args[7])
     width <- as.numeric(args[8])
@@ -201,9 +219,109 @@ heatmap_cli <- function(args){
 }
 
 ####### ==================== #######
-#              PCA             #
+#                PCA               #
 ####### ==================== #######
 
+make_df_list_from_pca <- function(pca_res, ind_list){
+    # pca_res is the result of prcomp
+    # ind_list is a list of indices for each group
+    pointmat <- data.frame(pca_res$rotation[, 1:2])
+    grps <- lapply(ind_list, function(i) pointmat[i, ])
+    return(grps)
+}
+
+sep_n <- function(clust){
+    # clust is a list of dataframes, where the columns in each dataframe are the
+    # intensities for each experimental condition
+    nclust <- length(clust)
+    means <- lapply(clust, colMeans)
+    possible_dists <- combn(1:nclust, 2)
+    n_possible_dists <- ncol(possible_dists)
+    dists <- rep(0, n_possible_dists)
+    for (i in 1:n_possible_dists){
+        comb <- possible_dists[, i]
+        dists[i] <- sum((means[[comb[1]]] - means[[comb[2]]])^2)
+    }
+    avg_dist <- mean(dists)
+    within_variance <- sapply(1:nclust, function(i) mean((clust[[i]] - means[[i]])^2))
+    avg_dist / sum(within_variance)
+}
+
+mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, width, height){
+    # function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height)
+    # df is the result from filter
+    # samp_columns is a vector of all intensity column names
+    # cols is a vector of group colors
+    mat <- impute(data.matrix(df[, all_intcols]))
+    pr <- prcomp(mat, scale=TRUE, center=TRUE)
+
+    # calculate separation
+    # make list of indices
+    if (calculate_sep){
+        grp_list <- fromJSON(json_dump)
+        grps <- names(grp_list)
+        ngrps <- length(grps)
+        list_indices <- vector(length=ngrps, mode="list")
+        mat_colnames <- colnames(mat)
+        for (i in 1:ngrps){
+            names_in_grp <- grp_list[[i]]
+            list_indices[[i]] <- sapply(names_in_grp, function(g) which(mat_colnames == g))
+        }
+        df_list <- make_df_list_from_pca(pr, list_indices)
+        sep <- sep_n(df_list)
+        put_sep_in_title <- paste0("Cluster Separation: ", format(sep, digits=5))
+    } else {
+        put_sep_in_title <- NA
+    }
+
+    # plot
+    xpadding <- 1.1
+    ypadding <- 1.3
+    png(filename=img, width=width, height=height, res=500, units="in")
+    plot(pr$rotation,
+         xlab = paste("PCA1 (",
+                  format(summary(pr)$importance[2, 1]*100, digits = 3), "%)",
+                  sep = ""),
+         ylab = paste("PCA2 (",
+                  format(summary(pr)$importance[2, 2]*100, digits = 3), "%)",
+                  sep = ""),
+         main=put_sep_in_title,
+         col = colors, pch = 20,
+         xlim = pad(pr$rotation[, 1], xpadding),
+         ylim = pad(pr$rotation[, 2], ypadding),
+         cex = 1.5)
+    text(pr$rotation,
+        labels = colnames(mat),
+        col = colors,
+        pos = 3,
+        cex = 1)
+    grid()
+    ether <- dev.off()
+}
+
+prcomp_cli <- function(args){
+    # 1. plot type (guaranteed to be 'pca')
+    # 2. pltfile - output image file
+    # 3. input tabular file
+    # 4. all intcols from SampleGroups, as comma-separated list
+    # 5. json dump from SampleGroups() top-level dictionary
+    # 6. calculate sep
+    # 7. image width (default 5)
+    # 8. image height (default 5)
+    img <- args[2]
+    infile <- args[3]
+    df <- read_result(infile)
+    # split all_intcols from SampleGroups(), for samp_columns vector
+    all_intcols <- get_all_intcols(args[4])
+    # get color mapping
+    json_dump <- args[5]
+    colors <- get_colors_from_groups(json_dump, all_intcols)
+    calculate_sep <- (args[6] == "True")
+    width <- as.numeric(args[7])
+    height <- as.numeric(args[8])
+    mq_prcomp(img=img, df=df, all_intcols=all_intcols, json_dump=json_dump,
+        colors=colors, calculate_sep=calculate_sep, width=width, height=height)
+}
 
 
 ####### ==================== #######
@@ -261,12 +379,12 @@ volcano_cli <- function(args){
     # 8. image height (default 5)
     img <- args[2]
     infile <- args[3]
+    df <- read_result(infile)
     textannot <- args[4]
     fc_name <- args[5]
     gosplit <- (args[6] == "True")
     width <- as.numeric(args[7])
     height <- as.numeric(args[8])
-    df <- read.delim(infile, sep="\t", stringsAsFactors=FALSE)
     plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name, gosplit=gosplit, width=width, height=height)
 }
 
@@ -285,6 +403,9 @@ main <- function(){
     }
     if (plttype == "heatmap"){
         heatmap_cli(args)
+    }
+    if (plttype == "pca"){
+        prcomp_cli(args)
     }
 }
 
