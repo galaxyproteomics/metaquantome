@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from metaquantome.util.testutils import testfile
+from metaquantome.util.testutils import testfile, TTEST_SINFO
 from metaquantome.analysis.run_viz import run_viz
 
 
@@ -30,6 +30,12 @@ class TestRunViz(unittest.TestCase):
                          gosplit=True)
         self.assertEqual(status, 0)
 
+    def testHeatmap(self):
+        infile = testfile('go_expanded_ttest.tab')
+        status = run_viz('heatmap', self.img, infile,
+                         sinfo=TTEST_SINFO)
+        self.assertEqual(status, 0)
 
     def tearDown(self):
-        os.remove(self.img)
+        if os.path.exists(self.img):
+            os.remove(self.img)
