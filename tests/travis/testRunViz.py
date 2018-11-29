@@ -52,5 +52,6 @@ class TestRunViz(unittest.TestCase):
         if os.path.exists(self.img):
             os.remove(self.img)
 
+
 if __name__=='__main__':
     unittest.main()

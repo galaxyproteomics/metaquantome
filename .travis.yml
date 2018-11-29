@@ -22,7 +22,6 @@ install:
 
 script:
   - python -m unittest discover tests/travis
-  - metaquantome -h
 
 notifications:
   email: false
