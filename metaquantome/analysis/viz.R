@@ -510,7 +510,8 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
             las = 1, cex.names = 0.7,
             xlab = "",
             ylab = "",
-    		las = 2)
+            las = 2,
+            ylim = c(0, 1))
     mtext(text="Proportion of Peptide Intensity", side=2, line=5)
     mtext(text=xlab, side=1, line=yline)
     grid()

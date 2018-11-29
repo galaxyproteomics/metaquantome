@@ -1,4 +1,5 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+
 VERSION='0.99.1'
 URL='https://github.com/galaxyproteomics/metaquantome'
 AUTHOR = 'Caleb Easterly'
@@ -6,7 +7,7 @@ AUTHOR_EMAIL = 'caleb.easterly@gmail.com'
 setup(
     name='metaquantome',
     version=VERSION,
-    packages=['metaquantome'],
+    packages=find_packages(),
     package_data={'metaquantome': ['data/*']},
     license='Apache License 2.0',
     author=AUTHOR,
