@@ -1,11 +1,14 @@
 import sys
 import argparse
 import logging
+import os
 
 from metaquantome.analysis.expand import expand
 from metaquantome.analysis.filter import run_filter
 from metaquantome.analysis.stat import stat
 from metaquantome.analysis.run_viz import run_viz
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def cli():
