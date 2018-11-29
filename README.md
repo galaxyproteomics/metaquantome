@@ -41,11 +41,6 @@ python3 cli.py expand -m f \
 
 # Roadmap
 
-## Critical changes before Bioconda release
-- change modes to 't', 'f', 'ft'
-- add peptide column name for each type of file
-
-
 ## High Priority
 - visualizations
 - documentation

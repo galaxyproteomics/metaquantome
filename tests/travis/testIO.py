@@ -11,7 +11,7 @@ class TestIO(unittest.TestCase):
 
     def testTaxonomyIn(self):
         taxin = os.path.join(DATA_DIR, 'test', 'unipept_a_thaliana_result_w_pep.tab')
-        df = metaquantome.util.expand_io.read_taxonomy_table(taxin, 'peptide', 'lca', )
+        df = metaquantome.util.expand_io.read_taxonomy_table(taxin, 'peptide', 'lca')
         # the first peptide is assigned to 'root'
         self.assertEqual(df['lca'][0], 'root')
 
@@ -26,10 +26,11 @@ class TestIO(unittest.TestCase):
         int_in = os.path.join(DATA_DIR, 'test', 'int_join.tab')
         sinfo = '{"1":["int1", "int2"]}'
         samp_grps = metaquantome.SampleGroups.SampleGroups(sinfo)
-        dfs_joined = metaquantome.util.expand_io.read_and_join_files('ft', pep_colname='peptide',
-                                                                     int_file=int_in, samp_groups=samp_grps,
-                                                                     tax_file=taxin, func_file=funcin, tax_colname='lca',
-                                                                     func_colname='go')
+        dfs_joined = metaquantome.util.expand_io.read_and_join_files('ft', pep_colname_int='peptide',
+                                                                     pep_colname_func=None, pep_colname_tax=None,
+                                                                     samp_grps=samp_grps, int_file=int_in,
+                                                                     tax_file=taxin, func_file=funcin,
+                                                                     func_colname='go', tax_colname='lca')
 
         self.assertSetEqual(set(dfs_joined), {'int1', 'int2', 'lca', 'go'})
 

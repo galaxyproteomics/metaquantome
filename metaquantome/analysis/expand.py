@@ -8,15 +8,18 @@ from metaquantome.analysis.function_taxonomy_interaction import function_taxonom
 from metaquantome.SampleGroups import SampleGroups
 
 
-def expand(mode, sinfo, int_file=None, pep_colname='peptide', data_dir=None, overwrite=False, outfile=None,
-           func_file=None, func_colname=None, ontology='go', slim_down=False, tax_file=None, tax_colname=None,
-           nopep=False, nopep_file=None, ft_func_data_dir=None, ft_tax_data_dir=None, ft_tar_rank='genus'):
+def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname_tax, data_dir, overwrite=False,
+           outfile=None, func_file=None, func_colname=None, ontology='go', slim_down=False, tax_file=None,
+           tax_colname=None, nopep=False, nopep_file=None, ft_func_data_dir=None, ft_tax_data_dir=None,
+           ft_tar_rank='genus'):
     """
     Expand the directly annotated hierarchy to one with all ancestors.
+    :param pep_colname_func:
+    :param pep_colname_tax:
     :param mode: either 't', 'f', or 'ft'
     :param sinfo: Either a json string with experimental information or a path to a tabular file
     :param int_file: Path to the tabular intensity file
-    :param pep_colname: peptide column name in int_file, func_file, and tax_file
+    :param pep_colname_int: peptide column name in int_file, func_file, and tax_file
     :param data_dir: Parent directory of database files.
     :param overwrite: update database files
     :param outfile: path to write results to
@@ -42,10 +45,10 @@ def expand(mode, sinfo, int_file=None, pep_colname='peptide', data_dir=None, ove
                                         mode=mode, func_colname=func_colname,
                                         tax_colname=tax_colname)
     else:
-        df = expand_io.read_and_join_files(mode, pep_colname, samp_grps,
-                                           int_file=int_file,
-                                           func_file=func_file, func_colname=func_colname,
-                                           tax_colname=tax_colname, tax_file=tax_file)
+        df = expand_io.read_and_join_files(mode, pep_colname_int=pep_colname_int, pep_colname_func=pep_colname_func,
+                                           pep_colname_tax=pep_colname_tax, samp_grps=samp_grps, int_file=int_file,
+                                           tax_file=tax_file, func_file=func_file, func_colname=func_colname,
+                                           tax_colname=tax_colname)
     # run analysis based on modes
     if mode == 'f':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, ontology=ontology,
@@ -53,7 +56,7 @@ def expand(mode, sinfo, int_file=None, pep_colname='peptide', data_dir=None, ove
     elif mode == 't':
         results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=data_dir, tax_colname=tax_colname)
     elif mode == 'ft':
-        results = function_taxonomy_analysis(df=df, func_colname=func_colname, pep_colname=pep_colname,
+        results = function_taxonomy_analysis(df=df, func_colname=func_colname, pep_colname=pep_colname_int,
                                              ontology=ontology, overwrite=overwrite, slim_down=slim_down,
                                              tax_colname=tax_colname, samp_grps=samp_grps, ft_tar_rank=ft_tar_rank,
                                              ft_func_data_dir=ft_func_data_dir, ft_tax_data_dir=ft_tax_data_dir)
