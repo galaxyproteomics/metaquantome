@@ -270,17 +270,7 @@ def parse_args_cli():
     pca = parser_viz.add_argument_group('Principal Components Analysis')
     pca.add_argument("--calculate_sep", action="store_true",
                      help="Flag. Calculate separation between groups and include in title?")
-    #
-    # ft_dist = parser_viz.add_argument_group('Proportions barplot for Function-taxonomy analysis')
-    # ft_dist.add_argument("--whichway", choices=["f_dist", "t_dist"],
-    #                      help="Which distribution - functional distribution for a taxon (f_dist) or " +
-    #                           "taxonomic distribution for a function (t_dist)?")
-    # ft_dist.add_argument("--name",
-    #                      help="Provide either a taxonomic or functional term name. Either provide this or an --id.")
-    # ft_dist.add_argument("--id",
-    #                      help="Taxonomic or functional term id - either a NCBI taxID or a GO term id (GO:XXXXXXX)")
-    # ft_dist.add_argument('--target_onto', choices=["mf", "bp", "cc"],
-    #                      help="Ontology to restrict to, for function distribution.")
+
     args = parser.parse_args()
     return args
 
