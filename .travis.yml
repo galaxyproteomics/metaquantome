@@ -17,9 +17,12 @@ install:
   - conda env update --file dev_environment.yml
   - source activate metaquantome
 
+  # test setup.py build
+  - python setup.py sdist bdist_wheel
 
 script:
-  python -m unittest discover tests/travis
+  - python -m unittest discover tests/travis
+  - metaquantome -h
 
 notifications:
   email: false
