@@ -10,7 +10,8 @@ from metaquantome.util.testutils import testfile, TTEST_SINFO
 class TestCLI(unittest.TestCase):
     def testSingleInt(self):
         out = testfile('cli_out.tab')
-        command = '''python3 cli.py expand -m t --pep_colname peptide --outfile ''' + out
+        command = '''python3 cli.py expand -m t --pep_colname_int peptide --pep_colname_tax peptide ''' +\
+            '''--outfile ''' + out
         command += ''' -i metaquantome/data/test/simple_int.tab --tax_file metaquantome/data/test/simple_tax.tab '''
         command += '''--tax_colname "lca" --samps '{"A": ["int"]}' '''
         command += '''--data_dir ''' + TAX_TEST_DIR
@@ -23,7 +24,8 @@ class TestCLI(unittest.TestCase):
 
     def testMultipleInt(self):
         exp_out = testfile('cli_mult_out.tab')
-        exp_command = '''python3 cli.py expand -m f --pep_colname peptide --outfile ''' + exp_out
+        exp_command = '''python3 cli.py expand -m f --pep_colname_int peptide --pep_colname_func peptide ''' +\
+            '''--outfile ''' + exp_out
         exp_command += ''' -i metaquantome/data/test/int_ttest.tab --func_file metaquantome/data/test/multiple_func.tab '''
         exp_command += ''' --func_colname cog --ontology cog ''' + " --samps '" + TTEST_SINFO + "' "
         print(exp_command)
