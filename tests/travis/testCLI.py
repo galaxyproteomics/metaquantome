@@ -28,7 +28,6 @@ class TestCLI(unittest.TestCase):
             '''--outfile ''' + exp_out
         exp_command += ''' -i metaquantome/data/test/int_ttest.tab --func_file metaquantome/data/test/multiple_func.tab '''
         exp_command += ''' --func_colname cog --ontology cog ''' + " --samps '" + TTEST_SINFO + "' "
-        print(exp_command)
         exp_status = subprocess.call(exp_command, shell=True)
         self.assertEqual(exp_status, 0)
 
@@ -39,7 +38,6 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(test_status, 0)
 
         test_df = pd.read_csv(test_out, sep="\t", index_col='id')
-        print(test_df)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(test_df['corrected_p']['C'] > 0.05)
         self.assertTrue(test_df['corrected_p'][['N','D']].le(0.05).all())
