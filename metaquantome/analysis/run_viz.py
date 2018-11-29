@@ -6,7 +6,7 @@ from metaquantome.util.utils import BASE_DIR
 from metaquantome.SampleGroups import SampleGroups
 
 
-def run_viz(plottype, img, infile, strip="",
+def run_viz(plottype, img, infile, strip=None,
             mode=None, meancol=None, nterms='5', target_rank=None, barcol=6,  # barplot
             textannot=None, fc_name=None, flip_fc=False, gosplit=False,  # volcano
             sinfo=None, filter_to_sig=False, alpha='0.05',  # heatmap
@@ -36,6 +36,6 @@ def run_viz(plottype, img, infile, strip="",
     else:
         ValueError("Wrong plot type. Must be bar, volcano, heatmap, or pca.")
     cmd_string = [str(elem) for elem in cmd]
-    subprocess.run(cmd_string, stdout=FNULL)
+    subprocess.run(cmd_string, stdout=FNULL, check=True)
     FNULL.close()
-    return 0
+
