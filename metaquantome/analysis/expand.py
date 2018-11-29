@@ -13,7 +13,7 @@ def expand(mode, sinfo, int_file=None, pep_colname='peptide', data_dir=None, ove
            nopep=False, nopep_file=None, ft_func_data_dir=None, ft_tax_data_dir=None, ft_tar_rank='genus'):
     """
     Expand the directly annotated hierarchy to one with all ancestors.
-    :param mode: either 'tax', 'fn', or 'taxfn'
+    :param mode: either 't', 'f', or 'ft'
     :param sinfo: Either a json string with experimental information or a path to a tabular file
     :param int_file: Path to the tabular intensity file
     :param pep_colname: peptide column name in int_file, func_file, and tax_file
@@ -47,19 +47,18 @@ def expand(mode, sinfo, int_file=None, pep_colname='peptide', data_dir=None, ove
                                            func_file=func_file, func_colname=func_colname,
                                            tax_colname=tax_colname, tax_file=tax_file)
     # run analysis based on modes
-    if mode == 'fn':
+    if mode == 'f':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, ontology=ontology,
                                       slim_down=slim_down, data_dir=data_dir, overwrite=overwrite)
-    elif mode == 'tax':
+    elif mode == 't':
         results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=data_dir, tax_colname=tax_colname)
-    elif mode == 'taxfn':
+    elif mode == 'ft':
         results = function_taxonomy_analysis(df=df, func_colname=func_colname, pep_colname=pep_colname,
                                              ontology=ontology, overwrite=overwrite, slim_down=slim_down,
                                              tax_colname=tax_colname, samp_grps=samp_grps, ft_tar_rank=ft_tar_rank,
                                              ft_func_data_dir=ft_func_data_dir, ft_tax_data_dir=ft_tax_data_dir)
     else:
-        raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
-    # filter min observed here
+        raise ValueError("Invalid mode. Expected one of: %s" % ['f', 't', 'ft'])
 
     # set up written output
     if outfile:

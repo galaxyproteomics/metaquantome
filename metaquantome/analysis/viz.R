@@ -88,7 +88,7 @@ mq_barplot <- function(df, img, mode, meancol,
              call. = FALSE)
     }
     # filter to desired rank, if taxonomy
-    if (mode == "tax"){
+    if (mode == "t"){
         # todo: add check for target rank in
         # list of available target ranks
         df <- df[df[, "rank"] == target_rank, ]
@@ -97,7 +97,7 @@ mq_barplot <- function(df, img, mode, meancol,
     df[, meancol] <- 2^df[, meancol]
     reord <- df[order(df[, meancol], decreasing=TRUE), ]
     sub_reord <- reord[1:nterms, ]
-    if (mode == "tax"){
+    if (mode == "t"){
         barnames = sub_reord[, "taxon_name"]
     } else {
         barnames = sub_reord[, "name"]
@@ -123,7 +123,7 @@ barplot_cli <- function(args){
     # 1. plot type (guaranteed to be 'bar')
     # 2. pltfile - output image file
     # 3. input tabular file
-    # 4. mode - tax or fn
+    # 4. mode - t or f
     # 5. name of mean column
     # 6. number of taxa
     # 7. image width (default 5)

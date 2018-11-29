@@ -33,13 +33,18 @@ python -m unittest discover tests
 We can use example files within the `examples` directory to demonstrate the use of the command line.
 
 ```sh
-python3 cli.py expand -m fn \
+python3 cli.py expand -m f \
     --pep_colname peptide --outfile test.tmp -i example/int.tab \
     --func_file example/func.tab  --func_colname go --ontology go \
     --samps '{"s1": ["int1", "int2", "int3"], "s2": ["int4", "int5", "int6"]}'
 ```
 
 # Roadmap
+
+## Critical changes before Bioconda release
+- change modes to 't', 'f', 'ft'
+- add peptide column name for each type of file
+
 
 ## High Priority
 - visualizations

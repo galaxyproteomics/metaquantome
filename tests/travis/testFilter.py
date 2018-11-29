@@ -20,7 +20,7 @@ class TestFilter(unittest.TestCase):
         taxfile = testfile('multiple_tax.tab')
         expandfile = testfile('expand_out.tab')
 
-        expanded = expand('tax', TTEST_SINFO,
+        expanded = expand('t', TTEST_SINFO,
                           int_file = intfile,
                           tax_file=taxfile,
                           tax_colname='lca',
@@ -29,7 +29,7 @@ class TestFilter(unittest.TestCase):
         exp_ids = set(expanded['id'])
 
         # no filtering
-        nofilt = run_filter(expandfile, TTEST_SINFO, ontology=None, mode="tax", qthreshold=0, min_child_non_leaf=0,
+        nofilt = run_filter(expandfile, TTEST_SINFO, ontology=None, mode="t", qthreshold=0, min_child_non_leaf=0,
                             min_child_nsamp=0, min_peptides=0, min_pep_nsamp=0)
         nofilt_ids = set(nofilt['id'])
 
@@ -37,7 +37,7 @@ class TestFilter(unittest.TestCase):
         self.assertSetEqual(nofilt_ids, exp_ids)
 
         # now, require 3 intensities per group. we shouldn't see 1496 or 1870884
-        filt3 = run_filter(expandfile, TTEST_SINFO, ontology=None, mode="tax", qthreshold=3, min_child_non_leaf=0,
+        filt3 = run_filter(expandfile, TTEST_SINFO, ontology=None, mode="t", qthreshold=3, min_child_non_leaf=0,
                            min_child_nsamp=0, min_peptides=0, min_pep_nsamp=0)
         filt3_ids = set(filt3['id'])
         self.assertNotIn(1496, filt3_ids)

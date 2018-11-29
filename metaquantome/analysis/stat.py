@@ -15,7 +15,7 @@ def stat(infile, sinfo, paired, parametric, ontology, mode, outfile):
     :param paired: Whether or not the sample should be analyzed as paired samples
     :param parametric: whether or not parameteric tests should be used
     :param ontology: for function, is either 'go', 'ec', or 'cog'
-    :param mode: 'tax', 'fn', or 'taxfn'
+    :param mode: 't', 'f', or 'taxf'
     :param outfile: path to write to
     :return: original dataframe with p value and fold change columns appended
     """

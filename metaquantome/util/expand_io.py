@@ -27,11 +27,11 @@ def read_and_join_files(mode, pep_colname,
 
     # start df list
     dfs = [int]
-    if mode == 'tax' or mode == 'taxfn':
+    if mode == 't' or mode == 'ft':
         tax_check(tax_file, tax_colname)
         tax = read_taxonomy_table(tax_file, pep_colname, tax_colname)
         dfs.append(tax)
-    if mode == 'fn' or mode == 'taxfn':
+    if mode == 'f' or mode == 'ft':
         function_check(func_file, func_colname)
         func = read_function_table(func_file, pep_colname, func_colname)
         dfs.append(func)
@@ -104,7 +104,7 @@ def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None)
     """
 
     :param file: file with intensity and functional or taxonomic terms
-    :param mode: fn, tax, or taxfn
+    :param mode: f, tax, or ft
     :param samp_grps: SampleGroups() object
     :param func_colname: name of column with functional terms
     :param tax_colname: name of column with taxonomic annotations
@@ -121,11 +121,11 @@ def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None)
     values = {x: 0 for x in samp_grps.all_intcols}
     df.fillna(values, inplace=True)
     sub = list()
-    if mode == 'fn':
+    if mode == 'f':
         sub = [func_colname]
-    elif mode == 'tax':
+    elif mode == 't':
         sub = [tax_colname]
-    elif mode == 'taxfn':
+    elif mode == 'ft':
         sub = [func_colname, tax_colname]
 
     df.dropna(how='all', subset=sub, inplace=True)
@@ -162,11 +162,11 @@ def define_outfile_cols_expand(samp_grps, ontology, mode):
     node_cols = []
     if ontology != "cog":
         node_cols += samp_grps.n_peptide_names_flat
-        # taxfn doesn't have samp_children
-        if mode != 'taxfn':
+        # ft doesn't have samp_children
+        if mode != 'ft':
             node_cols += samp_grps.samp_children_names_flat
     quant_cols = int_cols + node_cols
-    if mode == 'fn':
+    if mode == 'f':
         if ontology == 'go':
             cols = ['id', 'name', 'namespace'] + quant_cols
         elif ontology == 'cog':
@@ -175,10 +175,10 @@ def define_outfile_cols_expand(samp_grps, ontology, mode):
             cols = ['id', 'description'] + quant_cols
         else:
             raise ValueError("Invalid ontology. Expected one of: %s" % ['go', 'cog', 'ec'])
-    elif mode == 'tax':
+    elif mode == 't':
         cols = ['id', 'taxon_name', 'rank'] + quant_cols
-    elif mode == 'taxfn':
+    elif mode == 'ft':
         cols = ['go_id', 'name', 'namespace', 'tax_id', 'taxon_name', 'rank'] + quant_cols
     else:
-        raise ValueError("Invalid mode. Expected one of: %s" % ['fun', 'tax', 'taxfn'])
+        raise ValueError("Invalid mode. Expected one of: %s" % ['f', 't', 'ft'])
     return cols
