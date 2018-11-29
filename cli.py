@@ -17,11 +17,13 @@ def cli():
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
     args = parse_args_cli()
     if args.command == "expand":
-        expand(mode=args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname=args.pep_colname,
-               data_dir=args.data_dir, overwrite=args.overwrite, outfile=args.outfile, func_file=args.func_file,
-               func_colname=args.func_colname, ontology=args.ontology, slim_down=args.slim_down, tax_file=args.tax_file,
-               tax_colname=args.tax_colname, nopep=args.nopep, nopep_file=args.nopep_file,
-               ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir,
+        expand(mode=args.mode, sinfo=args.samps, int_file=args.int_file,
+               pep_colname_int=args.pep_colname_int, pep_colname_func=args.pep_colname_func,
+               pep_colname_tax=args.pep_colname_tax,
+               data_dir=args.data_dir, overwrite=args.overwrite,
+               outfile=args.outfile, func_file=args.func_file, func_colname=args.func_colname, ontology=args.ontology,
+               slim_down=args.slim_down, tax_file=args.tax_file, tax_colname=args.tax_colname, nopep=args.nopep,
+               nopep_file=args.nopep_file, ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir,
                ft_tar_rank=args.ft_tar_rank)
     elif args.command == "filter":
         run_filter(expanded_file=args.expand_file, sinfo=args.samps, ontology=args.ontology, mode=args.mode,
@@ -69,6 +71,7 @@ def check_col_range(arg):
         raise argparse.ArgumentTypeError(message)
     return value
 
+
 def parse_args_cli():
     """
     parse the command line arguments
@@ -104,13 +107,19 @@ def parse_args_cli():
     common.add_argument('--nopep', action="store_true",
                         help="If provided, need to provide a --nopep_file.")
     common.add_argument('--nopep_file',
-                        help="File with functional annotations and intensities. ")
+                        help="File with functional or taxonomic annotations and intensities. ")
     common.add_argument('--int_file', '-i',
                         help='Path to the file with intensity data. Must be tabular, have a peptide sequence column, '+
                              'and be raw, untransformed intensity values. Missing values can be 0, NA, or NaN' +
                              '- transformed to NA for analysis')
-    common.add_argument('--pep_colname',
-                        help='The column name within the intensity, function, and/or taxonomy file that corresponds ' +
+    common.add_argument('--pep_colname_int',
+                        help='The column name within the intensity file that corresponds ' +
+                             'to the peptide sequences. ')
+    common.add_argument('--pep_colname_func',
+                        help='The column name within the function file that corresponds ' +
+                             'to the peptide sequences. ')
+    common.add_argument('--pep_colname_tax',
+                        help='The column name within the taxonomy file that corresponds ' +
                              'to the peptide sequences. ')
     common.add_argument('--outfile', required=True,
                         help='Output file')

@@ -4,16 +4,15 @@ from metaquantome.util.check_args import function_check, tax_check
 from metaquantome.util.constants import MISSING_VALUES
 
 
-def read_and_join_files(mode, pep_colname,
-                        samp_groups, int_file,
-                        tax_file=None, func_file=None,
-                        func_colname=None,
-                        tax_colname=None):
+def read_and_join_files(mode, pep_colname_int, pep_colname_func, pep_colname_tax, samp_grps, int_file, tax_file=None,
+                        func_file=None, func_colname=None, tax_colname=None):
     """
     todo: doc
+    :param pep_colname_func:
+    :param pep_colname_tax:
     :param mode:
-    :param pep_colname:
-    :param samp_groups:
+    :param pep_colname_int:
+    :param samp_grps:
     :param int_file:
     :param tax_file:
     :param func_file:
@@ -23,33 +22,33 @@ def read_and_join_files(mode, pep_colname,
     """
 
     # intensity
-    int = read_intensity_table(int_file, samp_groups, pep_colname)
+    int = read_intensity_table(int_file, samp_grps, pep_colname_int)
 
     # start df list
     dfs = [int]
     if mode == 't' or mode == 'ft':
         tax_check(tax_file, tax_colname)
-        tax = read_taxonomy_table(tax_file, pep_colname, tax_colname)
+        tax = read_taxonomy_table(tax_file, pep_colname_tax, tax_colname)
         dfs.append(tax)
     if mode == 'f' or mode == 'ft':
         function_check(func_file, func_colname)
-        func = read_function_table(func_file, pep_colname, func_colname)
+        func = read_function_table(func_file, pep_colname_func, func_colname)
         dfs.append(func)
 
     dfs_joined = join_on_peptide(dfs)
     return dfs_joined
 
 
-def read_intensity_table(file, samp_grps, pep_colname):
+def read_intensity_table(file, samp_grps, pep_colname_int):
     """
 
     :param file:
     :param samp_grps:
-    :param pep_colname:
+    :param pep_colname_int:
     :return: intensity table; missing values as 0
     """
     # read in data
-    df = pd.read_table(file, sep="\t", index_col=pep_colname,
+    df = pd.read_table(file, sep="\t", index_col=pep_colname_int,
                        dtype=samp_grps.dict_numeric_cols,
                        na_values=MISSING_VALUES,
                        low_memory=False)
@@ -64,18 +63,18 @@ def read_intensity_table(file, samp_grps, pep_colname):
     return int_df
 
 
-def read_taxonomy_table(file, pep_colname, tax_colname):
+def read_taxonomy_table(file, pep_colname_tax, tax_colname):
     """
     read taxonomy table, such as Unipept output.
     Peptides with no annotation are kept, and assigned 32644 (ncbi id for unassigned)
     :param data_dir:
     :param file: path to taxonomy file
-    :param pep_colname: string, peptide sequence column name
+    :param pep_colname_tax: string, peptide sequence column name
     :param tax_colname: string, taxonomy identifier column name
     :return: a pandas dataframe where index is peptide sequence and the single column is the associated ncbi taxid
     """
     # always read as character
-    df = pd.read_table(file, sep="\t", index_col=pep_colname,
+    df = pd.read_table(file, sep="\t", index_col=pep_colname_tax,
                        na_values=MISSING_VALUES, dtype={tax_colname: object})
     # take only specified column
     df_tax = df.loc[:, [tax_colname]]
@@ -85,14 +84,14 @@ def read_taxonomy_table(file, pep_colname, tax_colname):
     return df_tax
 
 
-def read_function_table(file, pep_colname, func_colname):
+def read_function_table(file, pep_colname_func, func_colname):
     """
     todo:doc
     :param file:
-    :param pep_colname:
+    :param pep_colname_func:
     :return:
     """
-    df = pd.read_table(file, sep="\t", index_col=pep_colname,
+    df = pd.read_table(file, sep="\t", index_col=pep_colname_func,
                        na_values=MISSING_VALUES)
     df_new = df[[func_colname]].copy()
     # drop nas

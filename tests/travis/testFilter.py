@@ -20,12 +20,9 @@ class TestFilter(unittest.TestCase):
         taxfile = testfile('multiple_tax.tab')
         expandfile = testfile('expand_out.tab')
 
-        expanded = expand('t', TTEST_SINFO,
-                          int_file = intfile,
-                          tax_file=taxfile,
-                          tax_colname='lca',
-                          outfile=expandfile,
-                          data_dir=TAX_TEST_DIR)
+        expanded = expand('t', TTEST_SINFO, int_file=intfile, pep_colname_int='peptide', pep_colname_func='peptide',
+                          pep_colname_tax='peptide', data_dir=TAX_TEST_DIR, outfile=expandfile, tax_file=taxfile,
+                          tax_colname='lca')
         exp_ids = set(expanded['id'])
 
         # no filtering
