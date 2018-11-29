@@ -20,9 +20,11 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         # todo - add test for non-slim
 
         tax=testfile('multiple_tax.tab')
+        ft_out=testfile('ft_out.tab')
         ft_df = expand(mode='taxfn', sinfo=tu.TTEST_SINFO, int_file=int, func_file=func, func_colname='go',
                        ontology='go', slim_down=True, tax_file=tax, tax_colname='lca',
-                       ft_func_data_dir=GO_TEST_DIR, ft_tax_data_dir=TAX_TEST_DIR)
+                       ft_func_data_dir=GO_TEST_DIR, ft_tax_data_dir=TAX_TEST_DIR,
+                       outfile=ft_out)
         # make sure calculated mean is accurate
         # b and c both map to 8150
         exp_s1_mean = np.log2(((20 + 1000) + (1200 + 30) + (900 + 20))/3)
