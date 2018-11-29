@@ -16,9 +16,7 @@ install:
   # create conda environment
   - conda env update --file dev_environment.yml
   - source activate metaquantome
-  
-  # build package
-  - python setup.py install
+
 
 script:
   python -m unittest discover tests/travis
