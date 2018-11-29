@@ -38,6 +38,7 @@ def cli():
                 mode=args.mode,
                 meancol=args.meancol,
                 nterms=args.nterms,
+                strip=args.strip,
                 target_rank=args.target_rank,
                 barcol=args.barcol,
                 textannot=args.textannot,
@@ -210,6 +211,8 @@ def parse_args_cli():
                             help="Height of the image in inches. Defaults vary by plot type.")
     parser_viz.add_argument('--infile', '-i', required=True,
                             help="Input file from stat or filter.")
+    parser_viz.add_argument('--strip',
+                            help="Text to remove from column names for plotting.")
 
     bar = parser_viz.add_argument_group('Arguments for barplots - total taxonomy peptide intensity and ' +
                                         'function-taxonomy interaction distributions')

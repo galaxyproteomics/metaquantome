@@ -7,15 +7,13 @@ options(stringsAsFactors = FALSE, message=FALSE, warnings=FALSE)
 suppressWarnings(suppressMessages(library(ggplot2)))
 suppressMessages(library(gplots))
 suppressMessages(library(jsonlite))
-
-
+suppressMessages(library(stringr))
 
 ####### ==================== #######
 #             CONSTANTS            #
 ####### ==================== #######
 grp_color_values <- c("dodgerblue", "darkorange",
     "yellow2", "red2", "darkviolet", "black")
-
 
 ####### ==================== #######
 #         UTILITY FUNCTIONS        #
@@ -164,7 +162,7 @@ hclust.ward <- function(x) {
 heatmap_colors <- c("#FFF7FB", "#ECE7F2", "#D0D1E6", "#A6BDDB", "#74A9CF",
                     "#3690C0", "#0570B0", "#045A8D", "#023858")
 
-mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height){
+mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height, strip){
     # df is the output from either expand, stat, or filter
     # samp_columns is a vector of all columns with the term intensities
     # colSide colors is a vector of colors for the groups. Must be in the same order as samp_columns
@@ -179,7 +177,12 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     # scale rows
     datmat.scale <- t(apply(mat, 1, scale))
     rownames(datmat.scale) <- df$id
-    colnames(datmat.scale) <- colnames(df[, all_intcols])
+    
+    if (strip != "None"){
+    	colnames(datmat.scale) <- str_replace(colnames(df[, all_intcols]), strip, "")
+    } else {
+    	colnames(datmat.scale) <- colnames(df[, all_intcols])
+    }
 
     feature.dend <- as.dendrogram(hclust.ward(cor.dist(datmat.scale)))
     sample.dend <- as.dendrogram(hclust.ward(cor.dist(t(datmat.scale))))
@@ -224,7 +227,8 @@ heatmap_cli <- function(args){
     alpha <- as.numeric(args[7])
     width <- as.numeric(args[8])
     height <- as.numeric(args[9])
-    mq_heatmap(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height)
+    strip <- args[10]
+    mq_heatmap(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height, strip)
 }
 
 ####### ==================== #######
@@ -256,13 +260,14 @@ sep_n <- function(clust){
     avg_dist / sum(within_variance)
 }
 
-mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, width, height){
+mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, width, height, strip){
     # function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height)
     # df is the result from filter
     # samp_columns is a vector of all intensity column names
     # cols is a vector of group colors
     mat <- impute(data.matrix(df[, all_intcols]))
     pr <- prcomp(mat, scale=TRUE, center=TRUE)
+
 
     # calculate separation
     # make list of indices
@@ -286,6 +291,13 @@ mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, wi
     # plot
     xpadding <- 1.1
     ypadding <- 1.3
+    
+    if (strip != "None"){
+    	point_names <- str_replace_all(colnames(mat), strip, "")
+    } else {
+    	point_names <- colnames(mat)
+    }
+
     png(filename=img, width=width, height=height, res=500, units="in")
     plot(pr$rotation,
          xlab = paste("PCA1 (",
@@ -300,7 +312,7 @@ mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, wi
          ylim = pad(pr$rotation[, 2], ypadding),
          cex = 1.5)
     text(pr$rotation,
-        labels = colnames(mat),
+        labels = point_names,
         col = colors,
         pos = 3,
         cex = 1)
@@ -328,8 +340,10 @@ prcomp_cli <- function(args){
     calculate_sep <- (args[6] == "True")
     width <- as.numeric(args[7])
     height <- as.numeric(args[8])
+    strip <- args[9]
     mq_prcomp(img=img, df=df, all_intcols=all_intcols, json_dump=json_dump,
-        colors=colors, calculate_sep=calculate_sep, width=width, height=height)
+        colors=colors, calculate_sep=calculate_sep, width=width, height=height,
+        strip=strip)
 }
 
 
@@ -419,10 +433,10 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
     # filter to name or id, depending on which is not missing
 	if (name != "None"){
 		if (whichway == "t_dist"){
-			df <- df[df[, "taxon_name"] == name, ]
+			df <- df[df[, "name"] == name, ]
 		}
 		if (whichway == "f_dist"){
-			df <- df[df[, "name"] == name, ]
+			df <- df[df[, "taxon_name"] == name, ]
 		}
 	}
 	if (id != "None"){
@@ -441,6 +455,8 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
     } else if (whichway == "f_dist"){
         long_onto <- short_onto_to_long[target_onto]
         df <- df[df[, "namespace"] == long_onto, ]
+        # also, remove any bp, cc, or mf rows
+        df <- df[!(df[, "name"] %in% short_onto_to_long), ]
     } else {
     	stop("Wrong whichway - should be t_dist or f_dist.")
     }
@@ -480,7 +496,15 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
 
     # plot
     png(file=img, height=height, width=width, units="in", res=500)
-    par(mar=c(10, 6.1, 4.1, 2.1)) # bottom, left, top and right margins
+    if (whichway == "t_dist"){
+    	par(mar=c(10, 6.1, 4.1, 2.1)) # bottom, left, top and right margins
+    	yline <- 8
+    }
+    if (whichway == "f_dist"){
+    	par(mar=c(15, 6.1, 4.1, 2.1)) # bottom, left, top and right margins
+    	yline <- 13
+    }
+   
     barplot(names.arg = barnames, col=barcol,
             height = sub_reord[, "props"],
             las = 1, cex.names = 0.7,
@@ -488,7 +512,7 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
             ylab = "",
     		las = 2)
     mtext(text="Proportion of Peptide Intensity", side=2, line=5)
-    mtext(text=xlab, side=1, line=8)
+    mtext(text=xlab, side=1, line=yline)
     grid()
     # send the message to the ether
     ether <- dev.off()
