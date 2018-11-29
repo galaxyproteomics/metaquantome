@@ -47,6 +47,10 @@ def cli():
                 gosplit=args.gosplit,
                 sinfo=args.samps,
                 alpha=args.alpha,
+                whichway=args.whichway,
+                name=args.name,
+                id=args.id,
+                target_onto=args.target_onto,
                 width=args.width,
                 height=args.height)
     else:
@@ -196,7 +200,7 @@ def parse_args_cli():
                              help='Perform paired tests.')
 
     # ---- METAQUANTOME VIZ ---- #
-    parser_viz.add_argument('--plottype', '-p', required=True, choices=['bar', 'volcano', 'heatmap', 'pca'],
+    parser_viz.add_argument('--plottype', '-p', required=True, choices=['bar', 'volcano', 'heatmap', 'pca', 'ft_dist'],
                             help="Select the type of plot to generate.")
     parser_viz.add_argument('--img', required=True,
                             help='Path to the PNG image file (must end in ".png").')
@@ -207,18 +211,32 @@ def parse_args_cli():
     parser_viz.add_argument('--infile', '-i', required=True,
                             help="Input file from stat or filter.")
 
-    bar = parser_viz.add_argument_group('Bar plot')
+    bar = parser_viz.add_argument_group('Arguments for barplots - total taxonomy peptide intensity and ' +
+                                        'function-taxonomy interaction distributions')
     bar.add_argument('--meancol',
-                     help="(Bar). Mean intensity column name for desired experimental condition. Only used for bar")
+                     help="(Tax bar and FT dist). Mean intensity column name for desired experimental conditio.")
     bar.add_argument('--nterms', default='5',
-                     help="(Bar). Number of taxa or functional terms to display. The default is 5.")
-    bar.add_argument('--barcol', type=check_col_range,
-                     help="Color for the bar fill. The color vector in R is " +
+                     help="(Tax bar and FT dist). Number of taxa or functional terms to display. The default is 5.")
+    bar.add_argument('--barcol', type=check_col_range, default="6",
+                     help="(Tax bar and FT dist). Color for the bar fill. The color vector in R is " +
                      'c("dodgerblue", "darkorange", "yellow2", "red2", "darkviolet", "black"), ' +
                      ' so providing a 1 will give the "dodgerblue" color. These same colors are also used in the ' +
                      ' heatmap and PCA plot, so the colors can be tweaked to match. ')
     bar.add_argument('--target_rank',
-                     help="Taxonomic rank to restrict to in the plot. ")
+                     help="(Tax bar and FT dist). Taxonomic rank to restrict to in the plot. ")
+    bar.add_argument("--whichway", choices=["f_dist", "t_dist"],
+                     help="(FT dist only) " +
+                          "Which distribution - functional distribution for a taxon (f_dist) or " +
+                          "taxonomic distribution for a function (t_dist)?")
+    bar.add_argument("--name",
+                     help="(FT dist only) " +
+                          "Provide either a taxonomic or functional term name. Either provide this or an --id.")
+    bar.add_argument("--id",
+                     help="(FT dist bar only) " +
+                          "Taxonomic or functional term id - either a NCBI taxID or a GO term id (GO:XXXXXXX)")
+    bar.add_argument('--target_onto', choices=["mf", "bp", "cc"],
+                     help="(FT dist bar only) " +
+                          "Ontology to restrict to, for function distribution.")
 
     volc = parser_viz.add_argument_group('Volcano Plot')
     volc.add_argument('--fc_name',
@@ -240,7 +258,17 @@ def parse_args_cli():
     pca = parser_viz.add_argument_group('Principal Components Analysis')
     pca.add_argument("--calculate_sep", action="store_true",
                      help="Flag. Calculate separation between groups and include in title?")
-
+    #
+    # ft_dist = parser_viz.add_argument_group('Proportions barplot for Function-taxonomy analysis')
+    # ft_dist.add_argument("--whichway", choices=["f_dist", "t_dist"],
+    #                      help="Which distribution - functional distribution for a taxon (f_dist) or " +
+    #                           "taxonomic distribution for a function (t_dist)?")
+    # ft_dist.add_argument("--name",
+    #                      help="Provide either a taxonomic or functional term name. Either provide this or an --id.")
+    # ft_dist.add_argument("--id",
+    #                      help="Taxonomic or functional term id - either a NCBI taxID or a GO term id (GO:XXXXXXX)")
+    # ft_dist.add_argument('--target_onto', choices=["mf", "bp", "cc"],
+    #                      help="Ontology to restrict to, for function distribution.")
     args = parser.parse_args()
     return args
 

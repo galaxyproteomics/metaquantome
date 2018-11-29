@@ -402,6 +402,137 @@ volcano_cli <- function(args){
     plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name, flip_fc=flip_fc, gosplit=gosplit, width=width, height=height)
 }
 
+####### ==================== #######
+#              FT DIST             #
+####### ==================== #######
+short_onto_to_long <- c("bp" = "biological_process",
+                        "mf"="molecular_function",
+                        "cc"="cellular_component")
+
+mq_ft_dist <- function(df, img, whichway, name, id, meancol,
+                       nterms, width, height, target_rank, target_onto,
+                       int_barcol){
+    if (!(meancol %in% names(df))){
+        stop('Mean column name not found in dataframe. Check spelling and try again.',
+             call. = FALSE)
+    }
+    # filter to name or id, depending on which is not missing
+	if (name != "None"){
+		if (whichway == "t_dist"){
+			df <- df[df[, "taxon_name"] == name, ]
+		}
+		if (whichway == "f_dist"){
+			df <- df[df[, "name"] == name, ]
+		}
+	}
+	if (id != "None"){
+		if (whichway == "t_dist"){
+			df <- df[df[, "go_id"] == id, ]
+		}
+		if (whichway == "f_dist"){
+			df <- df[df[, "tax_id"] == id, ]
+		}
+	}
+	
+    # filter to desired rank, if taxonomic distribution
+    if (whichway == "t_dist"){
+        # list of available target ranks
+        df <- df[df[, "rank"] == target_rank, ]
+    } else if (whichway == "f_dist"){
+        long_onto <- short_onto_to_long[target_onto]
+        df <- df[df[, "namespace"] == long_onto, ]
+    } else {
+    	stop("Wrong whichway - should be t_dist or f_dist.")
+    }
+	
+	# number of rows left
+	if (nrow(df) == 0){
+		stop("No rows remaining in dataframe.")
+	}
+    # calculate proportions
+    df[, meancol] <- 2^df[, meancol]
+
+    df$props <- df[, meancol] / sum(df[, meancol], na.rm=TRUE)
+    reord <- df[order(df[, "props"], decreasing=TRUE), ]
+	
+    if (nterms == "all"){
+        sub_reord <- reord
+    } else {
+        sub_reord <- reord[1:nterms, ]
+    }
+
+    if (whichway == "t_dist"){
+        barnames = sub_reord[, "taxon_name"]
+    } else {
+        barnames = sub_reord[, "name"]
+    }
+
+    # color mapping
+    barcol <- grp_color_values[int_barcol]
+
+    # other names and stuff
+    if (whichway == "t_dist"){
+        xlab = "Taxon"
+    }
+    if (whichway == "f_dist"){
+        xlab = "Functional Term"
+    }
+
+    # plot
+    png(file=img, height=height, width=width, units="in", res=500)
+    par(mar=c(10, 6.1, 4.1, 2.1)) # bottom, left, top and right margins
+    barplot(names.arg = barnames, col=barcol,
+            height = sub_reord[, "props"],
+            las = 1, cex.names = 0.7,
+            xlab = "",
+            ylab = "",
+    		las = 2)
+    mtext(text="Proportion of Peptide Intensity", side=2, line=5)
+    mtext(text=xlab, side=1, line=8)
+    grid()
+    # send the message to the ether
+    ether <- dev.off()
+}
+
+ft_dist_cli <- function(args){
+    # args are as follows
+    # 1. plot type (guaranteed to be 'bar')
+    # 2. pltfile - output image file
+    # 3. input tabular file
+    # 4. whichway - t_dist or f_dist
+	# 5. name
+	# 6. id
+    # 7. name of mean column
+    # 8. number of terms
+    # 9. image width (default 5)
+    # 10. image height (default 5)
+    # 11. target rank (t_dist only)
+	# 12. target onto (f_dist only)
+    # 13. bar color - integer from 1 to 6
+    # function(df, img, whichway, meancol,
+    #                    nterms, width, height, target_rank, int_barcol)
+    img <- args[2]
+    infile <- args[3]
+    df <- read_result(infile)
+    whichway <- args[4]
+    name <- args[5]
+    id <- args[6]
+    meancol <- args[7]
+    nterms <- args[8]
+    width <- as.numeric(args[9])
+    height <- as.numeric(args[10])
+    target_rank <- args[11]
+    target_onto <- args[12]
+    barcol <- as.numeric(args[13])
+    plt <- mq_ft_dist(df, img=img, whichway=whichway,
+    				  name=name, id=id,
+                      meancol=meancol,
+                      nterms=nterms,
+                      height=height, width=width,
+                      target_rank=target_rank, target_onto=target_onto,
+    				  int_barcol=barcol)
+}
+
 
 ####### ==================== #######
 #              MAIN                #
@@ -420,6 +551,9 @@ main <- function(){
     }
     if (plttype == "pca"){
         prcomp_cli(args)
+    }
+    if (plttype == "ft_dist"){
+    	ft_dist_cli(args)
     }
 }
 

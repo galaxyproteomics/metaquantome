@@ -43,6 +43,16 @@ class TestRunViz(unittest.TestCase):
                          calculate_sep=False)
         self.assertEqual(status, 0)
 
+    def testFtDist(self):
+        infile = testfile('ft_out.tab')
+        status = run_viz('ft_dist', self.img, infile,
+                         meancol="s1_mean",
+                         whichway='t_dist',
+                         id="GO:0008150",
+                         target_rank="genus",
+                         nterms="all")
+        self.assertEqual(status, 0)
+
     # comment this out for test plot inspection
     def tearDown(self):
         if os.path.exists(self.img):
