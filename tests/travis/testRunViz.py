@@ -10,7 +10,7 @@ class TestRunViz(unittest.TestCase):
 
     def testBasicTaxBar(self):
         infile = testfile('taxonomy_write_simple.tab')
-        status = run_viz('bar', self.img, infile, 'tax',
+        status = run_viz('bar', self.img, infile, 't',
                          nterms='2', meancol='samp1_mean',
                          target_rank="genus", barcol="6")
         self.assertEqual(status, 0)

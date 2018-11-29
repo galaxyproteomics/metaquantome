@@ -10,8 +10,8 @@ def run_filter(expanded_file, sinfo, ontology, mode,
     Filter expanded dataframe to rows that satisfy filtering conditions.
     :param expanded_file: path to expanded file
     :param sinfo: Path to experimental design file
-    :param ontology: relevant for fn and taxfn modes. Either 'go', 'ec', or 'cog'
-    :param mode: either 'fn', 'tax', or 'taxfn'
+    :param ontology: relevant for f and ft modes. Either 'go', 'ec', or 'cog'
+    :param mode: either 'f', 't', or 'ft'
     :param qthreshold: minimum number of quantitations per grp
     :param min_child_non_leaf: minimum number of children for terms that are not leaves
     :param min_child_nsamp: minimum number of samples with sample children greater than min_child_non_leaf
@@ -56,7 +56,7 @@ def get_rows_to_keep(mode, df, grp, samp_grps, qthreshold, min_child_non_leaf, m
     """
     Use checking to find the rows (taxonomic or functional terms) that satisfy all of the filtering conditions for
     the specified group
-    :param mode: either 'fn', 'tax', or 'taxfn'
+    :param mode: either 'f', 't', or 'ft'
     :param df: data frame of functional and taxonomic terms. missing values are represented as 0.
     :param grp: grp to check conditions for
     :param samp_grps: SampleGroups() object
@@ -80,7 +80,7 @@ def get_rows_to_keep(mode, df, grp, samp_grps, qthreshold, min_child_non_leaf, m
     else:
         keep_peptide = peptide_keep_series.apply(sum, axis=1) >= int(min_pep_nsamp)
 
-    if mode != 'taxfn':
+    if mode != 'ft':
         # child non leaf
         child_cols = samp_grps.samp_children_names_dict[grp]
         child_keep_series = (df[child_cols] >= min_child_non_leaf) | (df[child_cols] == 0)

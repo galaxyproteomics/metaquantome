@@ -26,7 +26,7 @@ class TestIO(unittest.TestCase):
         int_in = os.path.join(DATA_DIR, 'test', 'int_join.tab')
         sinfo = '{"1":["int1", "int2"]}'
         samp_grps = metaquantome.SampleGroups.SampleGroups(sinfo)
-        dfs_joined = metaquantome.util.expand_io.read_and_join_files('taxfn', pep_colname='peptide',
+        dfs_joined = metaquantome.util.expand_io.read_and_join_files('ft', pep_colname='peptide',
                                                                      int_file=int_in, samp_groups=samp_grps,
                                                                      tax_file=taxin, func_file=funcin, tax_colname='lca',
                                                                      func_colname='go')
@@ -38,7 +38,7 @@ class TestIO(unittest.TestCase):
         sinfo = '{"s1":["int1", "int2", "int3"]}'
         samp_grps = metaquantome.SampleGroups.SampleGroups(sinfo)
 
-        go_df = metaquantome.util.expand_io.read_nopep_table(mode='fn', samp_grps=samp_grps,
+        go_df = metaquantome.util.expand_io.read_nopep_table(mode='f', samp_grps=samp_grps,
                                                              file=nopep, func_colname='cog')
         # test that go is in columns
         self.assertIn('cog', go_df.keys())

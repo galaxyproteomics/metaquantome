@@ -16,7 +16,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testSingleInt(self):
         func=testfile('simple_func.tab')
         int=testfile('simple_int.tab')
-        go_df = expand('fn', sinfo='{"s1": ["int"]}', int_file=int, pep_colname='peptide', data_dir=GO_TEST_DIR,
+        go_df = expand('f', sinfo='{"s1": ["int"]}', int_file=int, pep_colname='peptide', data_dir=GO_TEST_DIR,
                        func_file=func, func_colname='go', ontology='go')
         self.assertEqual(go_df.loc["GO:0022610"]['int'], np.log2(200))
         self.assertEqual(go_df.loc["GO:0008152"]['int'], np.log2(100))
@@ -24,7 +24,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testMultipleInt(self):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
-        go_df = expand('fn', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, data_dir=GO_TEST_DIR,
+        go_df = expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, data_dir=GO_TEST_DIR,
                        func_file=func, func_colname='go', ontology='go')
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
@@ -34,7 +34,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
 
     def testNopep(self):
         nopep=testfile('nopep.tab')
-        go_df = expand('fn', sinfo='{"s1": ["int1", "int2", "int3"]}', data_dir=GO_TEST_DIR, func_colname='go',
+        go_df = expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', data_dir=GO_TEST_DIR, func_colname='go',
                        ontology='go', nopep=True, nopep_file=nopep).sort_index(axis=1)
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
@@ -48,7 +48,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         func=testfile('func_eggnog.tab')
         int=testfile('int_eggnog.tab')
         sinfo='{"NS": ["int737NS", "int852NS", "int867NS"], "WS": ["int737WS", "int852WS", "int867WS"]}'
-        go_df = expand('fn', sinfo=sinfo, int_file=int, data_dir=GO_TEST_DIR, func_file=func, func_colname='go',
+        go_df = expand('f', sinfo=sinfo, int_file=int, data_dir=GO_TEST_DIR, func_file=func, func_colname='go',
                        ontology='go', slim_down=True)
         # test that all go terms are in slim
         # load slim
@@ -60,7 +60,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testCog(self):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
-        cog_df = expand('fn', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, func_file=func,
+        cog_df = expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, func_file=func,
                         func_colname='cog', ontology='cog')
         self.assertEqual(cog_df.loc["C"]['s1_mean'], np.log2((10+20+70)/3))
         self.assertEqual(cog_df.loc["N"]['int2'], np.log2(30))
@@ -68,7 +68,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testSimpleEc(self):
         func=testfile('simple_ec.tab')
         int=testfile('simple_int.tab')
-        ec_df = expand('fn', sinfo='{"s1": ["int"]}', int_file=int, pep_colname='peptide', func_file=func,
+        ec_df = expand('f', sinfo='{"s1": ["int"]}', int_file=int, pep_colname='peptide', func_file=func,
                        func_colname='ec', ontology='ec', data_dir=EC_TEST_DIR)
         self.assertEqual(ec_df.loc["3.4.11.-"]['int'], np.log2(100))
         self.assertEqual(ec_df.loc["3.4.-.-"]['int'], np.log2(300))
@@ -76,7 +76,7 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testMultipleEc(self):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
-        ec_df = expand('fn', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, func_file=func, func_colname='ec',
+        ec_df = expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, func_file=func, func_colname='ec',
                        ontology='ec', data_dir=EC_TEST_DIR)
         self.assertEqual(ec_df.loc['3.4.-.-']['int1'], np.log2(50))
         self.assertEqual(ec_df.loc['1.2.-.-']['int2'], np.log2(50))
@@ -92,10 +92,10 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         int=testfile('int_ttest.tab')
         expanded=testfile('go_expanded_ttest.tab')
         test_write=testfile('go_tested.tab')
-        df_expd = expand('fn', sinfo=TTEST_SINFO, int_file=int, data_dir=GO_TEST_DIR, func_file=func,
+        df_expd = expand('f', sinfo=TTEST_SINFO, int_file=int, data_dir=GO_TEST_DIR, func_file=func,
                          func_colname='go', ontology='go',
                          outfile=expanded)
-        df_tst = stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='go', mode='fn',
+        df_tst = stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='go', mode='f',
                       outfile=test_write)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(df_tst['p']['GO:0008152'] > 0.05)
@@ -105,9 +105,9 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
         expandfile=testfile('cog_ttest.tab')
-        cog_df = expand('fn', sinfo=TTEST_SINFO, int_file=int, func_file=func, func_colname='cog', ontology='cog',
+        cog_df = expand('f', sinfo=TTEST_SINFO, int_file=int, func_file=func, func_colname='cog', ontology='cog',
                         outfile=expandfile)
-        cog_tst = stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='cog', mode='fn',
+        cog_tst = stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='cog', mode='f',
                        outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(cog_tst['p']['C'] > 0.05)
@@ -117,10 +117,10 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
         expandfile=testfile('ec_ttest.tab')
-        expand('fn', sinfo=TTEST_SINFO,
+        expand('f', sinfo=TTEST_SINFO,
                int_file=int, func_file=func, func_colname='ec', ontology='ec',
                outfile=expandfile, data_dir=EC_TEST_DIR)
-        ec_tst = stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='ec', mode='fn',
+        ec_tst = stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='ec', mode='f',
                       outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(ec_tst['p']['3.4.11.-'] > 0.05)

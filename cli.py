@@ -94,10 +94,10 @@ def parse_args_cli():
                                      'JSON example of two experimental groups and two samples in each group: ' +
                                      '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
         common_tmp = par.add_argument_group('Arguments for all analyses')
-        common_tmp.add_argument('--mode', '-m', choices=['fn', 'tax', 'taxfn'], required=True,
-                            help='Analysis mode. If taxfn is chosen, both function and taxonomy files must be provided')
+        common_tmp.add_argument('--mode', '-m', choices=['f', 't', 'ft'], required=True,
+                            help='Analysis mode. If ft is chosen, both function and taxonomy files must be provided')
         common_tmp.add_argument('--ontology', choices=['go', 'cog', 'ec'], required=False,
-                          help='Which functional terms to use. Ignored (and not required) if mode is not fn or taxfn.')
+                          help='Which functional terms to use. Ignored (and not required) if mode is not f or ft.')
 
     # ---- METAQUANTOME EXPAND ---- #
     common = parser_expand.add_argument_group('Arguments for all 3 modes')

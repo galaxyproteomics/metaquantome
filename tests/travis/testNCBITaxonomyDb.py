@@ -106,7 +106,7 @@ class TestTaxonomyDatabase(unittest.TestCase):
     def testConvertNameToTaxid_UnipeptResults(self):
         # test a whole bunch of unipept name results
         unipept_thaliana = os.path.join(DATA_DIR, 'test', 'unipept_a_thaliana_result.csv')
-        with open(unipept_thaliana, mode = 'r') as f:
+        with open(unipept_thaliana, mode='r') as f:
             f.readline() # ditch column header
             names = [elem.strip('\n') for elem in f.readlines()]
             ids = self.ncbi.convert_name_to_taxid(names)
