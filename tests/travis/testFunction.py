@@ -125,11 +125,12 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('int_ttest.tab')
         expandfile=testfile('ec_ttest.tab')
+        tested_file=testfile('ec_ttest_tested.tab')
         expand('f', sinfo=TTEST_SINFO, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
                pep_colname_tax='peptide', data_dir=EC_TEST_DIR, outfile=expandfile, func_file=func, func_colname='ec',
                ontology='ec')
         ec_tst = stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='ec', mode='f',
-                      outfile=None)
+                      outfile=tested_file)
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(ec_tst['p']['3.4.11.-'] > 0.05)
         self.assertTrue(ec_tst['p'][['3.4.21.70', '1.2.-.-']].le(0.05).all())
