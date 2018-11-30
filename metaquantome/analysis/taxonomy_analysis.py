@@ -1,5 +1,5 @@
 import metaquantome.analysis.expand
-from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
+from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb, BASIC_TAXONOMY_TREE
 from metaquantome.util import utils
 
 
@@ -32,6 +32,10 @@ def taxonomy_analysis(df, samp_grps, data_dir, tax_colname='lca'):
     df_clean = df.loc[is_not_nan & is_in_db]
     results = metaquantome.analysis.expand.common_hierarchical_analysis(ncbi, df_clean, tax_colname, samp_grps)
     results['rank'] = results['id'].apply(ncbi.get_rank)
+
+    # filter out any ranks that are not in the basic taxonomy tree
+    is_right_rank = results['rank'].isin(BASIC_TAXONOMY_TREE)
+    results = results.loc[is_right_rank, :]
 
     # translate ids back to names
     results['taxon_name'] = ncbi.convert_taxid_to_name(results['id'])
