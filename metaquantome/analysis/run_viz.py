@@ -12,14 +12,14 @@ def run_viz(plottype, img, infile, strip=None,
             sinfo=None, filter_to_sig=False, alpha='0.05',  # heatmap
             calculate_sep=False,  # pca
             whichway=None, name=None, id=None, target_onto=None, # ft_dist
-            width='5', height='5'):
+            width='5', height='5', tabfile=None):
     r_script_path = os.path.join(BASE_DIR, 'analysis', 'viz.R')
     FNULL = open(os.devnull, 'w')
     cmd = ['Rscript', '--vanilla', r_script_path, plottype, img, infile]
     if plottype == "bar":
-        cmd += [mode, meancol, nterms, width, height, target_rank, barcol]
+        cmd += [mode, meancol, nterms, width, height, target_rank, barcol, tabfile]
     elif plottype == "volcano":
-        cmd += [str(textannot), fc_name, flip_fc, gosplit, width, height]
+        cmd += [str(textannot), fc_name, flip_fc, gosplit, width, height, tabfile]
     elif plottype == "heatmap":
         samp_grps = SampleGroups(sinfo)
         all_intcols_str = ','.join(samp_grps.all_intcols)
@@ -32,7 +32,7 @@ def run_viz(plottype, img, infile, strip=None,
         cmd += [all_intcols_str, json_dump, calculate_sep, width, height, strip]
     if plottype == "ft_dist":
         cmd += [whichway, name, id, meancol, nterms, width, height,
-                target_rank, target_onto, barcol]
+                target_rank, target_onto, barcol, tabfile]
     else:
         ValueError("Wrong plot type. Must be bar, volcano, heatmap, or pca.")
     cmd_string = [str(elem) for elem in cmd]

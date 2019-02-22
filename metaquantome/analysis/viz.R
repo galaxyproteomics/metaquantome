@@ -23,6 +23,10 @@ read_result <- function(file){
     return(df)
 }
 
+write_plot_table <- function(df, path){
+    write.table(df, file=path, sep="\t", quote=FALSE, row.names=FALSE)
+}
+
 impute <- function(mat) {
     mat[mat == 0] <- NA
     mat[is.na(mat)] <- min(mat, na.rm = TRUE) * 1e-3
@@ -82,7 +86,8 @@ get_colors_from_groups <- function(json_dump, all_intcols){
 #              BARPLOT             #
 ####### ==================== #######
 mq_barplot <- function(df, img, mode, meancol,
-                       nterms, width, height, target_rank, int_barcol){
+                       nterms, width, height, target_rank, int_barcol,
+                       tabfile){
     if (!(meancol %in% names(df))){
         stop('Mean column name not found in dataframe. Check spelling and try again.',
              call. = FALSE)
@@ -96,26 +101,28 @@ mq_barplot <- function(df, img, mode, meancol,
 
     df[, meancol] <- 2^df[, meancol]
     reord <- df[order(df[, meancol], decreasing=TRUE), ]
-    sub_reord <- reord[1:nterms, ]
+    sub_reord <- reord[1:min(nterms, nrow(reord)), ]
     if (mode == "t"){
-        barnames = sub_reord[, "taxon_name"]
+      barnamecol = "taxon_name"
+      xlab = target_rank
     } else {
-        barnames = sub_reord[, "name"]
+      barnamecol = "name"
+      xlab = "Term"
     }
     # color mapping
     barcol <- grp_color_values[int_barcol]
-    # plot
-    png(file=img, height=height, width=width, units="in", res=500)
-    par(mar=c(5.1, 6.1, 4.1, 2.1))
-    barplot(names.arg = barnames, col=barcol,
-            height = sub_reord[, meancol],
-            las = 1, cex.names = 0.7,
-            xlab = "Taxon",
-            ylab = "")
-    mtext(text="Total Peptide Intensity", side=2, line=5)
-    grid()
-    # send the message to the ether
-    ether <- dev.off()
+
+    ggplot(sub_reord) +
+      geom_bar(aes_(x = reorder(sub_reord[, barnamecol], -sub_reord[, meancol]),
+                    y = as.name(meancol)), stat = "identity", fill = barcol, col = "black") +
+      theme_bw() +
+      labs(x = xlab, y = "Total Peptide Intensity")
+    ggsave(img, height = height, width = width, units = "in")
+
+    # write tabfile
+    if (!is.null(tabfile)) {
+      write_plot_table(sub_reord, tabfile)
+    }
 }
 
 barplot_cli <- function(args){
@@ -130,6 +137,7 @@ barplot_cli <- function(args){
     # 8. image height (default 5)
     # 9. target rank (taxonomy only)
     # 10. bar color - integer from 1 to 6
+    # 11. tabfile - path to tabular file to write plot data
     img <- args[2]
     infile <- args[3]
     df <- read_result(infile)
@@ -140,11 +148,14 @@ barplot_cli <- function(args){
     height <- as.numeric(args[8])
     target_rank <- args[9]
     barcol <- as.numeric(args[10])
+    tabfile <- args[11]
+    if (tabfile == "None") tabfile <- NULL
     plt <- mq_barplot(df, img=img, mode=mode,
                       meancol=meancol,
                       nterms=nterms,
                       height=height, width=width,
-                      target_rank=target_rank, int_barcol=barcol)
+                      target_rank=target_rank, int_barcol=barcol,
+                      tabfile=tabfile)
 }
 
 ####### ==================== #######
@@ -177,7 +188,7 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     # scale rows
     datmat.scale <- t(apply(mat, 1, scale))
     rownames(datmat.scale) <- df$id
-    
+
     if (strip != "None"){
     	colnames(datmat.scale) <- str_replace(colnames(df[, all_intcols]), strip, "")
     } else {
@@ -291,7 +302,7 @@ mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, wi
     # plot
     xpadding <- 1.1
     ypadding <- 1.3
-    
+
     if (strip != "None"){
     	point_names <- str_replace_all(colnames(mat), strip, "")
     } else {
@@ -350,7 +361,7 @@ prcomp_cli <- function(args){
 ####### ==================== #######
 #              VOLCANO             #
 ####### ==================== #######
-mq_volcano <- function(df, img, fc_name, flip_fc, width, height, textannot, gosplit){
+mq_volcano <- function(df, img, fc_name, flip_fc, width, height, textannot, gosplit, tabfile){
     # df is the dataframe after stat
     # fc_name is the name of the column with the fold change data
     # textcol is the name of the column with the text describing the term
@@ -390,7 +401,12 @@ mq_volcano <- function(df, img, fc_name, flip_fc, width, height, textannot, gosp
         scale_y_continuous(limits = c(ymin, ymax)) +
         labs(x = "Log2 Fold Change", y = "-Log10 P Value")
     vplt
-    ggsave(file=img, width=width, height=height, units="in", dpi=500)
+    ggsave(file=img, width=width, height=height, units="in", dpi=300)
+
+    # write tabular data
+    if (!is.null(tabfile)) {
+        write_plot_table(df, tabfile)
+    }
 }
 
 volcano_cli <- function(args){
@@ -413,7 +429,11 @@ volcano_cli <- function(args){
     gosplit <- (args[7] == "True")
     width <- as.numeric(args[8])
     height <- as.numeric(args[9])
-    plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name, flip_fc=flip_fc, gosplit=gosplit, width=width, height=height)
+    tabfile <- args[10]
+    if (tabfile == "None") tabfile <- NULL
+    plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name,
+                      flip_fc=flip_fc, gosplit=gosplit, width=width, height=height,
+                      tabfile=tabfile)
 }
 
 ####### ==================== #######
@@ -425,7 +445,7 @@ short_onto_to_long <- c("bp" = "biological_process",
 
 mq_ft_dist <- function(df, img, whichway, name, id, meancol,
                        nterms, width, height, target_rank, target_onto,
-                       int_barcol){
+                       int_barcol, tabfile){
     if (!(meancol %in% names(df))){
         stop('Mean column name not found in dataframe. Check spelling and try again.',
              call. = FALSE)
@@ -447,7 +467,7 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
 			df <- df[df[, "tax_id"] == id, ]
 		}
 	}
-	
+
     # filter to desired rank, if taxonomic distribution
     if (whichway == "t_dist"){
         # list of available target ranks
@@ -460,7 +480,7 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
     } else {
     	stop("Wrong whichway - should be t_dist or f_dist.")
     }
-	
+
 	# number of rows left
 	if (nrow(df) == 0){
 		stop("No rows remaining in dataframe.")
@@ -470,17 +490,17 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
 
     df$props <- df[, meancol] / sum(df[, meancol], na.rm=TRUE)
     reord <- df[order(df[, "props"], decreasing=TRUE), ]
-	
+
     if (nterms == "all"){
         sub_reord <- reord
     } else {
-        sub_reord <- reord[1:nterms, ]
+        sub_reord <- reord[1:min(nterms, nrow(reord)), ]
     }
 
     if (whichway == "t_dist"){
-        barnames = sub_reord[, "taxon_name"]
+        barnamecol = "taxon_name"
     } else {
-        barnames = sub_reord[, "name"]
+        barnamecol = "name"
     }
 
     # color mapping
@@ -504,19 +524,17 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
     	par(mar=c(15, 6.1, 4.1, 2.1)) # bottom, left, top and right margins
     	yline <- 13
     }
-   
-    barplot(names.arg = barnames, col=barcol,
-            height = sub_reord[, "props"],
-            las = 1, cex.names = 0.7,
-            xlab = "",
-            ylab = "",
-            las = 2,
-            ylim = c(0, 1))
-    mtext(text="Proportion of Peptide Intensity", side=2, line=5)
-    mtext(text=xlab, side=1, line=yline)
-    grid()
-    # send the message to the ether
-    ether <- dev.off()
+    ggplot(sub_reord) +
+        geom_bar(aes_(x = reorder(sub_reord[, barnamecol], -sub_reord[, "props"]),
+                      y = as.name("props")), stat = "identity", fill = barcol, col = "black") +
+        theme_bw() +
+        labs(x = xlab, y = "Proportion of Peptide Intensity")
+    ggsave(img, height = height, width = width, units = "in")
+
+    # write tabular data
+    if (!is.null(tabfile)) {
+        write_plot_table(sub_reord, tabfile)
+    }
 }
 
 ft_dist_cli <- function(args){
@@ -549,13 +567,15 @@ ft_dist_cli <- function(args){
     target_rank <- args[11]
     target_onto <- args[12]
     barcol <- as.numeric(args[13])
+    tabfile <- args[14]
+    if (tabfile == "None") tabfile <- NULL
     plt <- mq_ft_dist(df, img=img, whichway=whichway,
     				  name=name, id=id,
                       meancol=meancol,
                       nterms=nterms,
                       height=height, width=width,
                       target_rank=target_rank, target_onto=target_onto,
-    				  int_barcol=barcol)
+    				  int_barcol=barcol, tabfile=tabfile)
 }
 
 

@@ -10,6 +10,13 @@ class TestRunViz(unittest.TestCase):
 
     def testBasicTaxBar(self):
         infile = testfile('taxonomy_write_simple.tab')
+        tabfile = testfile('taxonomy_plot_out.tab')
+        run_viz('bar', self.img, infile, mode='t',
+                nterms='2', meancol='samp1_mean',
+                target_rank="genus", barcol="6",
+                tabfile=tabfile)
+        self.assertTrue(os.path.exists(tabfile))
+        os.remove(tabfile)
         run_viz('bar', self.img, infile, mode='t',
                 nterms='2', meancol='samp1_mean',
                 target_rank="genus", barcol="6")
@@ -19,6 +26,15 @@ class TestRunViz(unittest.TestCase):
         run_viz('volcano', self.img, infile,
                 textannot="id",
                 fc_name="log2fc_s1_over_s2")
+
+        # test tabfile
+        tabfile = testfile('taxonomy_plot_out.tab')
+        run_viz('volcano', self.img, infile,
+                textannot="id",
+                fc_name="log2fc_s1_over_s2",
+                tabfile=tabfile)
+        self.assertTrue(os.path.exists(tabfile))
+        os.remove(tabfile)
 
     def testGOVolcano(self):
         infile = testfile('go_tested.tab')
@@ -46,6 +62,18 @@ class TestRunViz(unittest.TestCase):
                 id="GO:0008150",
                 target_rank="genus",
                 nterms="all")
+
+        # test tabfile
+        tabfile = testfile("tmp")
+        run_viz('ft_dist', self.img, infile,
+                meancol="s1_mean",
+                whichway='t_dist',
+                id="GO:0008150",
+                target_rank="genus",
+                nterms="all",
+                tabfile=tabfile)
+        self.assertTrue(os.path.exists(tabfile))
+        os.remove(tabfile)
 
     # comment this out for test plot inspection
     def tearDown(self):
