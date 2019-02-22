@@ -226,6 +226,8 @@ def parse_args_cli():
                             help="Input file from stat or filter.")
     parser_viz.add_argument('--strip',
                             help="Text to remove from column names for plotting.")
+    parser_viz.add_argument('--tabfile', default=None,
+                            help="Optional. File to write plot table to.")
 
     bar = parser_viz.add_argument_group('Arguments for barplots - total taxonomy peptide intensity and ' +
                                         'function-taxonomy interaction distributions')
