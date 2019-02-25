@@ -21,14 +21,12 @@ def cli():
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
     args = parse_args_cli()
     if args.command == "expand":
-        expand(mode=args.mode, sinfo=args.samps, int_file=args.int_file,
-               pep_colname_int=args.pep_colname_int, pep_colname_func=args.pep_colname_func,
-               pep_colname_tax=args.pep_colname_tax,
-               data_dir=args.data_dir, overwrite=args.overwrite,
+        expand(mode=args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname_int=args.pep_colname_int,
+               pep_colname_func=args.pep_colname_func, pep_colname_tax=args.pep_colname_tax,
+               func_data_dir=args.func_data_dir, tax_data_dir=args.tax_data_dir, overwrite=args.overwrite,
                outfile=args.outfile, func_file=args.func_file, func_colname=args.func_colname, ontology=args.ontology,
                slim_down=args.slim_down, tax_file=args.tax_file, tax_colname=args.tax_colname, nopep=args.nopep,
-               nopep_file=args.nopep_file, ft_func_data_dir=args.ft_func_data_dir, ft_tax_data_dir=args.ft_tax_data_dir,
-               ft_tar_rank=args.ft_tar_rank)
+               nopep_file=args.nopep_file, ft_tar_rank=args.ft_tar_rank)
     elif args.command == "filter":
         run_filter(expanded_file=args.expand_file, sinfo=args.samps, ontology=args.ontology, mode=args.mode,
                    qthreshold=args.qthreshold, min_child_non_leaf=args.min_children_non_leaf,
@@ -128,20 +126,15 @@ def parse_args_cli():
     common.add_argument('--outfile', required=True,
                         help='Output file')
 
-    f_or_t = parser_expand.add_argument_group('Function for function or taxonomy alone')
-    f_or_t.add_argument('--data_dir',
-                        help='Path to database directory. Pre-downloaded databases can be stored in a separate' +
-                             ' directory and timestamped. '+
-                             'Note that names of files within the directory cannot be changed. ' +
-                             'The default is the mode-appropriate subdirectory of <metaquant_package_root>/data.')
-
-
     # function-specific
     func = parser_expand.add_argument_group('Function')
     func.add_argument('--func_file', '-f',
                       help='Path to file with function. The file must be tabular, with a peptide sequence column '+
                            'and either a GO-term column, COG column, or EC number column. The name of the functional'
                            ' column should be given in --func_colname. Other columns will be ignored. ')
+    func.add_argument('--func_data_dir',
+                        help="Path to function data directory." +
+                             "The default is <metaquantome_pkg_dir>/data/go")
     func.add_argument('--func_colname',
                       help='Name of the functional column')
     func.add_argument('--slim_down', action='store_true',
@@ -156,6 +149,9 @@ def parse_args_cli():
     tax.add_argument('--tax_file', '-t',
                      help='Path to (tabular) file with taxonomy assignments. There should be a peptide sequence ' +
                           'column with name pep_colname, and a taxonomy column with name tax_colname')
+    tax.add_argument('--tax_data_dir',
+                        help="Path to taxonomy data directory." +
+                             "The default is <metaquantome_pkg_dir>/data/ncbi")
     tax.add_argument('--tax_colname',
                      help='Name of taxonomy column in tax file. The column ' +
                           'must be either NCBI taxids (strongly preferred) or taxonomy names. ' +
@@ -163,11 +159,6 @@ def parse_args_cli():
 
     # function-taxonomy
     ft = parser_expand.add_argument_group('Function-Taxonomy')
-    ft.add_argument('--ft_func_data_dir',
-                    help="Path to function data directory for the taxfn mode. " +
-                         "The default is <metaquant_pkg_dir>/data/go")
-    ft.add_argument('--ft_tax_data_dir',
-                    help="Path to function data directory for the taxfn mode.")
     ft.add_argument('--ft_tar_rank', default='genus',
                     help="Desired rank for taxonomy. The default is 'genus'.")
 
@@ -229,17 +220,17 @@ def parse_args_cli():
     parser_viz.add_argument('--tabfile', default=None,
                             help="Optional. File to write plot table to.")
 
-    bar = parser_viz.add_argument_group('Arguments for barplots - total taxonomy peptide intensity and ' +
-                                        'function-taxonomy interaction distributions')
+    bar = parser_viz.add_argument_group('Arguments for barplots - both total taxonomy peptide intensity ("bar") and ' +
+                                        'function-taxonomy interaction distributions ("ft_dist")')
     bar.add_argument('--meancol',
                      help="(Tax bar and FT dist). Mean intensity column name for desired experimental conditio.")
     bar.add_argument('--nterms', default='5',
                      help="(Tax bar and FT dist). Number of taxa or functional terms to display. The default is 5.")
     bar.add_argument('--barcol', type=check_col_range, default="6",
                      help="(Tax bar and FT dist). Color for the bar fill. The color vector in R is " +
-                     'c("dodgerblue", "darkorange", "yellow2", "red2", "darkviolet", "black"), ' +
-                     ' so providing a 1 will give the "dodgerblue" color. These same colors are also used in the ' +
-                     ' heatmap and PCA plot, so the colors can be tweaked to match. ')
+                          'c("dodgerblue", "darkorange", "yellow2", "red2", "darkviolet", "black"), ' +
+                          ' so providing a 1 will give the "dodgerblue" color. These same colors are also used in the ' +
+                          ' heatmap and PCA plot, so the colors can be tweaked to match. ')
     bar.add_argument('--target_rank',
                      help="(Tax bar and FT dist). Taxonomic rank to restrict to in the plot. ")
     bar.add_argument("--whichway", choices=["f_dist", "t_dist"],

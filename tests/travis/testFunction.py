@@ -17,8 +17,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         func=testfile('simple_func.tab')
         int=testfile('simple_int.tab')
         go_df = expand('f', sinfo='{"s1": ["int"]}', int_file=int, pep_colname_int='peptide',
-                       pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=GO_TEST_DIR, func_file=func,
-                       func_colname='go', ontology='go')
+                       pep_colname_func='peptide', pep_colname_tax='peptide', func_file=func, func_colname='go',
+                       ontology='go', func_data_dir=GO_TEST_DIR)
         self.assertEqual(go_df.loc["GO:0022610"]['int'], np.log2(200))
         self.assertEqual(go_df.loc["GO:0008152"]['int'], np.log2(100))
 
@@ -26,8 +26,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
         go_df = expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, pep_colname_int='peptide',
-                       pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=GO_TEST_DIR, func_file=func,
-                       func_colname='go', ontology='go')
+                       pep_colname_func='peptide', pep_colname_tax='peptide', func_file=func, func_colname='go',
+                       ontology='go', func_data_dir=GO_TEST_DIR)
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
@@ -37,8 +37,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testNopep(self):
         nopep=testfile('nopep.tab')
         go_df = expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=None, pep_colname_int='peptide',
-                       pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=GO_TEST_DIR, func_colname='go',
-                       ontology='go', nopep=True, nopep_file=nopep).sort_index(axis=1)
+                       pep_colname_func='peptide', pep_colname_tax='peptide', func_colname='go', ontology='go',
+                       nopep=True, nopep_file=nopep, func_data_dir=GO_TEST_DIR).sort_index(axis=1)
         self.assertEqual(go_df.loc['GO:0008152']['int1'], np.log2(10))
         self.assertEqual(go_df.loc['GO:0022610']['int2'], np.log2(30))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
@@ -52,8 +52,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         int=testfile('int_eggnog.tab')
         sinfo='{"NS": ["int737NS", "int852NS", "int867NS"], "WS": ["int737WS", "int852WS", "int867WS"]}'
         go_df = expand('f', sinfo=sinfo, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
-                       pep_colname_tax='peptide', data_dir=GO_TEST_DIR, func_file=func, func_colname='go',
-                       ontology='go', slim_down=True)
+                       pep_colname_tax='peptide', func_file=func, func_colname='go', ontology='go', slim_down=True,
+                       func_data_dir=GO_TEST_DIR)
         # test that all go terms are in slim
         # load slim
         returned_gos = set(go_df['id'])
@@ -65,8 +65,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
         cog_df = expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, pep_colname_int='peptide',
-                        pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=None, func_file=func,
-                        func_colname='cog', ontology='cog')
+                        pep_colname_func='peptide', pep_colname_tax='peptide', func_file=func, func_colname='cog',
+                        ontology='cog')
         self.assertEqual(cog_df.loc["C"]['s1_mean'], np.log2((10+20+70)/3))
         self.assertEqual(cog_df.loc["N"]['int2'], np.log2(30))
 
@@ -74,8 +74,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         func=testfile('simple_ec.tab')
         int=testfile('simple_int.tab')
         ec_df = expand('f', sinfo='{"s1": ["int"]}', int_file=int, pep_colname_int='peptide',
-                       pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=EC_TEST_DIR, func_file=func,
-                       func_colname='ec', ontology='ec')
+                       pep_colname_func='peptide', pep_colname_tax='peptide', func_file=func, func_colname='ec',
+                       ontology='ec', func_data_dir=EC_TEST_DIR)
         self.assertEqual(ec_df.loc["3.4.11.-"]['int'], np.log2(100))
         self.assertEqual(ec_df.loc["3.4.-.-"]['int'], np.log2(300))
 
@@ -83,8 +83,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         func=testfile('multiple_func.tab')
         int=testfile('multiple_int.tab')
         ec_df = expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, pep_colname_int='peptide',
-                       pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=EC_TEST_DIR, func_file=func,
-                       func_colname='ec', ontology='ec')
+                       pep_colname_func='peptide', pep_colname_tax='peptide', func_file=func, func_colname='ec',
+                       ontology='ec', func_data_dir=EC_TEST_DIR)
         self.assertEqual(ec_df.loc['3.4.-.-']['int1'], np.log2(50))
         self.assertEqual(ec_df.loc['1.2.-.-']['int2'], np.log2(50))
         # missing values (zeros, nans, NA's, etc) are turned into NaN's
@@ -100,8 +100,8 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         expanded=testfile('go_expanded_ttest.tab')
         test_write=testfile('go_tested.tab')
         df_expd = expand('f', sinfo=TTEST_SINFO, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
-                         pep_colname_tax='peptide', data_dir=GO_TEST_DIR, outfile=expanded, func_file=func,
-                         func_colname='go', ontology='go')
+                         pep_colname_tax='peptide', outfile=expanded, func_file=func, func_colname='go', ontology='go',
+                         func_data_dir=GO_TEST_DIR)
         df_tst = stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='go', mode='f',
                       outfile=test_write)
         # make sure false is > 0.05 and trues are less than 0.05
@@ -113,8 +113,8 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         int=testfile('int_ttest.tab')
         expandfile=testfile('cog_ttest.tab')
         cog_df = expand('f', sinfo=TTEST_SINFO, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
-                        pep_colname_tax='peptide', data_dir=None, outfile=expandfile, func_file=func,
-                        func_colname='cog', ontology='cog')
+                        pep_colname_tax='peptide', outfile=expandfile, func_file=func, func_colname='cog',
+                        ontology='cog')
         cog_tst = stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='cog', mode='f',
                        outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
@@ -127,8 +127,8 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         expandfile=testfile('ec_ttest.tab')
         tested_file=testfile('ec_ttest_tested.tab')
         expand('f', sinfo=TTEST_SINFO, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
-               pep_colname_tax='peptide', data_dir=EC_TEST_DIR, outfile=expandfile, func_file=func, func_colname='ec',
-               ontology='ec')
+               pep_colname_tax='peptide', outfile=expandfile, func_file=func, func_colname='ec', ontology='ec',
+               func_data_dir=EC_TEST_DIR)
         ec_tst = stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='ec', mode='f',
                       outfile=tested_file)
         # make sure false is > 0.05 and trues are less than 0.05

@@ -21,8 +21,8 @@ class TestFilter(unittest.TestCase):
         expandfile = testfile('expand_out.tab')
 
         expanded = expand('t', TTEST_SINFO, int_file=intfile, pep_colname_int='peptide', pep_colname_func='peptide',
-                          pep_colname_tax='peptide', data_dir=TAX_TEST_DIR, outfile=expandfile, tax_file=taxfile,
-                          tax_colname='lca')
+                          pep_colname_tax='peptide', outfile=expandfile, tax_file=taxfile, tax_colname='lca',
+                          tax_data_dir=TAX_TEST_DIR)
         exp_ids = set(expanded['id'])
 
         # no filtering

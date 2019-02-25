@@ -14,7 +14,7 @@ class TestCLI(unittest.TestCase):
             '''--outfile ''' + out
         command += ''' -i metaquantome/data/test/simple_int.tab --tax_file metaquantome/data/test/simple_tax.tab '''
         command += '''--tax_colname "lca" --samps '{"A": ["int"]}' '''
-        command += '''--data_dir ''' + TAX_TEST_DIR
+        command += '''--tax_data_dir ''' + TAX_TEST_DIR
         status = subprocess.call(command, shell=True)
         self.assertEqual(status, 0)
 

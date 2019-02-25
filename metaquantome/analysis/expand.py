@@ -8,10 +8,9 @@ from metaquantome.analysis.function_taxonomy_interaction import function_taxonom
 from metaquantome.SampleGroups import SampleGroups
 
 
-def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname_tax, data_dir, overwrite=False,
-           outfile=None, func_file=None, func_colname=None, ontology='go', slim_down=False, tax_file=None,
-           tax_colname=None, nopep=False, nopep_file=None, ft_func_data_dir=None, ft_tax_data_dir=None,
-           ft_tar_rank='genus'):
+def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname_tax, func_data_dir=None,
+           tax_data_dir=None, overwrite=False, outfile=None, func_file=None, func_colname=None, ontology='go',
+           slim_down=False, tax_file=None, tax_colname=None, nopep=False, nopep_file=None, ft_tar_rank='genus'):
     """
     Expand the directly annotated hierarchy to one with all ancestors.
     :param mode: either 't', 'f', or 'ft'
@@ -20,7 +19,6 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
     :param pep_colname_int: peptide column name in int_file
     :param pep_colname_func: peptide column name in func_file
     :param pep_colname_tax: peptide column name in tax_file
-    :param data_dir: Parent directory of database files.
     :param overwrite: update database files (True) or not (False)
     :param outfile: path to write results to
     :param func_file: path to functional annotations
@@ -31,8 +29,8 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
     :param tax_colname: column name with taxonomy annotations
     :param nopep: if True, do nopep analysis
     :param nopep_file: path to file without peptides
-    :param ft_func_data_dir: path to parent directory of function database
-    :param ft_tax_data_dir: path to parent directory of taxonomy databases
+    :param func_data_dir: path to parent directory of function database
+    :param tax_data_dir: path to parent directory of taxonomy databases
     :param ft_tar_rank: in ft mode, all taxonomy are mapped to this rank if possible.
     :return: returns a dataframe of functional or taxonomic terms with associated intensities.
     Missing values are represented as 0.
@@ -53,14 +51,14 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
     # run analysis based on modes
     if mode == 'f':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, ontology=ontology,
-                                      slim_down=slim_down, data_dir=data_dir, overwrite=overwrite)
+                                      slim_down=slim_down, data_dir=func_data_dir, overwrite=overwrite)
     elif mode == 't':
-        results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=data_dir, tax_colname=tax_colname)
+        results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=tax_data_dir, tax_colname=tax_colname)
     elif mode == 'ft':
         results = function_taxonomy_analysis(df=df, func_colname=func_colname, pep_colname=pep_colname_int,
                                              ontology=ontology, overwrite=overwrite, slim_down=slim_down,
                                              tax_colname=tax_colname, samp_grps=samp_grps, ft_tar_rank=ft_tar_rank,
-                                             ft_func_data_dir=ft_func_data_dir, ft_tax_data_dir=ft_tax_data_dir)
+                                             ft_func_data_dir=func_data_dir, ft_tax_data_dir=tax_data_dir)
     else:
         raise ValueError("Invalid mode. Expected one of: %s" % ['f', 't', 'ft'])
 
