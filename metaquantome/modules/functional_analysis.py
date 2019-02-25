@@ -1,4 +1,4 @@
-import metaquantome.analysis.expand
+import metaquantome.modules.expand
 from metaquantome.databases.GeneOntologyDb import GeneOntologyDb
 from metaquantome.databases.cog import cogCat
 from metaquantome.databases.cog import take_first_cog
@@ -29,7 +29,7 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
             # map full GO terms to slims
             df_clean = slim_down_df(db, df_clean, func_colname)
         # expand
-        results = metaquantome.analysis.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
+        results = metaquantome.modules.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
         # todo: replace hard coded column names in utils
         gos = [db.gofull[x] for x in results['id']]
         results['name'] = [x.name for x in gos]
@@ -37,7 +37,7 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
     elif ontology == "ec":
         # filter to only those in Enzyme database and non-missing
         df_clean = filter_func_df(db, func_colname, norm_df)
-        results = metaquantome.analysis.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
+        results = metaquantome.modules.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
         # use ec database to get term descriptions
         results['description'] = [db.ecdb[term]['descript'] for term in results.index]
     elif ontology == "cog":
@@ -46,8 +46,8 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         cog_sum_df = cog_df[[func_colname] + samp_grps.all_intcols].\
             groupby(func_colname).\
             sum()
-        results = metaquantome.analysis.expand.common_hierarchical_analysis('cog', cog_sum_df, func_colname, samp_grps,
-                                                                            hierarchical=False)
+        results = metaquantome.modules.expand.common_hierarchical_analysis('cog', cog_sum_df, func_colname, samp_grps,
+                                                                           hierarchical=False)
         results['description'] = [cogCat[x] for x in results.index]
     else:
         raise ValueError("the desired ontology is not supported. " +

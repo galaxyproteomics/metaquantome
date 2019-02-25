@@ -2,7 +2,7 @@ import unittest
 import os
 
 from metaquantome.util.testutils import testfile, TTEST_SINFO
-from metaquantome.analysis.run_viz import run_viz
+from metaquantome.modules.run_viz import run_viz
 
 
 class TestRunViz(unittest.TestCase):

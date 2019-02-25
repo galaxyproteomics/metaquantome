@@ -2,7 +2,7 @@ import numpy as np
 from scipy import stats as sps
 from statsmodels.sandbox.stats import multicomp as mc
 
-from metaquantome.SampleGroups import SampleGroups
+from metaquantome.classes.SampleGroups import SampleGroups
 from metaquantome.util.constants import P_COLNAME, P_CORR_COLNAME
 from metaquantome.util.stat_io import read_expanded_table, write_test
 

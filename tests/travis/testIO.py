@@ -1,7 +1,7 @@
 import unittest
 import os
 
-import metaquantome.SampleGroups
+import metaquantome.classes.SampleGroups
 import metaquantome.util.expand_io
 from metaquantome.util.utils import DATA_DIR
 from metaquantome.util.testutils import testfile
@@ -25,7 +25,7 @@ class TestIO(unittest.TestCase):
         funcin = os.path.join(DATA_DIR, 'test', 'func_join.tab')
         int_in = os.path.join(DATA_DIR, 'test', 'int_join.tab')
         sinfo = '{"1":["int1", "int2"]}'
-        samp_grps = metaquantome.SampleGroups.SampleGroups(sinfo)
+        samp_grps = metaquantome.classes.SampleGroups.SampleGroups(sinfo)
         dfs_joined = metaquantome.util.expand_io.read_and_join_files('ft', pep_colname_int='peptide',
                                                                      pep_colname_func=None, pep_colname_tax=None,
                                                                      samp_grps=samp_grps, int_file=int_in,
@@ -37,7 +37,7 @@ class TestIO(unittest.TestCase):
     def testNopepIn(self):
         nopep = testfile('nopep.tab')
         sinfo = '{"s1":["int1", "int2", "int3"]}'
-        samp_grps = metaquantome.SampleGroups.SampleGroups(sinfo)
+        samp_grps = metaquantome.classes.SampleGroups.SampleGroups(sinfo)
 
         go_df = metaquantome.util.expand_io.read_nopep_table(mode='f', samp_grps=samp_grps,
                                                              file=nopep, func_colname='cog')

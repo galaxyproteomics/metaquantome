@@ -3,8 +3,8 @@ import numpy as np
 
 
 from metaquantome.databases import GeneOntologyDb as godb
-from metaquantome.analysis.expand import expand
-from metaquantome.analysis.stat import stat
+from metaquantome.modules.expand import expand
+from metaquantome.modules.stat import stat
 from metaquantome.util.testutils import testfile, TTEST_SINFO
 from metaquantome.util.constants import GO_TEST_DIR, EC_TEST_DIR
 

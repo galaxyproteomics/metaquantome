@@ -6,10 +6,10 @@ import os
 # add metaquantome parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from metaquantome.analysis.expand import expand
-from metaquantome.analysis.filter import run_filter
-from metaquantome.analysis.stat import stat
-from metaquantome.analysis.run_viz import run_viz
+from metaquantome.modules.expand import expand
+from metaquantome.modules.filter import run_filter
+from metaquantome.modules.stat import stat
+from metaquantome.modules.run_viz import run_viz
 
 
 def cli():
@@ -113,7 +113,7 @@ def parse_args_cli():
     common.add_argument('--int_file', '-i',
                         help='Path to the file with intensity data. Must be tabular, have a peptide sequence column, '+
                              'and be raw, untransformed intensity values. Missing values can be 0, NA, or NaN' +
-                             '- transformed to NA for analysis')
+                             '- transformed to NA for modules')
     common.add_argument('--pep_colname_int',
                         help='The column name within the intensity file that corresponds ' +
                              'to the peptide sequences. ')

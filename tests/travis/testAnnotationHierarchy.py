@@ -1,12 +1,11 @@
 import unittest
 import pandas as pd
 
-from metaquantome.AnnotationNode import AnnotationNode
-from metaquantome.AnnotationHierarchy import AnnotationHierarchy
+from metaquantome.classes.AnnotationNode import AnnotationNode
+from metaquantome.classes.AnnotationHierarchy import AnnotationHierarchy
 from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 from metaquantome.databases.GeneOntologyDb import GeneOntologyDb
 from metaquantome.databases.EnzymeDb import EnzymeDb
-from metaquantome.util.utils import define_ontology_data_dir
 from metaquantome.util.constants import TAX_TEST_DIR, GO_TEST_DIR, EC_TEST_DIR
 
 
