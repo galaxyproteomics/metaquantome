@@ -13,6 +13,7 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
            slim_down=False, tax_file=None, tax_colname=None, nopep=False, nopep_file=None, ft_tar_rank='genus'):
     """
     Expand the directly annotated hierarchy to one with all ancestors.
+
     :param mode: either 't', 'f', or 'ft'
     :param sinfo: Either a json string with experimental information or a path to a tabular file
     :param int_file: Path to the tabular intensity file
@@ -33,7 +34,7 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
     :param tax_data_dir: path to parent directory of taxonomy databases
     :param ft_tar_rank: in ft mode, all taxonomy are mapped to this rank if possible.
     :return: returns a dataframe of functional or taxonomic terms with associated intensities.
-    Missing values are represented as 0.
+        Missing values are represented as 0.
     """
     # define the sample groups object
     samp_grps = SampleGroups(sinfo)
@@ -73,12 +74,13 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
 def common_hierarchical_analysis(db, df, annot_colname, samp_grps, hierarchical=True):
     """
     Create hierarchies from original dataframe
+
     :param db: reference database
     :param df: original dataframe.
     :param annot_colname: column name containing either the functional or taxonomic annotations
     :param samp_grps: SampleGroups object
     :param hierarchical: False should be used in the case of COG, in which case it just adds up the intensities
-    for each term
+        for each term
     :return: DataFrame with summarised intensities and other quantitative measures
     """
     if hierarchical:
@@ -108,6 +110,7 @@ def common_hierarchical_analysis(db, df, annot_colname, samp_grps, hierarchical=
 def calc_means(df, samp_grps):
     """
     Calculate the groupwise average for each term
+
     :param df: expanded dataframe, non-transformed intensities
     :param samp_grps: SampleGroups() object
     :return: dataframe with a mean column, which is the log of the mean of the group-specific intensities
