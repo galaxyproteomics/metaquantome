@@ -13,6 +13,11 @@ def run_viz(plottype, img, infile, strip=None,
             calculate_sep=False,  # pca
             whichway=None, name=None, id=None, target_onto=None, # ft_dist
             width='5', height='5', tabfile=None):
+    """
+    Wrapper script for the command-line R visualizations
+    The documentation for each of the arguments is in cli.py
+    :return:
+    """
     r_script_path = os.path.join(BASE_DIR, 'analysis', 'viz.R')
     FNULL = open(os.devnull, 'w')
     cmd = ['Rscript', '--vanilla', r_script_path, plottype, img, infile]

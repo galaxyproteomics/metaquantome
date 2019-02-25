@@ -26,7 +26,9 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         # filter to only those in full GO and non-missing
         df_clean = filter_func_df(db, func_colname, norm_df)
         if slim_down:
+            # map full GO terms to slims
             df_clean = slim_down_df(db, df_clean, func_colname)
+        # expand
         results = metaquantome.analysis.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
         # todo: replace hard coded column names in utils
         gos = [db.gofull[x] for x in results['id']]
@@ -36,8 +38,10 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
         # filter to only those in Enzyme database and non-missing
         df_clean = filter_func_df(db, func_colname, norm_df)
         results = metaquantome.analysis.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
+        # use ec database to get term descriptions
         results['description'] = [db.ecdb[term]['descript'] for term in results.index]
     elif ontology == "cog":
+        # assumption: if multiple COGs are listed for a given peptide, than we take the first one.
         cog_df = take_first_cog(df, func_colname)
         cog_sum_df = cog_df[[func_colname] + samp_grps.all_intcols].\
             groupby(func_colname).\
@@ -60,11 +64,17 @@ def slim_down_df(godb, df_clean, go_colname):
     :param go_colname: Name for the column with GO terms
     :return: DataFrame with old GO terms replaced with slim GO terms
     """
+    # make a local copy, rather than modifying the original df
     df_loc = df_clean.copy()
+    # get a panda Series object of the GO terms
     func_series = df_loc[go_colname]
+    # convert the Series to a set, for map_set_to_slim
     func_set = set(func_series)
+    # returns a dictionary with {<full_go_term>: <slim_go_term>, ... }
     mapper = godb.map_set_to_slim(func_set)
+    # use map on the Series
     df_loc.loc[:, go_colname] = func_series.map(mapper)
+    # return copy
     return df_loc
 
 
@@ -93,7 +103,7 @@ def clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down
     :param ontology: Desired ontology.
     :param overwrite: Whether to update the database.
     :param slim_down: Map full GO terms to the metagenomics slim. Applies for GO only.
-    :return: A tuple of the database and the dataframe with one fuctional term in each row.
+    :return: A tuple of the database and the dataframe with one functional term in each row.
     """
     # db data dir
     if not data_dir:
@@ -113,5 +123,3 @@ def clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down
     # normalize df, so each row has one functional term
     norm_df = utils.split_func_list(red_df, sep=',', func_colname=func_colname)
     return db, norm_df
-
-

@@ -40,10 +40,10 @@ def stat(infile, sinfo, paired, parametric, ontology, mode, outfile):
 def test_norm_intensity(df, samp_grps, paired, parametric):
     """
     run t-tests (or nonparametric tests) on dataframe.
-    :param parametric: Whether or not to use a parametric test
     :param df: intensity df, missing values are NaN
     :param samp_grps: is a SampleGroups() object
     :param paired: whether or not to use a paired test
+    :param parametric: Whether or not to use a parametric test
     :return: dataframe with appended pvalue columns
     """
 
@@ -53,30 +53,37 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
     # change any zeros back to NaN
     df.replace(0, np.nan, inplace=True)
 
-    all_intcols = grp1_intcols + grp2_intcols
-
-    test_df = df
+    # make copy, so df isn't changed by code
+    test_df = df.copy()
 
     # test, using logged df
     if parametric:
-        # test, using logged df
+        # don't need to split into paired/unpaired, because both are available in ttest_ind
         test_results = test_df.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols].dropna(),
                                                                    x[grp2_intcols].dropna(),
-                                                                   equal_var=paired).pvalue, axis=1)
+                                                                   equal_var=paired).pvalue,
+                                     axis=1)
     else:
         if paired:
+            # wilcoxon is non-parametric equivalent of paired t-test
             test_results = test_df.apply(lambda x: sps.wilcoxon(x[grp1_intcols].dropna(),
                                                                 x[grp2_intcols].dropna()).pvalue,
                                          axis=1)
         else:
+            # rank sum test is nonparametric equivalent of unpaired t-test
             test_results = test_df.apply(lambda x: sps.ranksums(x[grp1_intcols].dropna(),
                                                                 x[grp2_intcols].dropna()).pvalue,
                                          axis=1)
 
+    # append fold changes to df
     df_means = fold_change(df, samp_grps, log=True)
 
+    # p values, uncorrected for multiple comparisons
     df_means[P_COLNAME] = test_results
+
+    # fdr correction
     df_means[P_CORR_COLNAME] = mc.fdrcorrection0(test_results, method='indep')[1]
+
     # reset the index to be 'id' - this is mostly for testing, and doesn't affect the output file
     df_means.set_index('id', drop=False, inplace=True)
     return df_means
@@ -85,11 +92,12 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
 def fold_change(df, samp_grps, log=False):
     """
     calculate fold change
-    :param df: expanded and or filtered dataframe
+    :param df: expanded and/or filtered dataframe
     :param samp_grps: SampleGroups() object
     :param log: whether or not the intensities have already been logged. If so, the fold change is
-    calculated by subtracting one from the other.
-    :return: dataframe with fold change column appended
+    calculated by subtracting one from the other. If not, the log-fold change is
+    calculated as log2(ratio_of_means)
+    :return: dataframe with fold change column appended, with name as in samp_grps.fc_name
     """
     mean1 = samp_grps.mean_names[0]
     mean2 = samp_grps.mean_names[1]
