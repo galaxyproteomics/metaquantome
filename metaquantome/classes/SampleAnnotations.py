@@ -1,6 +1,6 @@
 import pandas as pd
 
-from metaquantome.AnnotationHierarchy import AnnotationHierarchy
+from metaquantome.classes.AnnotationHierarchy import AnnotationHierarchy
 
 
 class SampleAnnotations:

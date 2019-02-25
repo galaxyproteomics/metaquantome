@@ -2,16 +2,16 @@ import unittest
 import numpy as np
 import pandas as pd
 
-import metaquantome.SampleGroups
-import metaquantome.analysis.expand
-import metaquantome.analysis.stat
+import metaquantome.classes.SampleGroups
+import metaquantome.modules.expand
+import metaquantome.modules.stat
 
 
 class TestCommon(unittest.TestCase):
     def testDefineIntensityColumns(self):
         # single string
         sing = '{"y": ["y1"]}'
-        samps = metaquantome.SampleGroups.SampleGroups(sing)
+        samps = metaquantome.classes.SampleGroups.SampleGroups(sing)
         self.assertEqual(samps.all_intcols, ['y1'])
         self.assertEqual(samps.dict_numeric_cols, {x: np.float64 for x in samps.all_intcols})
 
@@ -23,7 +23,7 @@ class TestCommon(unittest.TestCase):
                            'x1', 'x2', 'x3',
                            'y1'}
 
-        samps = metaquantome.SampleGroups.SampleGroups(sample_names)
+        samps = metaquantome.classes.SampleGroups.SampleGroups(sample_names)
         self.assertEqual(flattened_samps, set(samps.all_intcols))
         self.assertEqual(samps.dict_numeric_cols, {x: np.float64 for x in flattened_samps})
 
@@ -32,8 +32,8 @@ class TestCommon(unittest.TestCase):
                            's1_2': [2, 2],
                            's2_1': [5, 10],
                            's2_2': [7, 16]})
-        samps = metaquantome.SampleGroups.SampleGroups('{"s1": ["s1_1", "s1_2"], "s2": ["s2_1", "s2_2"]}')
-        means = metaquantome.analysis.expand.calc_means(df, samps)
+        samps = metaquantome.classes.SampleGroups.SampleGroups('{"s1": ["s1_1", "s1_2"], "s2": ["s2_1", "s2_2"]}')
+        means = metaquantome.modules.expand.calc_means(df, samps)
         self.assertTrue(means['s1_mean'].equals(pd.Series({0: np.log2(3.0), 1: np.log2(3.0)}, name="s1_mean")))
 
     def testFoldChange(self):
@@ -41,10 +41,10 @@ class TestCommon(unittest.TestCase):
                            's1_2': [2, 2],
                            's2_1': [5, 10],
                            's2_2': [7, 16]})
-        samps = metaquantome.SampleGroups.SampleGroups('{"s1": ["s1_1", "s1_2"], "s2": ["s2_1", "s2_2"]}')
+        samps = metaquantome.classes.SampleGroups.SampleGroups('{"s1": ["s1_1", "s1_2"], "s2": ["s2_1", "s2_2"]}')
 
-        means = metaquantome.analysis.expand.calc_means(df, samps)
-        fc = metaquantome.analysis.stat.fold_change(means, samps, log=True)
+        means = metaquantome.modules.expand.calc_means(df, samps)
+        fc = metaquantome.modules.stat.fold_change(means, samps, log=True)
         self.assertTrue(fc['log2fc_s1_over_s2'].equals(pd.Series({0: np.log2(3/6), 1: np.log2(3/13)})))
 
 

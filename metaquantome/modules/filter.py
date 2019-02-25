@@ -1,6 +1,6 @@
 import metaquantome.util.expand_io as expand_io
 import metaquantome.util.stat_io as stat_io
-from metaquantome.SampleGroups import SampleGroups
+from metaquantome.classes.SampleGroups import SampleGroups
 
 
 def run_filter(expanded_file, sinfo, ontology, mode,

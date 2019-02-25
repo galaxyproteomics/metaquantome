@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 
 from metaquantome.util.testutils import testfile, TTEST_SINFO
-from metaquantome.analysis.expand import expand
-from metaquantome.analysis.stat import stat
+from metaquantome.modules.expand import expand
+from metaquantome.modules.stat import stat
 from metaquantome.util.constants import TAX_TEST_DIR
 
 

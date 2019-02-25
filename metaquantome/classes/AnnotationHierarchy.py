@@ -1,6 +1,6 @@
 import pandas as pd
 
-import metaquantome.AnnotationNode as anode
+import metaquantome.classes.AnnotationNode as anode
 from metaquantome.databases.GeneOntologyDb import GeneOntologyDb
 from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 

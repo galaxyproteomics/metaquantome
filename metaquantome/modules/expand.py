@@ -1,11 +1,11 @@
 import numpy as np
 
 import metaquantome.util.expand_io as expand_io
-from metaquantome.SampleAnnotations import SampleAnnotations
-from metaquantome.analysis.functional_analysis import functional_analysis
-from metaquantome.analysis.taxonomy_analysis import taxonomy_analysis
-from metaquantome.analysis.function_taxonomy_interaction import function_taxonomy_analysis
-from metaquantome.SampleGroups import SampleGroups
+from metaquantome.classes.SampleAnnotations import SampleAnnotations
+from metaquantome.modules.functional_analysis import functional_analysis
+from metaquantome.modules.taxonomy_analysis import taxonomy_analysis
+from metaquantome.modules.function_taxonomy_interaction import function_taxonomy_analysis
+from metaquantome.classes.SampleGroups import SampleGroups
 
 
 def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname_tax, func_data_dir=None,
@@ -27,7 +27,7 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
     :param slim_down: if True, maps full GO terms to slim
     :param tax_file: path to taxonomy file
     :param tax_colname: column name with taxonomy annotations
-    :param nopep: if True, do nopep analysis
+    :param nopep: if True, do nopep modules
     :param nopep_file: path to file without peptides
     :param func_data_dir: path to parent directory of function database
     :param tax_data_dir: path to parent directory of taxonomy databases
@@ -48,7 +48,7 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
                                            pep_colname_tax=pep_colname_tax, samp_grps=samp_grps, int_file=int_file,
                                            tax_file=tax_file, func_file=func_file, func_colname=func_colname,
                                            tax_colname=tax_colname)
-    # run analysis based on modes
+    # run modules based on modes
     if mode == 'f':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, ontology=ontology,
                                       slim_down=slim_down, data_dir=func_data_dir, overwrite=overwrite)

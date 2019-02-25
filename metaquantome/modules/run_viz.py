@@ -3,7 +3,7 @@ import subprocess
 import json
 
 from metaquantome.util.utils import BASE_DIR
-from metaquantome.SampleGroups import SampleGroups
+from metaquantome.classes.SampleGroups import SampleGroups
 
 
 def run_viz(plottype, img, infile, strip=None,
@@ -18,7 +18,7 @@ def run_viz(plottype, img, infile, strip=None,
     The documentation for each of the arguments is in cli.py
     :return:
     """
-    r_script_path = os.path.join(BASE_DIR, 'analysis', 'viz.R')
+    r_script_path = os.path.join(BASE_DIR, 'modules', 'viz.R')
     FNULL = open(os.devnull, 'w')
     cmd = ['Rscript', '--vanilla', r_script_path, plottype, img, infile]
     if plottype == "bar":

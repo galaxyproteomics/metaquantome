@@ -2,9 +2,8 @@ import unittest
 import pandas as pd
 
 from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
-from metaquantome.util.utils import define_ontology_data_dir
-from metaquantome.SampleAnnotations import SampleAnnotations
-from metaquantome.SampleGroups import SampleGroups
+from metaquantome.classes.SampleAnnotations import SampleAnnotations
+from metaquantome.classes.SampleGroups import SampleGroups
 from metaquantome.util.constants import TAX_TEST_DIR
 
 
