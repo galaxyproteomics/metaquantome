@@ -14,17 +14,17 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
            ft_tar_rank='genus'):
     """
     Expand the directly annotated hierarchy to one with all ancestors.
-    :param pep_colname_func:
-    :param pep_colname_tax:
     :param mode: either 't', 'f', or 'ft'
     :param sinfo: Either a json string with experimental information or a path to a tabular file
     :param int_file: Path to the tabular intensity file
-    :param pep_colname_int: peptide column name in int_file, func_file, and tax_file
+    :param pep_colname_int: peptide column name in int_file
+    :param pep_colname_func: peptide column name in func_file
+    :param pep_colname_tax: peptide column name in tax_file
     :param data_dir: Parent directory of database files.
-    :param overwrite: update database files
+    :param overwrite: update database files (True) or not (False)
     :param outfile: path to write results to
     :param func_file: path to functional annotations
-    :param func_colname: column name for the functional annotations
+    :param func_colname: column name for the functional annotations within func_file
     :param ontology: for function mode only. either 'go', 'ec', or 'cog'
     :param slim_down: if True, maps full GO terms to slim
     :param tax_file: path to taxonomy file
@@ -33,10 +33,11 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
     :param nopep_file: path to file without peptides
     :param ft_func_data_dir: path to parent directory of function database
     :param ft_tax_data_dir: path to parent directory of taxonomy databases
-    :param ft_tar_rank: in fntax mode, all taxonomy are mapped to this rank if possible.
-    :return: returns a dataframe of functional or taxonomic terms with intensities. Missing values are
-    represented as 0.
+    :param ft_tar_rank: in ft mode, all taxonomy are mapped to this rank if possible.
+    :return: returns a dataframe of functional or taxonomic terms with associated intensities.
+    Missing values are represented as 0.
     """
+    # define the sample groups object
     samp_grps = SampleGroups(sinfo)
 
     # read and join files - depending on pep/nopep

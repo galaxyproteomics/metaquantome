@@ -12,27 +12,35 @@ suppressMessages(library(stringr))
 ####### ==================== #######
 #             CONSTANTS            #
 ####### ==================== #######
+# mapping of integers to colors
 grp_color_values <- c("dodgerblue", "darkorange",
     "yellow2", "red2", "darkviolet", "black")
 
 ####### ==================== #######
 #         UTILITY FUNCTIONS        #
 ####### ==================== #######
+# read tab-separated file
 read_result <- function(file){
     df <- read.delim(file, sep="\t", stringsAsFactors=FALSE)
     return(df)
 }
 
+# write tab-separated file of plot data
 write_plot_table <- function(df, path){
     write.table(df, file=path, sep="\t", quote=FALSE, row.names=FALSE)
 }
 
+# for PCA and heatmaps, replace
+# missing values with 1/1000 of minimum intensity in
+# whole dataframe
 impute <- function(mat) {
     mat[mat == 0] <- NA
     mat[is.na(mat)] <- min(mat, na.rm = TRUE) * 1e-3
     mat
 }
 
+# for pca plot: pad the plot area so that the labels
+# display properly
 pad <- function(data, multiple){
     mind <- min(data)
     maxd <- max(data)
@@ -161,9 +169,12 @@ barplot_cli <- function(args){
 ####### ==================== #######
 #              HEATMAP             #
 ####### ==================== #######
+# correlation distance (not absolute)
 cor.dist <- function(x){
     as.dist(1-cor(t(x)))
 }
+
+# ward method for hierarchical clustering
 hclust.ward <- function(x) {
     hclust(x,method="ward.D")
 }
@@ -189,15 +200,18 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     datmat.scale <- t(apply(mat, 1, scale))
     rownames(datmat.scale) <- df$id
 
+    # replace strip with "" in column names
     if (strip != "None"){
     	colnames(datmat.scale) <- str_replace(colnames(df[, all_intcols]), strip, "")
     } else {
     	colnames(datmat.scale) <- colnames(df[, all_intcols])
     }
 
+    # build dendrograms
     feature.dend <- as.dendrogram(hclust.ward(cor.dist(datmat.scale)))
     sample.dend <- as.dendrogram(hclust.ward(cor.dist(t(datmat.scale))))
 
+    # write plot to img path
     png(filename=img, width=width, height=height, res=500, units="in")
     par(mar = rep(5, 4))
     heatmap.2(datmat.scale,
@@ -211,6 +225,7 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
               cexRow = 0.3,
               ColSideColors = colSideColors,
               density.info = "none")
+    # send message to the ether
     ether <- dev.off()
 }
 
