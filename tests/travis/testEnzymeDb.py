@@ -1,18 +1,18 @@
 import unittest
 
 from metaquantome.databases.EnzymeDb import EnzymeDb
-from metaquantome.util.constants import EC_TEST_DIR
+from metaquantome.util.constants import TEST_DIR
 
 
 class TestEC(unittest.TestCase):
-    ec = EnzymeDb(EC_TEST_DIR)
+    ec = EnzymeDb(TEST_DIR)
 
     def testAnnotateEcDatabase(self):
         testdb = {'1.-.-.-': "a description",
                   '1.2.-.-': "another description",
                   '1.2.3.-': "more specific enzyme",
                   '1.2.3.4': "most specific enzyme"}
-        newdb = self.ec._annotate_ec_database(testdb)
+        newdb = self.ec._annotate_enzyme_db(testdb)
         expected0 = {'descript': testdb['1.-.-.-'],
                      'depth': 0,
                      'levels': ['1', '-', '-', '-'],

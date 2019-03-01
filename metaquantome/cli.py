@@ -10,7 +10,7 @@ from metaquantome.modules.expand import expand
 from metaquantome.modules.filter import run_filter
 from metaquantome.modules.stat import stat
 from metaquantome.modules.run_viz import run_viz
-
+from metaquantome.databases.db_download_handler import db_download_handler
 
 def cli():
     """
@@ -20,13 +20,17 @@ def cli():
     # initialize logger
     logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stderr)
     args = parse_args_cli()
-    if args.command == "expand":
+    if args.command == "db":
+        db_download_handler(args.dbs, args.dir, args.update)
+    elif args.command == "expand":
         expand(mode=args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname_int=args.pep_colname_int,
-               pep_colname_func=args.pep_colname_func, pep_colname_tax=args.pep_colname_tax,
-               func_data_dir=args.func_data_dir, tax_data_dir=args.tax_data_dir, overwrite=args.overwrite,
-               outfile=args.outfile, func_file=args.func_file, func_colname=args.func_colname, ontology=args.ontology,
-               slim_down=args.slim_down, tax_file=args.tax_file, tax_colname=args.tax_colname, nopep=args.nopep,
-               nopep_file=args.nopep_file, ft_tar_rank=args.ft_tar_rank)
+               pep_colname_func=args.pep_colname_func, pep_colname_tax=args.pep_colname_tax, overwrite=args.overwrite,
+               outfile=args.outfile, data_dir=args.data_dir,
+               func_file=args.func_file, func_colname=args.func_colname, ontology=args.ontology,
+               slim_down=args.slim_down,
+               tax_file=args.tax_file, tax_colname=args.tax_colname,
+               nopep=args.nopep, nopep_file=args.nopep_file,
+               ft_tar_rank=args.ft_tar_rank)
     elif args.command == "filter":
         run_filter(expanded_file=args.expand_file, sinfo=args.samps, ontology=args.ontology, mode=args.mode,
                    qthreshold=args.qthreshold, min_child_non_leaf=args.min_children_non_leaf,
@@ -59,7 +63,7 @@ def cli():
                 width=args.width,
                 height=args.height)
     else:
-        ValueError('incorrect mode. please provide one of "expand", "filter", "stat", or "viz".')
+        ValueError('incorrect mode. please provide one of "db", "expand", "filter", "stat", or "viz".')
     sys.exit(0)
 
 
@@ -83,12 +87,22 @@ def parse_args_cli():
 
     # split this into three submodules
     subparsers = parser.add_subparsers(title="commands", dest="command")
+    parser_db = subparsers.add_parser('db')
     parser_expand = subparsers.add_parser('expand')
     parser_filter = subparsers.add_parser('filter')
     parser_stat = subparsers.add_parser('stat')
     parser_viz = subparsers.add_parser('viz')
 
-    # samps file is required in all four parsers
+    # db download
+    parser_db.add_argument('dbs', type=str, nargs='+', choices=['ncbi', 'go', 'ec'],
+                           help='database to download. note that COG mode does not require a download due to ' +
+                           'its simplicity.')
+    parser_db.add_argument('--dir', '-d', type=str,
+                           help='data directory for files.')
+    parser_db.add_argument('--update', '-u', action="store_true",
+                           help='overwrite existing databases if present.')
+
+    # samps file is required in all four non-db parsers
     for par in (parser_expand, parser_filter, parser_stat, parser_viz):
         common_tmp = par.add_argument_group('Arguments common to all modules.')
         # todo: make example of tabular samps file
@@ -100,9 +114,11 @@ def parse_args_cli():
                                      '{"A": ["A1", "A2"], "B": ["B1", "B2"]}')
         common_tmp = par.add_argument_group('Arguments for all analyses')
         common_tmp.add_argument('--mode', '-m', choices=['f', 't', 'ft'], required=True,
-                            help='Analysis mode. If ft is chosen, both function and taxonomy files must be provided')
+                                help='Analysis mode. If ft is chosen, both function and taxonomy files must be provided')
         common_tmp.add_argument('--ontology', choices=['go', 'cog', 'ec'], required=False,
-                          help='Which functional terms to use. Ignored (and not required) if mode is not f or ft.')
+                                help='Which functional terms to use. Ignored (and not required) if mode is not f or ft.')
+        common_tmp.add_argument('--data_dir',
+                                help="Path to data directory. The default is <metaquantome_pkg_dir>/data")
 
     # ---- METAQUANTOME EXPAND ---- #
     common = parser_expand.add_argument_group('Arguments for all 3 modes')
@@ -132,9 +148,6 @@ def parse_args_cli():
                       help='Path to file with function. The file must be tabular, with a peptide sequence column '+
                            'and either a GO-term column, COG column, or EC number column. The name of the functional'
                            ' column should be given in --func_colname. Other columns will be ignored. ')
-    func.add_argument('--func_data_dir',
-                        help="Path to function data directory." +
-                             "The default is <metaquantome_pkg_dir>/data/go")
     func.add_argument('--func_colname',
                       help='Name of the functional column')
     func.add_argument('--slim_down', action='store_true',
@@ -149,9 +162,6 @@ def parse_args_cli():
     tax.add_argument('--tax_file', '-t',
                      help='Path to (tabular) file with taxonomy assignments. There should be a peptide sequence ' +
                           'column with name pep_colname, and a taxonomy column with name tax_colname')
-    tax.add_argument('--tax_data_dir',
-                        help="Path to taxonomy data directory." +
-                             "The default is <metaquantome_pkg_dir>/data/ncbi")
     tax.add_argument('--tax_colname',
                      help='Name of taxonomy column in tax file. The column ' +
                           'must be either NCBI taxids (strongly preferred) or taxonomy names. ' +

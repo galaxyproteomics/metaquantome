@@ -2,7 +2,7 @@ import unittest
 
 from metaquantome.util.testutils import testfile, TTEST_SINFO
 from metaquantome.util import stat_io
-from metaquantome.util.constants import TAX_TEST_DIR
+from metaquantome.util.constants import TEST_DIR
 from metaquantome.classes.SampleGroups import SampleGroups
 from metaquantome.modules.filter import run_filter
 from metaquantome.modules.expand import expand
@@ -22,7 +22,7 @@ class TestFilter(unittest.TestCase):
 
         expanded = expand('t', TTEST_SINFO, int_file=intfile, pep_colname_int='peptide', pep_colname_func='peptide',
                           pep_colname_tax='peptide', outfile=expandfile, tax_file=taxfile, tax_colname='lca',
-                          tax_data_dir=TAX_TEST_DIR)
+                          data_dir=TEST_DIR)
         exp_ids = set(expanded['id'])
 
         # no filtering
@@ -39,3 +39,7 @@ class TestFilter(unittest.TestCase):
         filt3_ids = set(filt3['id'])
         self.assertNotIn(1496, filt3_ids)
         self.assertNotIn(1870884, filt3_ids)
+
+
+if __name__ == '__main__':
+    unittest.main()

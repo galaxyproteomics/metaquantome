@@ -6,13 +6,13 @@ from metaquantome.classes.AnnotationHierarchy import AnnotationHierarchy
 from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 from metaquantome.databases.GeneOntologyDb import GeneOntologyDb
 from metaquantome.databases.EnzymeDb import EnzymeDb
-from metaquantome.util.constants import TAX_TEST_DIR, GO_TEST_DIR, EC_TEST_DIR
+from metaquantome.util.constants import TEST_DIR
 
 
 class TestAnnotationHierarchyNcbi(unittest.TestCase):
 
     def _create_sapiens_db(self):
-        db = NCBITaxonomyDb(TAX_TEST_DIR)
+        db = NCBITaxonomyDb(TEST_DIR)
         sample_set = {9604, 9605, 9606}  # hominidae (family), homo (genus), homo sapiens (species)
         ah = AnnotationHierarchy(db, sample_set, 'samp1')
         return ah, sample_set
@@ -46,7 +46,7 @@ class TestAnnotationHierarchyNcbi(unittest.TestCase):
 
 class TestAnnotationHierarchyGO(unittest.TestCase):
     def _create_go_db(self):
-        db = GeneOntologyDb(GO_TEST_DIR)
+        db = GeneOntologyDb(TEST_DIR)
         sample_set = {'GO:0008150',  # biological process
                       'GO:0008283',  # cell proliferation (child of BP)
                       'GO:0033687',  # osteoblast proliferation (child of cell pro)
@@ -92,7 +92,7 @@ class TestAnnotationHierarchyGO(unittest.TestCase):
 
 class TestAnnotationHierarchyEc(unittest.TestCase):
     def _create_ec_db(self):
-        db = EnzymeDb(EC_TEST_DIR)
+        db = EnzymeDb(TEST_DIR)
         sample_set = {'1.1.4.-',
                       '1.1.4.1',
                       '1.1.4.2',

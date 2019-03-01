@@ -1,8 +1,13 @@
 # data files
-metaquantome/data/enzyme/*
-metaquantome/data/go/*
-metaquantome/data/ncbi/*
-metaquantome/data/test/ncbi_test/*
+metaquantome/data/*
+
+# keep some of test directory
+
+!metaquantome/data/test
+!metaquantome/data/test/*
+
+# but not all
+metaquantome/data/test/taxa.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

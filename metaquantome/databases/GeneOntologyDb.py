@@ -5,6 +5,7 @@ import logging
 
 from metaquantome.util.utils import safe_cast_to_list, stream_to_file_from_url
 
+
 class GeneOntologyDb:
     NAMESPACES = ['biological_process',
                   'molecular_function',
@@ -13,9 +14,9 @@ class GeneOntologyDb:
                      "molecular_function":'GO:0003674',
                      "cellular_component":'GO:0005575'}
 
-    def __init__(self, data_dir, slim_down=False, overwrite=False):
+    def __init__(self, data_dir, slim_down=False):
         # todo: doc
-        gofull, goslim = self._go_database_handler(data_dir, slim_down, overwrite)
+        gofull, goslim = self._load_go_db(data_dir, slim_down)
         self.gofull = gofull
         self.goslim = goslim
         self.slim_down = slim_down
@@ -31,11 +32,18 @@ class GeneOntologyDb:
         tarfile.write(data)
         tarfile.close()
 
-    def _go_database_handler(self, data_dir, slim_down, overwrite):
+    @staticmethod
+    def _define_data_paths(data_dir):
         obo_path = os.path.join(data_dir, 'go-basic.obo')
         slim_path = os.path.join(data_dir, 'goslim_metagenomics.obo')
+        return obo_path, slim_path
+
+    @staticmethod
+    def download_go(data_dir, overwrite):
+        obo_path, slim_path = GeneOntologyDb._define_data_paths(data_dir)
         if (os.path.exists(obo_path) and os.path.exists(slim_path)) and not overwrite:
-            logging.info('Using GO files in ' + data_dir)
+            logging.info('GO files exist in specified directory ' +
+                         'and --update was not provided. Doing nothing.')
         else:
             full_obo_url = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
             logging.info('Downloading full GO obo file from ' + full_obo_url + ' to ' + obo_path)
@@ -44,6 +52,13 @@ class GeneOntologyDb:
             slim_obo_url = 'http://current.geneontology.org/ontology/subsets/goslim_metagenomics.obo'
             logging.info('Downloading generic slim GO obo file from ' + slim_obo_url + ' to ' + slim_path)
             stream_to_file_from_url(slim_obo_url, slim_path)
+
+    @staticmethod
+    def _load_go_db(data_dir, slim_down):
+        obo_path, slim_path = GeneOntologyDb._define_data_paths(data_dir)
+        if not (os.path.exists(obo_path) and os.path.exists(slim_path)):
+            logging.error('GO files not found in specified directory.\n' +
+                          'Please use the command >metaquantome db ...  to download the files.')
         # read gos
         go_dag = obo_parser.GODag(obo_path)
         if slim_down:

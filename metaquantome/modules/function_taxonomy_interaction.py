@@ -7,7 +7,7 @@ from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 
 
 def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrite, slim_down, tax_colname, samp_grps,
-                               ft_tar_rank, ft_func_data_dir, ft_tax_data_dir):
+                               ft_tar_rank, data_dir):
     # todo: add normalization module for ft modules
     # choose bp, cc, or mf
     # don't return bp, cc, or mf themselves
@@ -30,8 +30,7 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrit
     :param tax_colname: name of LCA column in dataframe.
     :param samp_grps: a SampleGroups object for this modules
     :param ft_tar_rank: rank at which to group taxonomy. Default is 'genus'
-    :param ft_func_data_dir: data directory for the gene ontology OBO files
-    :param ft_tax_data_dir: data directory for the NCBI taxonomy files
+    :param data_dir: data directory
     :return: dataframe with taxon-function pairs and their associated total intensity
     """
     # ---- arg checks ---- #
@@ -40,7 +39,7 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrit
         ValueError('ontology must be "go" for function-taxonomy modules')
 
     # ---- reduce, normalize, (optionally) slim ---- #
-    godb, norm_df = fa.clean_function_df(ft_func_data_dir, df, func_colname, ontology, overwrite, slim_down)
+    godb, norm_df = fa.clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down)
     if slim_down:
         norm_df = fa.slim_down_df(godb, norm_df, func_colname)
     # remove peptide/go-term duplicates
@@ -50,10 +49,10 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrit
         set_index(pep_colname)
     # ---- get rank of lca ----- #
     # resolve data dir
-    if not ft_tax_data_dir:
-        ft_tax_data_dir = utils.define_ontology_data_dir('taxonomy')
+    if not data_dir:
+        data_dir = utils.define_ontology_data_dir('taxonomy')
     # load ncbi database
-    ncbi = NCBITaxonomyDb(ft_tax_data_dir)
+    ncbi = NCBITaxonomyDb(data_dir)
     # see if names. if so, convert to taxid
     if utils.sniff_tax_names(df, tax_colname):
         dedup_df[tax_colname] = ncbi.convert_name_to_taxid(dedup_df[tax_colname].tolist())

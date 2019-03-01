@@ -112,9 +112,9 @@ def clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down
     db = None
     if ontology in {"go", "ec"}:
         if ontology == "go":
-            db = GeneOntologyDb(data_dir, slim_down, overwrite)
+            db = GeneOntologyDb(data_dir, slim_down)
         elif ontology == "ec":
-            db = ec.EnzymeDb(data_dir, overwrite)
+            db = ec.EnzymeDb(data_dir)
         # reduce df to non-redundant functional terms
         # todo: add sep to args
         red_df = funcutils.reduce_func_df(db=db, df=df, func_colname=func_colname, sep=',')
