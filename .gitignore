@@ -1,13 +1,6 @@
-# data files
-metaquantome/data/*
-
-# keep some of test directory
-
-!metaquantome/data/test
-!metaquantome/data/test/*
-
-# but not all
-metaquantome/data/test/taxa.*
+# ncbi data files (too big for git)
+metaquantome/data/test/taxa.sqlite
+metaquantome/data/test/taxa.sqlite.traverse.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
