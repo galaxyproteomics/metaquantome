@@ -6,11 +6,11 @@ import numpy as np
 import metaquantome.databases.NCBITaxonomyDb as td
 from metaquantome.util.utils import DATA_DIR
 from metaquantome.util.testutils import testfile
-from metaquantome.util.constants import TAX_TEST_DIR
+from metaquantome.util.constants import TEST_DIR
 
 
 class TestTaxonomyDatabase(unittest.TestCase):
-    ncbi = td.NCBITaxonomyDb(TAX_TEST_DIR)
+    ncbi = td.NCBITaxonomyDb(TEST_DIR)
 
     def testMapIdToDesiredRanks(self):
         # human genus

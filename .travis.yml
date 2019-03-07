@@ -21,6 +21,8 @@ install:
   - python setup.py sdist bdist_wheel
 
 script:
+  # download ncbi database (not stored in data/test
+  - python metaquantome/cli.py db ncbi --dir metaquantome/data/test
   - python -m unittest discover tests/travis
 
 notifications:

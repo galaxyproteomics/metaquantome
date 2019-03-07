@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 import numpy as np
 
-from metaquantome.util.constants import TAX_TEST_DIR
+from metaquantome.util.constants import TEST_DIR
 from metaquantome.util.testutils import testfile, TTEST_SINFO
 
 
@@ -14,7 +14,7 @@ class TestCLI(unittest.TestCase):
             '''--outfile ''' + out
         command += ''' -i metaquantome/data/test/simple_int.tab --tax_file metaquantome/data/test/simple_tax.tab '''
         command += '''--tax_colname "lca" --samps '{"A": ["int"]}' '''
-        command += '''--tax_data_dir ''' + TAX_TEST_DIR
+        command += '''--data_dir ''' + TEST_DIR
         status = subprocess.call(command, shell=True)
         self.assertEqual(status, 0)
 
@@ -28,6 +28,7 @@ class TestCLI(unittest.TestCase):
             '''--outfile ''' + exp_out
         exp_command += ''' -i metaquantome/data/test/int_ttest.tab --func_file metaquantome/data/test/multiple_func.tab '''
         exp_command += ''' --func_colname cog --ontology cog ''' + " --samps '" + TTEST_SINFO + "' "
+        exp_command += '''--data_dir ''' + TEST_DIR
         exp_status = subprocess.call(exp_command, shell=True)
         self.assertEqual(exp_status, 0)
 

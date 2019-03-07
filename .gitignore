@@ -1,8 +1,6 @@
-# data files
-metaquantome/data/enzyme/*
-metaquantome/data/go/*
-metaquantome/data/ncbi/*
-metaquantome/data/test/ncbi_test/*
+# ncbi data files (too big for git)
+metaquantome/data/test/taxa.sqlite
+metaquantome/data/test/taxa.sqlite.traverse.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

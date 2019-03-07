@@ -4,11 +4,11 @@ import pandas as pd
 from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 from metaquantome.classes.SampleAnnotations import SampleAnnotations
 from metaquantome.classes.SampleGroups import SampleGroups
-from metaquantome.util.constants import TAX_TEST_DIR
+from metaquantome.util.constants import TEST_DIR
 
 
 class TestSampleAnnotations(unittest.TestCase):
-    ncbi = NCBITaxonomyDb(TAX_TEST_DIR)
+    ncbi = NCBITaxonomyDb(TEST_DIR)
 
     # todo: add test init
 
