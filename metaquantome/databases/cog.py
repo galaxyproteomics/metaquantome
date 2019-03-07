@@ -2,6 +2,7 @@ def take_first_cog(df, cog_name):
     """
     In a list of COGs, assume the first is the most relevant
     todo: could change this to normalize the dataframe, as in other ontologies
+
     :param df: DataFrame
     :param cog_name: column with COGs
     :return: dataframe with one COG per row.
@@ -12,6 +13,7 @@ def take_first_cog(df, cog_name):
 
 
 # from ftp://ftp.ncbi.nih.gov/pub/COG/COG2014/data/fun2003-2014.tab
+# mapping letters to description
 cogCat = {'J': 'Translation, ribosomal structure and biogenesis',
           'A': 'RNA processing and modification',
           'K': 'Transcription',
