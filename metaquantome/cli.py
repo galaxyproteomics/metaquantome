@@ -10,7 +10,7 @@ from metaquantome.modules.expand import expand
 from metaquantome.modules.filter import run_filter
 from metaquantome.modules.stat import stat
 from metaquantome.modules.run_viz import run_viz
-from metaquantome.databases.db_download_handler import db_download_handler
+from metaquantome.modules.db_download_handler import db_download_handler
 
 def cli():
     """

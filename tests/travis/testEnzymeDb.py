@@ -44,8 +44,8 @@ class TestEC(unittest.TestCase):
     def testAssignLevels(self):
         test_ecid0 = '1.-.-.-'
         test_ecid2 = '4.5.2.-'
-        self.assertEqual(self.ec._assign_levels(test_ecid0), ['1', '-', '-', '-'])
-        self.assertEqual(self.ec._assign_levels(test_ecid2), ['4', '5', '2', '-'])
+        self.assertEqual(self.ec._split_ec(test_ecid0), ['1', '-', '-', '-'])
+        self.assertEqual(self.ec._split_ec(test_ecid2), ['4', '5', '2', '-'])
 
     def testGetChildren(self):
         # Oxidoreductases, Acting on the CH-OH group of donors, With a disulfide as acceptor

@@ -21,6 +21,7 @@ def stream_to_file_from_url(url, tar):
 
 def define_ontology_data_dir(ontology):
     # todo: doc
+    # todo: check this with latest data structure
     dir = ""
     base_ddir = DATA_DIR
     if ontology == "go":

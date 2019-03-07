@@ -5,66 +5,71 @@ import logging
 import warnings
 
 
-# each of the databases should have these methods:
-# 1. get_children
-# 2. get_parents
-# 3. get_ancestors
-# 4. get_descendants
-# more?
-
+# taxonomy tree with only the ranks that are used in metaQuantome
 BASIC_TAXONOMY_TREE = ["phylum",
                        "class",
                        "order",
                        "family",
                        "genus",
                        "species"]
+
+# taxonomy tree (in order) with the full ranks as returned by Unipept
+# this should capture most of the ranks from most software
 FULL_TAXONOMY_TREE = ['no rank',
-                      'superkingdom',
-                      'kingdom',
-                      'subkingdom',
-                      'superphylum',
-                      'phylum',
-                      'subphylum',
-                      'superclass',
-                      'class',
-                      'subclass',
-                      'infraclass',
-                      'superorder',
-                      'order',
-                      'suborder',
-                      'infraorder',
-                      'parvorder',
-                      'superfamily',
-                      'family',
-                      'subfamily',
-                      'tribe',
-                      'subtribe',
-                      'genus',
-                      'subgenus',
-                      'species group',
-                      'species subgroup',
-                      'species',
-                      'subspecies',
+                      'superkingdom', 'kingdom', 'subkingdom',
+                      'superphylum', 'phylum', 'subphylum',
+                      'superclass', 'class', 'subclass', 'infraclass',
+                      'superorder', 'order', 'suborder', 'infraorder', 'parvorder',
+                      'superfamily', 'family', 'subfamily',
+                      'tribe', 'subtribe',
+                      'genus', 'subgenus',
+                      'species group', 'species subgroup', 'species', 'subspecies',
                       'varietas',
                       'forma']
 
+# a dictionary that maps the rank to an integer
+# the lowest is "no rank": 0
 NUMERIC_RANK = {FULL_TAXONOMY_TREE[i]: i for i in range(len(FULL_TAXONOMY_TREE))}
+
+# extract numbers for just the basic ranks
 BASIC_NUMERIC_RANK = [NUMERIC_RANK[i] for i in BASIC_TAXONOMY_TREE]
+
+# character to represent unknown rank
 UNKNOWN_RANK = 'unknown'
+
+# NCBI taxID to represent unknown taxon
 UNIDENTIFIED = 32644
 
 
 class NCBITaxonomyDb:
     def __init__(self, data_dir):
-        # todo: doc
+        """
+        load NCBI database stored in data_dirs
+
+        :param data_dir: Data directory
+        """
         self.ncbi = self._load_ncbi_db(data_dir)
 
     @staticmethod
     def _define_tax_paths(data_dir):
+        """
+        Define path to taxonomy database within data_dir
+
+        :param data_dir: Data directory
+        :return: path: <data_dir>/taxa.sqlite
+        """
         return os.path.join(data_dir, 'taxa.sqlite')
 
     @staticmethod
     def download_ncbi(data_dir):
+        """
+        Download a copy of the NCBI taxonomy database, using ete3.NCBITaxa,
+        to live inside data_dir.
+        The download is skipped if a copy already exists in the specified directory.
+
+        :param data_dir: Directory to hold data files
+        :return: None
+        """
         tax_path = NCBITaxonomyDb._define_tax_paths(data_dir)
         if os.path.exists(tax_path):
             logging.info('Database exists. Skipping download. Database is automatically updated each time used.')
@@ -80,6 +85,13 @@ class NCBITaxonomyDb:
 
     @staticmethod
     def _load_ncbi_db(data_dir):
+        """
+        Load a pre-existing NCBI database (within data_dir) using NCBITaxa from the ete3 package.
+        Throws an error if the file does not exist (should be <data_dir>/taxa.sqlite>
+
+        :param data_dir: directory that contains NCBI database files
+        :return: an NCBITaxa() object
+        """
         with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
             warnings.simplefilter('ignore')
             tax_path = NCBITaxonomyDb._define_tax_paths(data_dir)
@@ -88,33 +100,30 @@ class NCBITaxonomyDb:
             return NCBITaxa(tax_path)
 
     def is_in_db(self, taxid):
-        # todo: doc
+        """
+        determine if a given taxid is present in the NCBI database
+
+        :param taxid: query taxid
+        :return: True if present, False if not
+        :rtype: boolean
+        """
         rank_dict = self.ncbi.get_rank([taxid])
         if taxid in rank_dict.keys():
             return True
         else:
             return False
 
-    # @staticmethod
-    # def _ncbi_database_handler(data_dir):
-    #     # todo: doc
-    #     with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
-    #         warnings.simplefilter('ignore')
-    #         tax_path = os.path.join(data_dir, 'taxa.sqlite')
-    #         if os.path.exists(tax_path):
-    #             logging.info('Using taxonomy database in ' + tax_path)
-    #             ncbi = NCBITaxa(tax_path)
-    #         else:
-    #             open(tax_path, 'a').close()  # will say that database is not up to date
-    #             ncbi = NCBITaxa(tax_path)  # this prints a lot of logging messages, so no message here
-    #             # remove taxdump, in working directory
-    #             taxdump = os.path.join(os.getcwd(), 'taxdump.tar.gz')
-    #             if os.path.exists(taxdump):
-    #                 os.remove(taxdump)
-    #     return ncbi
-
     def map_id_to_desired_ranks(self, ranks2get, taxid):
-        # todo: doc
+        """
+        map a single taxID to a desired rank or ranks. this function
+        first gets the full lineage of the taxID (all ancestors),
+        then extracts the ranks in ranks2get
+
+        :param ranks2get: list of desired ranks
+        :param taxid: query taxid
+        :return: dictionary of the form {rank: taxID, ...} for each
+        rank in ranks2get that matches one in the lineage
+        """
         rank_of_query = self.get_rank(taxid)
         num_rank_of_query = NUMERIC_RANK[rank_of_query]
         lineage = self.ncbi.get_lineage(taxid)
@@ -140,6 +149,7 @@ class NCBITaxonomyDb:
     def expand_sample_taxonomy(self, sample_set):
         """
         Expand sample set to include ancestors
+
         :param sample_set: set of all taxids explicitly provided
         :return: set of all taxids, with all ancestors
         """
@@ -151,20 +161,38 @@ class NCBITaxonomyDb:
         return expanded_sample_set
 
     def filter_to_desired_ranks(self, taxids, desired_ranks=BASIC_TAXONOMY_TREE):
-        # todo: doc
+        """
+        filter a set of taxids to those with ranks that are present in
+        the NCBI database
+
+        :param taxids: set of taxids to filter
+        :param desired_ranks: ranks to filter to. Defaults to
+        BASIC_TAXONOMY_TREE, which is phylum, class, order, family, genus, and species
+        :return: filtered set of taxids
+        """
         ranks = self.ncbi.get_rank(taxids)
         relevant_ranks = {k for k, v in ranks.items() if v in desired_ranks}
         return relevant_ranks
 
     def get_rank(self, taxid):
-        # todo: doc
-        # get the rank of the query, as a number
+        """
+        get the rank of the query taxid
+
+        :param taxid: query taxid
+        :return: rank
+        :rtype: string
+        """
         query_rank = self.ncbi.get_rank([taxid])[taxid]
         return query_rank
 
     def get_children(self, taxid):
-        # todo: doc
-        # get the rank of the query, as a number
+        """
+        get all children of the query taxid
+
+        :param taxid: query taxid
+        :return: set of children of taxid
+        """
+        # get the rank of the query
         query_rank = self.get_rank(taxid)
         # get number of query rank
         num_query_rank = NUMERIC_RANK[query_rank]
@@ -177,19 +205,29 @@ class NCBITaxonomyDb:
         desc = self.ncbi.get_descendant_taxa(taxid, intermediate_nodes=True)
         # get ranks of all descendants
         desc_ranks = self.ncbi.get_rank(desc)
-        # filter all descendants by rank
+        # filter all descendants by rank (i.e., to the rank that any immediate children should have)
         immed_children = {k for k, v in desc_ranks.items() if v == child_rank_char}
         return immed_children
 
     def get_descendants(self, taxid):
-        # todo: doc
+        """
+        get descendants of query taxid
+
+        :param taxid: query taxid
+        :return: set of all descendants of query taxid
+        """
         all_descendants = self.ncbi.get_descendant_taxa(taxid, intermediate_nodes=True)
         # only return those in BASIC_TAXONOMY_TREE
         relevant_descendants = self.filter_to_desired_ranks(all_descendants, desired_ranks=BASIC_TAXONOMY_TREE)
         return relevant_descendants
 
     def get_parents(self, taxid):
-        # todo: doc
+        """
+        get parents of query taxid
+
+        :param taxid: query taxid
+        :return: set of all parents of query taxid
+        """
         rank_of_query = self.get_rank(taxid)  # needs to be list
         num_query_rank = NUMERIC_RANK[rank_of_query]
         # which major rank is the lowest with lower rank? (i.e., more general)
@@ -209,7 +247,12 @@ class NCBITaxonomyDb:
         return parents
 
     def get_ancestors(self, taxid):
-        # todo: doc
+        """
+        get ancestors of query taxid
+
+        :param taxid: query taxid
+        :return: set of all ancestors of query taxid
+        """
         rank_of_query = self.get_rank(taxid)
         num_query_rank = NUMERIC_RANK[rank_of_query]
         # which ranks are more general?
@@ -225,8 +268,9 @@ class NCBITaxonomyDb:
         return ancestors
 
     def convert_taxid_to_name(self, taxids):
-        # todo: doc
         """
+        convert a numeric NCBI taxid to the taxon's name
+
         :param taxids: a list or Series of taxids
         :return: list of ncbi names
         """
@@ -236,13 +280,13 @@ class NCBITaxonomyDb:
         return names
 
     def convert_name_to_taxid(self, names):
-        # todo: doc
         """
         Converts the name of a given taxon to its numerical NCBI taxonomy id.
         If a name maps to multiple IDs, the first in the list is taken - this is somewhat unpredictable,
         so using taxonomic id's is strongly preferred.
         If the name is not found in the database, than it is replaced with NaN, which will
         be filtered out later.
+
         :param names: a list or taxon names (as strings)
         :return: list of ncbi taxonomy ids
         """
