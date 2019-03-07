@@ -4,7 +4,7 @@ import numpy as np
 from metaquantome.modules.expand import expand
 from metaquantome.util.testutils import testfile
 import metaquantome.util.testutils as tu
-from metaquantome.util.constants import GO_TEST_DIR, TAX_TEST_DIR
+from metaquantome.util.constants import TEST_DIR, TEST_DIR
 
 
 class TestFunctionTaxInteraction(unittest.TestCase):
@@ -22,9 +22,9 @@ class TestFunctionTaxInteraction(unittest.TestCase):
         tax=testfile('multiple_tax.tab')
         ft_out=testfile('ft_out.tab')
         ft_df = expand(mode='ft', sinfo=tu.TTEST_SINFO, int_file=int, pep_colname_int='peptide',
-                       pep_colname_func='peptide', pep_colname_tax='peptide', func_data_dir=GO_TEST_DIR,
-                       tax_data_dir=TAX_TEST_DIR, outfile=ft_out, func_file=func, func_colname='go', ontology='go',
-                       slim_down=True, tax_file=tax, tax_colname='lca')
+                       pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=TEST_DIR, outfile=ft_out,
+                       func_file=func, func_colname='go', ontology='go', slim_down=True, tax_file=tax,
+                       tax_colname='lca')
         # make sure calculated mean is accurate
         # b and c both map to 8150
         exp_s1_mean = np.log2(((20 + 1000) + (1200 + 30) + (900 + 20))/3)

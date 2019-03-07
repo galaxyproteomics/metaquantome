@@ -14,7 +14,8 @@ class TestDownloads(unittest.TestCase):
         tmp_dir = os.path.join(DATA_DIR, 'tmp_test_data_dwnld')
         os.mkdir(tmp_dir)
         try:
-            enzyme_db = EnzymeDb(tmp_dir, False)
+            EnzymeDb.download_enzyme_db(tmp_dir, False)
+            enzyme_db = EnzymeDb(tmp_dir)
             expected_contents = [os.path.join(tmp_dir, file)
                                  for file in ['enzclass.txt', 'enzyme.dat', 'ec_id.json', 'enzclass.json']]
             for content in expected_contents:
@@ -32,6 +33,7 @@ class TestDownloads(unittest.TestCase):
         tmp_dir = os.path.join(DATA_DIR, 'tmp_go_data_dwnld')
         os.mkdir(tmp_dir)
         try:
+            GeneOntologyDb.download_go(tmp_dir, overwrite=False)
             go = GeneOntologyDb(tmp_dir, slim_down=True)
             expected_contents = [os.path.join(tmp_dir, file)
                                  for file in ['go-basic.obo', 'goslim_metagenomics.obo']]
@@ -47,6 +49,7 @@ class TestDownloads(unittest.TestCase):
         tmp_dir = os.path.join(DATA_DIR, 'tmp_test_tax_dwnld')
         os.mkdir(tmp_dir)
         try:
+            td.NCBITaxonomyDb.download_ncbi(tmp_dir)
             ncbi = td.NCBITaxonomyDb(tmp_dir)
             lineage = ncbi.get_ancestors(1919)
             self.assertTrue(1760 in lineage)

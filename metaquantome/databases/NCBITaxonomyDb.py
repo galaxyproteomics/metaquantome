@@ -57,7 +57,35 @@ UNIDENTIFIED = 32644
 class NCBITaxonomyDb:
     def __init__(self, data_dir):
         # todo: doc
-        self.ncbi = self._ncbi_database_handler(data_dir)
+        self.ncbi = self._load_ncbi_db(data_dir)
+
+    @staticmethod
+    def _define_tax_paths(data_dir):
+        return os.path.join(data_dir, 'taxa.sqlite')
+
+    @staticmethod
+    def download_ncbi(data_dir):
+        tax_path = NCBITaxonomyDb._define_tax_paths(data_dir)
+        if os.path.exists(tax_path):
+            logging.info('Database exists. Skipping download. Database is automatically updated each time used.')
+        else:
+            with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
+                warnings.simplefilter('ignore')
+                open(tax_path, 'a').close()  # will say that database is not up to date
+                NCBITaxa(tax_path)  # this prints a lot of logging messages, so no message here
+                # remove taxdump, in working directory
+                taxdump = os.path.join(os.getcwd(), 'taxdump.tar.gz')
+                if os.path.exists(taxdump):
+                    os.remove(taxdump)
+
+    @staticmethod
+    def _load_ncbi_db(data_dir):
+        with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
+            warnings.simplefilter('ignore')
+            tax_path = NCBITaxonomyDb._define_tax_paths(data_dir)
+            if not os.path.exists(tax_path):
+                logging.error('NCBI files not found in specified directory. Use metaquantome db to download files')
+            return NCBITaxa(tax_path)
 
     def is_in_db(self, taxid):
         # todo: doc
@@ -67,23 +95,23 @@ class NCBITaxonomyDb:
         else:
             return False
 
-    @staticmethod
-    def _ncbi_database_handler(data_dir):
-        # todo: doc
-        with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
-            warnings.simplefilter('ignore')
-            tax_path = os.path.join(data_dir, 'taxa.sqlite')
-            if os.path.exists(tax_path):
-                logging.info('Using taxonomy database in ' + tax_path)
-                ncbi = NCBITaxa(tax_path)
-            else:
-                open(tax_path, 'a').close()  # will say that database is not up to date
-                ncbi = NCBITaxa(tax_path)  # this prints a lot of logging messages, so no message here
-                # remove taxdump, in working directory
-                taxdump = os.path.join(os.getcwd(), 'taxdump.tar.gz')
-                if os.path.exists(taxdump):
-                    os.remove(taxdump)
-        return ncbi
+    # @staticmethod
+    # def _ncbi_database_handler(data_dir):
+    #     # todo: doc
+    #     with warnings.catch_warnings():  # turning off ResourceWarnings (unclosed file) from ete3
+    #         warnings.simplefilter('ignore')
+    #         tax_path = os.path.join(data_dir, 'taxa.sqlite')
+    #         if os.path.exists(tax_path):
+    #             logging.info('Using taxonomy database in ' + tax_path)
+    #             ncbi = NCBITaxa(tax_path)
+    #         else:
+    #             open(tax_path, 'a').close()  # will say that database is not up to date
+    #             ncbi = NCBITaxa(tax_path)  # this prints a lot of logging messages, so no message here
+    #             # remove taxdump, in working directory
+    #             taxdump = os.path.join(os.getcwd(), 'taxdump.tar.gz')
+    #             if os.path.exists(taxdump):
+    #                 os.remove(taxdump)
+    #     return ncbi
 
     def map_id_to_desired_ranks(self, ranks2get, taxid):
         # todo: doc

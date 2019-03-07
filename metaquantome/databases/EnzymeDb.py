@@ -6,19 +6,68 @@ import logging
 
 from metaquantome.util.utils import stream_to_file_from_url
 
+
 class EnzymeDb:
     LEVEL_NAMES = ['ec0', 'ec1', 'ec2', 'ec3']
     ALL_UNKNOWN = ['-'] * 4
 
-    def __init__(self, data_dir, overwrite=False):
+    def __init__(self, data_dir):
         """
         Create EnzymeDb object.
         :param data_dir: directory in which the ENZYME files will go
-        :param overwrite: whether to overwrite the ENZYME files with new files
         """
-        base_ecdb = self._enzyme_database_handler(data_dir, overwrite)
-        annotated_ecdb = self._annotate_ec_database(base_ecdb)
-        self.ecdb = annotated_ecdb
+        self.ecdb = self.load_enzyme_db(data_dir)
+
+    @staticmethod
+    def _define_ec_paths(data_dir):
+        dat_path = os.path.join(data_dir, 'enzyme.dat')
+        class_path = os.path.join(data_dir, 'enzclass.txt')
+        ec_path = os.path.join(data_dir, 'ec_id.json')
+        return dat_path, class_path, ec_path
+
+    @staticmethod
+    def download_enzyme_db(data_dir, overwrite):
+        dat_path, class_path, ec_path = EnzymeDb._define_ec_paths(data_dir)
+        if (os.path.exists(dat_path) and os.path.exists(class_path)) and not overwrite:
+            logging.info('Using ENZYME files in ' + data_dir)
+        else:
+            logging.info('Downloading enzyme files from ftp.expasy.org to ' + data_dir)
+            enz_dat_url = 'ftp://ftp.expasy.org/databases/enzyme/enzyme.dat'
+            stream_to_file_from_url(enz_dat_url, dat_path)
+            enz_class_url = 'ftp://ftp.expasy.org/databases/enzyme/enzclass.txt'
+            stream_to_file_from_url(enz_class_url, class_path)
+            # create a simpler file from enzyme.dat
+            EnzymeDb._create_ec_num_enzyme_name_association_file(dat_path, ec_path)
+            # get clean enzclass.txt and dump to json
+            EnzymeDb._read_enzyme_class_to_json(data_dir)
+
+    def load_enzyme_db(self, data_dir):
+        enz_class = self._load_enzyme_class(data_dir)
+        ec_id = self._load_ec_id(data_dir)
+        ecdb = {**enz_class, **ec_id}
+
+        annotated_db = self._annotate_enzyme_db(ecdb)
+        return annotated_db
+
+    def _annotate_enzyme_db(self, ecdb):
+        """
+        Annotate the enzyme db with depth and description
+        This function is split out mostly for testing.
+
+        :param ecdb: non-annotated enzyme database
+        :return: annotated enzyme database
+        """
+        annotated_db = dict()
+        for k, v in ecdb.items():
+            depth = self._assign_depth(k)
+            levels = self._assign_levels(k)
+            descript = v
+            newv = {'depth': depth,
+                    'levels':levels,
+                    'descript': descript,
+                    'id': k}
+            annotated_db[k] = newv
+        return annotated_db
 
     def is_in_db(self, ecid):
         """
@@ -115,51 +164,6 @@ class EnzymeDb:
             ancestors.update(this_parents)
         return ancestors
 
-    def _enzyme_database_handler(self, data_dir, overwrite):
-        """
-        Download ENZYME files to data_dir and combine enzyme.dat and enzclass.txt
-        :param data_dir: path to directory in which the ENZYME database should be stored
-        :param overwrite: boolean. If True, will overwrite current ENZYME database files in data_dir.
-        Ignored if files are not present. If files are present and overwrite=False, the current files are used.
-        :return: ENZYME database as dictionary, with EC ids as keys.
-        """
-        dat_path = os.path.join(data_dir, 'enzyme.dat')
-        class_path = os.path.join(data_dir, 'enzclass.txt')
-        if (os.path.exists(dat_path) or os.path.exists(class_path)) and not overwrite:
-            logging.info('Using ENZYME files in ' + data_dir)
-        else:
-            logging.info('Downloading enzyme files from ftp.expasy.org to ' + data_dir)
-            enz_dat_url = 'ftp://ftp.expasy.org/databases/enzyme/enzyme.dat'
-            stream_to_file_from_url(enz_dat_url, dat_path)
-            enz_class_url = 'ftp://ftp.expasy.org/databases/enzyme/enzclass.txt'
-            stream_to_file_from_url(enz_class_url, class_path)
-            ec_path = os.path.join(data_dir, 'ec_id.json')
-            # create a simpler file from enzyme.dat
-            self._create_ec_num_enzyme_name_association_file(dat_path, ec_path)
-            # get clean enzclass.txt and dump to json
-            self._read_enzyme_class_to_json(data_dir)
-        # load both
-        combined = self._load_combined_enzyme_class_ec_id(data_dir)
-        return combined
-
-    def _annotate_ec_database(self, ecdb):
-        """
-        Annotate the basic dictionary db returned by _enzyme_database_handler() with depth and levels for each term.
-        :param ecdb: A dictionary of the form {ecid0: description0, ...}
-        :return: A dictionary of the form {ecid0: {'descript': descript, 'levels': [w, x, y, z], 'depth': a}, ...}
-        """
-        annotated_db = dict()
-        for k, v in ecdb.items():
-            depth = self._assign_depth(k)
-            levels = self._assign_levels(k)
-            descript = v
-            newv = {'depth': depth,
-                    'levels':levels,
-                    'descript': descript,
-                    'id': k}
-            annotated_db[k] = newv
-        return annotated_db
-
     def _assign_depth(self, ecid):
         """
         Determine the depth of an EC number,
@@ -219,13 +223,15 @@ class EnzymeDb:
         both = {**enz_class, **ec_id}
         return both
 
-    def _load_enzyme_class(self, enzyme_dir):
+    @staticmethod
+    def _load_enzyme_class(enzyme_dir):
         enz_json_path = os.path.join(enzyme_dir, 'enzclass.json')
         with open(enz_json_path, 'r') as enz_json:
             enz_class = json.load(enz_json)
         return enz_class
 
-    def _load_ec_id(self, enzyme_dir):
+    @staticmethod
+    def _load_ec_id(enzyme_dir):
         ec_path = os.path.join(enzyme_dir, 'ec_id.json')
         with open(ec_path) as ec:
             ec_id = json.load(ec)

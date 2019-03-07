@@ -5,12 +5,12 @@ import pandas as pd
 from metaquantome.databases import GeneOntologyDb as godb
 from metaquantome.util import funcutils as fu
 from metaquantome.databases import EnzymeDb as ecdb
-from metaquantome.util.constants import GO_TEST_DIR, EC_TEST_DIR
+from metaquantome.util.constants import TEST_DIR, TEST_DIR
 
 
 class TestFuncUtils(unittest.TestCase):
-    go_db = godb.GeneOntologyDb(GO_TEST_DIR, slim_down=True)
-    ec_db = ecdb.EnzymeDb(EC_TEST_DIR)
+    go_db = godb.GeneOntologyDb(TEST_DIR, slim_down=True)
+    ec_db = ecdb.EnzymeDb(TEST_DIR)
 
     def testSplitFuncListGO(self):
         golist = 'go1,go2,go3'

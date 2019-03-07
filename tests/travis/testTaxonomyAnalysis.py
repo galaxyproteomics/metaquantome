@@ -5,7 +5,7 @@ import pandas as pd
 from metaquantome.util.testutils import testfile, TTEST_SINFO
 from metaquantome.modules.expand import expand
 from metaquantome.modules.stat import stat
-from metaquantome.util.constants import TAX_TEST_DIR
+from metaquantome.util.constants import TEST_DIR
 
 
 class TestTaxonomyAnalysisExpand(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         int = testfile('simple_int.tab')
         tax_df = expand('t', sinfo='{"s1": ["int"]}', int_file=int, pep_colname_int='peptide',
                         pep_colname_func='peptide', pep_colname_tax='peptide', tax_file=tax, tax_colname='lca',
-                        tax_data_dir=TAX_TEST_DIR)
+                        data_dir=TEST_DIR)
         self.assertEqual(tax_df.query("taxon_name == 'Helicobacter pylori'")['int'].values, np.log2(100))
 
     def testWrite(self):
@@ -23,7 +23,7 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         out = testfile('taxonomy_write_simple.tab')
         df = expand(mode='t', sinfo='{"samp1": ["int"]}', int_file=int, pep_colname_int='peptide',
                     pep_colname_func='peptide', pep_colname_tax='peptide', outfile=out, tax_file=tax, tax_colname='lca',
-                    tax_data_dir=TAX_TEST_DIR)
+                    data_dir=TEST_DIR)
         written = pd.read_table(out)
         self.assertAlmostEqual(written.query("taxon_name == 'Clostridioides difficile'")['samp1_mean'].values[0], np.log2(200))
 
@@ -32,14 +32,14 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         int=testfile('multiple_int.tab')
         tax_df = expand('t', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, pep_colname_int='peptide',
                         pep_colname_func='peptide', pep_colname_tax='peptide', tax_file=tax, tax_colname='lca',
-                        tax_data_dir=TAX_TEST_DIR)
+                        data_dir=TEST_DIR)
         self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0], np.log2(70))
 
     def testNopep(self):
         nopep=testfile('nopep.tab')
         tax_df = expand('t', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=None, pep_colname_int='peptide',
                         pep_colname_func='peptide', pep_colname_tax='peptide', tax_colname='lca', nopep=True,
-                        nopep_file=nopep, tax_data_dir=TAX_TEST_DIR)
+                        nopep_file=nopep, data_dir=TEST_DIR)
         self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0],
                          np.log2(70))
 
@@ -51,7 +51,7 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         int=testfile('test_root_sum_int.tab')
         tax_df = expand('t', sinfo='{"A": ["int"]}', int_file=int, pep_colname_int='peptide',
                         pep_colname_func='peptide', pep_colname_tax='peptide', tax_file=tax, tax_colname='taxon_id',
-                        tax_data_dir=TAX_TEST_DIR)
+                        data_dir=TEST_DIR)
         # filter to phylum and below
         tax_df_filt = tax_df[(tax_df["rank"] != 'no rank') & (tax_df["rank"] != 'superkingdom')]
         # firmicutes phylum should be highest
@@ -69,7 +69,7 @@ class TestTaxonomyAnalysisTest(unittest.TestCase):
         expanded=testfile('expand_taxttest.tab')
         tax_df = expand('t', sinfo=TTEST_SINFO, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
                         pep_colname_tax='peptide', outfile=expanded, tax_file=tax, tax_colname='lca',
-                        tax_data_dir=TAX_TEST_DIR)
+                        data_dir=TEST_DIR)
         tax_tst = stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=False, ontology=None, mode=None,
                        outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
