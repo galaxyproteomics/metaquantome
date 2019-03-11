@@ -28,11 +28,15 @@ class TestAnnotationHierarchyNcbi(unittest.TestCase):
         # one sample child
         testid = 9605
         intensity = 200
-        ah._add_node(testid, intensity)
+        ah._add_node_with_ancestors(testid, intensity)
+
+        testid2 = 9606
+        ah._add_node_with_ancestors(testid2, intensity)
+
         ah._define_sample_children()
         updated_node = ah.nodes[testid]
         self.assertIsInstance(updated_node, AnnotationNode)
-        self.assertEqual(updated_node.intensity, intensity)
+        self.assertEqual(updated_node.intensity, intensity*2)
         self.assertEqual(updated_node.n_sample_children, 1)
 
     def testAggregateNodes(self):
@@ -40,7 +44,7 @@ class TestAnnotationHierarchyNcbi(unittest.TestCase):
         testids = [9604, 9605, 9606]
         test_intensities = [500, 200, 300]
         for i in range(0, 3):
-            ah._add_node(testids[i], test_intensities[i])
+            ah._add_node_with_ancestors(testids[i], test_intensities[i])
         self.assertEqual(ah.nodes[9604].intensity, 1000)
 
 
@@ -68,7 +72,7 @@ class TestAnnotationHierarchyGO(unittest.TestCase):
         # one sample child
         testid = 'GO:0051026'
         intensity = 100
-        ah._add_node(testid, intensity)
+        ah._add_node_with_ancestors(testid, intensity)
         updated_node = ah.nodes[testid]
         self.assertIsInstance(updated_node, AnnotationNode)
         self.assertEqual(updated_node.intensity, intensity)
@@ -86,7 +90,7 @@ class TestAnnotationHierarchyGO(unittest.TestCase):
                    'GO:0051026']  # chiasma assembly, child of meiotic
         test_intensities = [0, 0, 0, 100, 50, 200, 300]
         for i in range(0, len(test_intensities)):
-            ah._add_node(testids[i], test_intensities[i])
+            ah._add_node_with_ancestors(testids[i], test_intensities[i])
         self.assertEqual(ah.nodes['GO:0022414'].intensity, 650)
 
 
@@ -110,13 +114,15 @@ class TestAnnotationHierarchyEc(unittest.TestCase):
     def testUpdateNode(self):
         ah, sample_set = self._create_ec_db()
         # one sample child
-        testid = '1.1.4.-'
+        testids = ['1.1.4.-', '1.1.4.1', '1.1.4.2']
         intensity = 100
-        ah._add_node(testid, intensity)
-        updated_node = ah.nodes[testid]
+        for i in testids:
+            ah._add_node_with_ancestors(i, intensity)
+        updated_node = ah.nodes[testids[0]]
+        print(ah.nodes['1.1.-.-'].intensity)
         ah._define_sample_children()
         self.assertIsInstance(updated_node, AnnotationNode)
-        self.assertEqual(updated_node.intensity, intensity)
+        self.assertEqual(updated_node.intensity, intensity*3)
         self.assertEqual(updated_node.n_sample_children, 2)
 
     def testAggregateNodes(self):
@@ -127,43 +133,8 @@ class TestAnnotationHierarchyEc(unittest.TestCase):
                    '6.5.-.-']
         test_intensities = [500, 200, 300, 0]
         for i in range(0, 3):
-            ah._add_node(testids[i], test_intensities[i])
+            ah._add_node_with_ancestors(testids[i], test_intensities[i])
         self.assertEqual(ah.nodes['1.1.4.-'].intensity, 1000)
-
-    # def testGetInformativeNodes(self):
-    #     ah, sample_set = self._create_ec_db()
-    #     test_set = ['1.1.4.-',
-    #                 '1.1.4.1',
-    #                 '1.1.4.2',
-    #                 '1.1.4.-',
-    #                 '1.1.4.1',
-    #                 '1.1.4.2',
-    #                 '6.5.-.-',
-    #                 '6.5.-.-',
-    #                 '6.-.-.-',
-    #                 '6.-.-.-']
-    #     # intensity is not important here
-    #     test_intensity = 1
-    #     for id in test_set:
-    #         ah.add_node(id, test_intensity)
-    #
-    #     # filter without any actual filtering
-    #     ah.define_sample_children()
-    #     # we expect that all remain, plus 1.1.-.- and 1.-.-.-
-    #     self.assertSetEqual(set(ah.informative_nodes.keys()), {'1.1.4.-',
-    #                                             '1.1.4.1',
-    #                                             '1.1.4.2',
-    #                                             '6.5.-.-',
-    #                                             '6.-.-.-',
-    #                                             '1.1.-.-',
-    #                                             '1.-.-.-'})
-    #     # real filtering
-    #     info1 = ah.get_informative_nodes(min_peptides=2, min_children_non_leaf=2)
-    #     # we expect that the only ones remaining are 1.1.4.- and 6.5.-.-
-    #     self.assertSetEqual(set(ah.informative_nodes.keys()), {'1.1.4.-',
-    #                                             '1.1.4.1',
-    #                                             '1.1.4.2',
-    #                                             '6.5.-.-',})
 
     def testToDataframe(self):
         ah, sample_set = self._create_ec_db()
@@ -180,8 +151,9 @@ class TestAnnotationHierarchyEc(unittest.TestCase):
         # set to one, so it's equal to number of peptides
         test_intensity = 1
         for id in test_set:
-            ah._add_node(id, test_intensity)
+            ah._add_node_with_ancestors(id, test_intensity)
 
+        # expanded sample set is all nodes
         ah._define_sample_children()
 
         # the sample set is as below:
