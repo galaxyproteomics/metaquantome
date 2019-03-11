@@ -226,9 +226,9 @@ class EnzymeDb:
         #   - have depth (child_depth - 1)
         #   - are not the child
         parents = {ec for ec, annot in self.ecdb.items() if
-                                 annot['levels'][0:child_depth] == annot_to_prev_depth and
-                                 annot['depth'] == child_depth - 1 and
-                                 ec != child['id']}
+                   annot['levels'][0:child_depth] == annot_to_prev_depth and
+                   annot['depth'] == child_depth - 1 and
+                   ec != child['id']}
         return parents
 
     def get_ancestors(self, ecid):
@@ -242,13 +242,14 @@ class EnzymeDb:
         #   - have same annotation at child_depth
         #   - have depth less than child_depth
         #   - are not the child
-        # run get_parents recursively
+        # run get_parents for each parent and each grandparent, etc.
         parents = self.get_parents(ecid)
         ancestors = parents.copy()
         while len(parents) > 0:
             this_id = parents.pop()
             this_parents = self.get_parents(this_id)
             ancestors.update(this_parents)
+            parents.update(this_parents)
         return ancestors
 
     def _assign_depth(self, ecid):

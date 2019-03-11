@@ -82,3 +82,11 @@ class TestEC(unittest.TestCase):
         test_id2 = '6.-.-.-'
         exp_parent2 = set()
         self.assertSetEqual(self.ec.get_ancestors(test_id2), exp_parent2)
+
+        test_id3 = '1.1.4.1'
+        exp_anc3 = {'1.-.-.-', '1.1.-.-', '1.1.4.-'}
+        self.assertSetEqual(self.ec.get_ancestors(test_id3), exp_anc3)
+
+
+if __name__ == '__main__':
+    unittest.main()
