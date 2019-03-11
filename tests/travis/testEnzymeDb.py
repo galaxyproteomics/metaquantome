@@ -73,16 +73,17 @@ class TestEC(unittest.TestCase):
         self.assertSetEqual(self.ec.get_parents(test_id2), exp_parent2)
 
     def testGetAncestors(self):
-        test_id = '6.5.1.-'  # ligases, forming phosporic ester bonds
+        test_id1 = '6.5.1.-'  # ligases, forming phosporic ester bonds
         # expect 6.-.-.-
-        exp_parent = {'6.5.-.-', '6.-.-.-'}
-        self.assertSetEqual(self.ec.get_ancestors(test_id), exp_parent)
+        exp_anc1 = {'6.5.-.-', '6.-.-.-'}
+        self.assertSetEqual(self.ec.get_ancestors(test_id1), exp_anc1)
 
         # if no ancestors, returns empty set
         test_id2 = '6.-.-.-'
         exp_parent2 = set()
         self.assertSetEqual(self.ec.get_ancestors(test_id2), exp_parent2)
 
+        # includes root
         test_id3 = '1.1.4.1'
         exp_anc3 = {'1.-.-.-', '1.1.-.-', '1.1.4.-'}
         self.assertSetEqual(self.ec.get_ancestors(test_id3), exp_anc3)
