@@ -6,7 +6,7 @@ import metaquantome.databases.EnzymeDb as ec
 from metaquantome.util import utils, funcutils
 
 
-def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir, overwrite):
+def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir):
     """
     Expand functional terms and aggregate intensities.
     :param df: A DataFrame. Missing values are 0. There may be multiple
@@ -16,11 +16,10 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
     :param ontology: Functional ontology. Either 'go', 'ec', or 'cog'
     :param slim_down: Boolean. Whether to map terms to slim or not.
     :param data_dir: Directory to contain functional database files (ex. go-basic.obo)
-    :param overwrite: Whether to update the database files (applies to EC and GO only)
     :return: A dataframe with a functional term and its associated sample-specific intensity in each
     row
     """
-    db, norm_df = clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down)
+    db, norm_df = clean_function_df(data_dir, df, func_colname, ontology, slim_down)
 
     if ontology == "go":
         # filter to only those in full GO and non-missing
@@ -92,7 +91,7 @@ def filter_func_df(db, func_colname, norm_df):
     return df_clean
 
 
-def clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down):
+def clean_function_df(data_dir, df, func_colname, ontology, slim_down):
     """
     make functional terms nonredundant and normalize dataframe so there's only one functional
     term per row
@@ -101,7 +100,6 @@ def clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down
     should be 0
     :param func_colname: Name of column with functional terms
     :param ontology: Desired ontology.
-    :param overwrite: Whether to update the database.
     :param slim_down: Map full GO terms to the metagenomics slim. Applies for GO only.
     :return: A tuple of the database and the dataframe with one functional term in each row.
     """
