@@ -89,6 +89,12 @@ get_colors_from_groups <- function(json_dump, all_intcols){
     return(colSideColors)
 }
 
+check_ranks <- function(df, target_rank) {
+    ranks_in_df <- unique(df[, "rank"])
+    if (!(target_rank %in% ranks_in_df)) {
+        stop('There are no annotations with the desired target_rank. Check data and try again.')
+    }
+}
 
 ####### ==================== #######
 #              BARPLOT             #
@@ -102,13 +108,15 @@ mq_barplot <- function(df, img, mode, meancol,
     }
     # filter to desired rank, if taxonomy
     if (mode == "t"){
-        # todo: add check for target rank in
-        # list of available target ranks
+        check_ranks(df, target_rank)
+        # filter
         df <- df[df[, "rank"] == target_rank, ]
     }
-
+    # exponentiate
     df[, meancol] <- 2^df[, meancol]
+    # reorder, for taking the top N terms
     reord <- df[order(df[, meancol], decreasing=TRUE), ]
+    # take top N terms or number of rows, whichever is less
     sub_reord <- reord[1:min(nterms, nrow(reord)), ]
     if (mode == "t"){
       barnamecol = "taxon_name"
@@ -124,7 +132,8 @@ mq_barplot <- function(df, img, mode, meancol,
       geom_bar(aes_(x = reorder(sub_reord[, barnamecol], -sub_reord[, meancol]),
                     y = as.name(meancol)), stat = "identity", fill = barcol, col = "black") +
       theme_bw() +
-      labs(x = xlab, y = "Total Peptide Intensity")
+      labs(x = xlab, y = "Total Peptide Intensity") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
     ggsave(img, height = height, width = width, units = "in")
 
     # write tabfile
@@ -191,6 +200,9 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     # filter to sig
     if (filter_to_sig){
         df <- df[df$corrected_p < alpha, ]
+        if (nrow(df) == 0) {
+            stop("after filtering to provided value of alpha, no rows remain. please increase alpha")
+        }
     }
 
     # impute
@@ -212,7 +224,7 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     sample.dend <- as.dendrogram(hclust.ward(cor.dist(t(datmat.scale))))
 
     # write plot to img path
-    png(filename=img, width=width, height=height, res=500, units="in")
+    png(filename=img, width=width, height=height, res=300, units="in")
     par(mar = rep(5, 4))
     heatmap.2(datmat.scale,
               Colv = sample.dend,
@@ -224,7 +236,8 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
               margins = c(10, 10),
               cexRow = 0.3,
               ColSideColors = colSideColors,
-              density.info = "none")
+              density.info = "none",
+              labRow = "")
     # send message to the ether
     ether <- dev.off()
 }
@@ -324,7 +337,7 @@ mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, wi
     	point_names <- colnames(mat)
     }
 
-    png(filename=img, width=width, height=height, res=500, units="in")
+    png(filename=img, width=width, height=height, res=300, units="in")
     plot(pr$rotation,
          xlab = paste("PCA1 (",
                   format(summary(pr)$importance[2, 1]*100, digits = 3), "%)",
@@ -473,6 +486,9 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
 		if (whichway == "f_dist"){
 			df <- df[df[, "taxon_name"] == name, ]
 		}
+	    if (nrow(df) == 0) {
+	        stop(paste0("The term ", name, " was not found in the dataframe."))
+	    }
 	}
 	if (id != "None"){
 		if (whichway == "t_dist"){
@@ -481,25 +497,27 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
 		if (whichway == "f_dist"){
 			df <- df[df[, "tax_id"] == id, ]
 		}
+	    if (nrow(df) == 0) {
+	        stop(paste0("The id ", id, " was not found in the dataframe."))
+	    }
 	}
 
     # filter to desired rank, if taxonomic distribution
     if (whichway == "t_dist"){
-        # list of available target ranks
+        check_ranks(df, target_rank)
         df <- df[df[, "rank"] == target_rank, ]
     } else if (whichway == "f_dist"){
         long_onto <- short_onto_to_long[target_onto]
         df <- df[df[, "namespace"] == long_onto, ]
         # also, remove any bp, cc, or mf rows
         df <- df[!(df[, "name"] %in% short_onto_to_long), ]
+        if (nrow(df) == 0) {
+            stop(paste0("No terms in the dataframe come from the desired ontology (", target_onto, ")"))
+        }
     } else {
     	stop("Wrong whichway - should be t_dist or f_dist.")
     }
 
-	# number of rows left
-	if (nrow(df) == 0){
-		stop("No rows remaining in dataframe.")
-	}
     # calculate proportions
     df[, meancol] <- 2^df[, meancol]
 
@@ -529,21 +547,12 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
         xlab = "Functional Term"
     }
 
-    # plot
-    png(file=img, height=height, width=width, units="in", res=500)
-    if (whichway == "t_dist"){
-    	par(mar=c(10, 6.1, 4.1, 2.1)) # bottom, left, top and right margins
-    	yline <- 8
-    }
-    if (whichway == "f_dist"){
-    	par(mar=c(15, 6.1, 4.1, 2.1)) # bottom, left, top and right margins
-    	yline <- 13
-    }
     ggplot(sub_reord) +
         geom_bar(aes_(x = reorder(sub_reord[, barnamecol], -sub_reord[, "props"]),
                       y = as.name("props")), stat = "identity", fill = barcol, col = "black") +
         theme_bw() +
-        labs(x = xlab, y = "Proportion of Peptide Intensity")
+        labs(x = xlab, y = "Proportion of Peptide Intensity") +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
     ggsave(img, height = height, width = width, units = "in")
 
     # write tabular data
