@@ -5,26 +5,28 @@ class AnnotationNode:
     """
     def __init__(self, id, intensity):
         """
-        # todo: doc
+        create AnnotationNode object
+
         :param id: unique id for the term
-        :param intensity: a list with intensity for each sample.
-        The order will be kept constant by referring to the SampleGroups() object when calling this.
+        :param intensity: a single number indicating the peptide intensity
         """
         self.id = id
         self.intensity = intensity
         self.npeptide = 1
 
-        # the next three attributes are updated later in AnnotationHierarchy
+        # the next two attributes are updated later in AnnotationHierarchy
         self.sample_children = None
         self.n_sample_children = None
-        self.aggregated_intensity = None
 
     def add_peptide(self, intensity):
-        # todo: doc
+        """
+        add peptide (aka term observation) to an existing
+        node. Intensity is incremented by the new intensity,
+        and npeptide is incremented by 1.
+
+        :param intensity: observed peptide intensity associated with term
+        :return: None
+        """
         self.intensity += intensity
         if intensity > 0:
             self.npeptide += 1
-
-
-
-

@@ -5,8 +5,18 @@ import numpy as np
 
 
 class SampleGroups:
+    """
+    A class that contains information about which columns in the intensity data frame correspond to
+    which experimental conditions.
+    Other members of the class include the output column names for intensity, number of sample children, and
+    number of unique peptides.
+    """
     def __init__(self, sinfo):
-        # todo: doc
+        """
+        Build SampleGroups object using sample info
+
+        :param sinfo: Either a JSON-formatted string or a file path - see read_samp_info
+        """
         # top level dictionary
         sample_names = self.read_samp_info(sinfo)
         self.sample_names = sample_names
@@ -41,11 +51,11 @@ class SampleGroups:
 
         # all columns that should be numeric when reading expanded
         expand_num = self.all_intcols +\
-                     self.samp_children_names_flat +\
-                     self.n_peptide_names_flat
+            self.samp_children_names_flat +\
+            self.n_peptide_names_flat
         self.dict_numeric_cols_expanded = {x: np.float64 for x in expand_num}
 
-        # this is used in test()
+        # this is used in the stat module
         self.fc_name = None
         if self.ngrps == 2:
             grp1 = self.grp_names[0]
@@ -53,7 +63,12 @@ class SampleGroups:
             self.fc_name = 'log2fc_' + grp1 + '_over_' + grp2
 
     def read_samp_info(self, sinfo):
-        # todo: doc
+        """
+        read sample object to a dictionary
+
+        :param sinfo: either a path to a tabular file or a JSON-formatted string
+        :return: a dictionary of the form {group1_name: [grp1_samp1, grp1_samp2, ...], ...}
+        """
         # check if sinfo is a file name
         if os.path.exists(sinfo):
             samp_names = dict()
@@ -74,9 +89,16 @@ class SampleGroups:
             else:
                 raise ValueError('--samps is not a text file or in proper json format. please check again!')
 
-    # thanks to https://stackoverflow.com/questions/5508509/how-do-i-check-if-a-string-is-valid-json-in-python
-    def to_json(self, obj):
-        # todo: doc
+    @staticmethod
+    def to_json(obj):
+        """
+        checks that an object is correctly JSON formatted, and parses it if so
+        thanks to https://stackoverflow.com/questions/5508509/how-do-i-check-if-a-string-is-valid-json-in-python
+
+        :param obj: string
+        :return: tuple. First element is True if JSON, False if not.
+        Second element is json object (if JSON) or the original object (if not)
+        """
         try:
             json_object = json.loads(obj)
             return True, json_object

@@ -45,31 +45,15 @@ class AnnotationHierarchy:
         # add sample children here
         self._define_sample_children()
 
-    def to_dataframe(self):
-        # todo: doc
-        nodes = self.nodes
-        node_rows = [0]*len(nodes)
-        index = 0
-        for term, node in nodes.items():
-            samp_children_name = self.sample_name + '_n_samp_children'
-            n_peptide_name = self.sample_name + '_n_peptide'
-            node_rows[index] = pd.DataFrame({self.sample_name: node.intensity,
-                                             samp_children_name: node.n_sample_children,
-                                             n_peptide_name: node.npeptide}, index=[term])
-            index += 1
-        df = pd.concat(node_rows)
-        return df
-
-    def _add_node(self, term, intensity):
-        if term not in self.nodes.keys():
-            # create new node
-            self.nodes[term] = anode.AnnotationNode(term, intensity)
-        else:
-            # update existing node
-            self.nodes[term].add_peptide(intensity)
-
     def _add_node_with_ancestors(self, term, intensity):
-        # todo: doc
+        """
+        create AnnotationNode objects for term and all of
+        terms ancestors
+
+        :param term: observed term
+        :param intensity: intensity associated with term observation (peptide)
+        :return: None
+        """
         # add node for term itself
         self._add_node(term, intensity)
 
@@ -83,8 +67,31 @@ class AnnotationHierarchy:
             # self.expanded_sample_set.update({anc})
             self._add_node(anc, intensity)
 
+    def _add_node(self, term, intensity):
+        """
+        create AnnotationNode for a given term observation
+        or add intensity to an existing Annotation Node
+
+        :param term: observed term
+        :param intensity: intensity (numeric)
+        :return: None
+        """
+        if term not in self.nodes.keys():
+            # create new node
+            self.nodes[term] = anode.AnnotationNode(term, intensity)
+        else:
+            # update existing node
+            self.nodes[term].add_peptide(intensity)
+
     def _define_sample_children(self):
-        # todo: doc
+        """
+        After all Node creation has happened, this
+        defines the "sample children", or the children
+        that each node has within the sample associated with
+        the AnnotationHierarchy
+
+        :return: None
+        """
         # expanded sample set is all nodes
         expanded_sample_set = self.nodes.keys()
 
@@ -93,3 +100,24 @@ class AnnotationHierarchy:
             ref_children = self.db.get_children(term)
             node.sample_children = ref_children.intersection(expanded_sample_set)
             node.n_sample_children = len(node.sample_children)
+
+    def to_dataframe(self):
+        """
+        Run after add_nodes_from_df, and creates a dataframe
+        that contains the aggregated intensity, number of sample children,
+        and the number of peptides for each term
+
+        :return: pandas data.frame with a row for each term
+        """
+        nodes = self.nodes
+        node_rows = [0]*len(nodes)
+        index = 0
+        for term, node in nodes.items():
+            samp_children_name = self.sample_name + '_n_samp_children'
+            n_peptide_name = self.sample_name + '_n_peptide'
+            node_rows[index] = pd.DataFrame({self.sample_name: node.intensity,
+                                             samp_children_name: node.n_sample_children,
+                                             n_peptide_name: node.npeptide}, index=[term])
+            index += 1
+        df = pd.concat(node_rows)
+        return df
