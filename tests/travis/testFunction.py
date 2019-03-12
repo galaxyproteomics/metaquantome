@@ -52,8 +52,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         int=testfile('int_eggnog.tab')
         sinfo='{"NS": ["int737NS", "int852NS", "int867NS"], "WS": ["int737WS", "int852WS", "int867WS"]}'
         go_df = expand('f', sinfo=sinfo, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
-                       pep_colname_tax='peptide', data_dir=TEST_DIR, func_file=func, func_colname='go',
-                       ontology='go', slim_down=True)
+                       pep_colname_tax='peptide', data_dir=TEST_DIR, func_file=func, func_colname='go', ontology='go',
+                       slim_down=True)
         # test that all go terms are in slim
         # load slim
         returned_gos = set(go_df['id'])

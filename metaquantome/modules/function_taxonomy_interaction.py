@@ -6,8 +6,8 @@ from metaquantome.modules import functional_analysis as fa
 from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 
 
-def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrite, slim_down, tax_colname, samp_grps,
-                               ft_tar_rank, data_dir):
+def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_down, tax_colname, samp_grps, ft_tar_rank,
+                               data_dir):
     # todo: add normalization module for ft modules
     # choose bp, cc, or mf
     # don't return bp, cc, or mf themselves
@@ -25,7 +25,6 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrit
     :param func_colname: name of function column in dataframe
     :param pep_colname: name of peptide column in dataframe
     :param ontology: name of functional ontology. must be 'go'
-    :param overwrite: whether to overwrite GO file
     :param slim_down: whether to map full GO terms to metagenomics slim GO terms
     :param tax_colname: name of LCA column in dataframe.
     :param samp_grps: a SampleGroups object for this modules
@@ -39,7 +38,7 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, overwrit
         ValueError('ontology must be "go" for function-taxonomy modules')
 
     # ---- reduce, normalize, (optionally) slim ---- #
-    godb, norm_df = fa.clean_function_df(data_dir, df, func_colname, ontology, overwrite, slim_down)
+    godb, norm_df = fa.clean_function_df(data_dir, df, func_colname, ontology, slim_down)
     if slim_down:
         norm_df = fa.slim_down_df(godb, norm_df, func_colname)
     # remove peptide/go-term duplicates

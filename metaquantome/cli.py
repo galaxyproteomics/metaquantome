@@ -24,13 +24,10 @@ def cli():
         db_download_handler(args.dbs, args.dir, args.update)
     elif args.command == "expand":
         expand(mode=args.mode, sinfo=args.samps, int_file=args.int_file, pep_colname_int=args.pep_colname_int,
-               pep_colname_func=args.pep_colname_func, pep_colname_tax=args.pep_colname_tax, overwrite=args.overwrite,
-               outfile=args.outfile, data_dir=args.data_dir,
-               func_file=args.func_file, func_colname=args.func_colname, ontology=args.ontology,
-               slim_down=args.slim_down,
-               tax_file=args.tax_file, tax_colname=args.tax_colname,
-               nopep=args.nopep, nopep_file=args.nopep_file,
-               ft_tar_rank=args.ft_tar_rank)
+               pep_colname_func=args.pep_colname_func, pep_colname_tax=args.pep_colname_tax, data_dir=args.data_dir,
+               outfile=args.outfile, func_file=args.func_file, func_colname=args.func_colname, ontology=args.ontology,
+               slim_down=args.slim_down, tax_file=args.tax_file, tax_colname=args.tax_colname, nopep=args.nopep,
+               nopep_file=args.nopep_file, ft_tar_rank=args.ft_tar_rank)
     elif args.command == "filter":
         run_filter(expanded_file=args.expand_file, sinfo=args.samps, ontology=args.ontology, mode=args.mode,
                    qthreshold=args.qthreshold, min_child_non_leaf=args.min_children_non_leaf,
