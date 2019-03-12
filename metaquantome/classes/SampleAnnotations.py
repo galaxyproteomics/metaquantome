@@ -9,36 +9,19 @@ class SampleAnnotations:
     calling `AnnotationHierarchy`
     """
     def __init__(self, db):
+        """
+        Initialize SampleAnnotations object
+
+        :param db: reference database - will be taxonomy, GO terms, etc.
+        """
         self.db = db
+        # this is filled later in add_samples_from_df
         self.hierarchies = set()
-        self.df = None
-
-    def create_sample_set(self, df_filt, annot_colname):
-        # todo: add test
-        """
-        Create the set of all terms in the specific sample
-        :param df: DataFrame with one term per row, filtered so that only terms present in the sample of interest
-        are included in the annot_colname column
-        :param annot_colname: Name of annotation column - either tax_colname or func_colname
-        :return: Set of all terms in df_filt
-        """
-        return set(df_filt[annot_colname])
-
-    def filter_to_samp_observed(self, df, samp):
-        # todo: add test
-        """
-        Filter to observed values in specific sample.
-        :param df: DataFrame with all intensities and annotations. Missing values should be 0.
-        :param samp: The specific sample of interest
-        :return: DataFrame that only has rows whether the quantified value for the sample of interest is
-        nonzero.
-        """
-        filt = df.loc[df[samp] != 0]
-        return filt
 
     def add_samples_from_df(self, df, annot_colname, samp_grps):
         """
         Adds a sample for each intensity row in the dataframe
+
         :param df: Full dataframe
         :param annot_colname: Annotation column name
         :param samp_grps: SampleGroups object
@@ -57,6 +40,32 @@ class SampleAnnotations:
             hierarchies.update({hier})
         self.hierarchies = hierarchies
 
+    @staticmethod
+    def create_sample_set(df_filt, annot_colname):
+        """
+        Create the set of all terms in the specific sample
+
+        :param df_filt: DataFrame with one term per row, filtered so that only terms present in the sample of interest
+        are included in the annot_colname column
+        :param annot_colname: Name of annotation column - either tax_colname or func_colname
+        :return: Set of all terms in df_filt
+        """
+        return set(df_filt[annot_colname])
+
+    @staticmethod
+    def filter_to_samp_observed(df, samp):
+        # todo: add test
+        """
+        Filter to observed values in specific sample.
+
+        :param df: DataFrame with all intensities and annotations. Missing values should be 0.
+        :param samp: The specific sample of interest
+        :return: DataFrame that only has rows whether the quantified value for the sample of interest is
+        nonzero.
+        """
+        filt = df.loc[df[samp] != 0]
+        return filt
+
     def to_dataframe(self):
         """
         convert each hierarchy to dataframe and concatenate.
@@ -74,8 +83,3 @@ class SampleAnnotations:
         # stats expects 0's, not NaNs
         full_df.fillna(0)
         return full_df
-
-
-
-
-
