@@ -3,8 +3,8 @@ from scipy import stats as sps
 from statsmodels.sandbox.stats import multicomp as mc
 
 from metaquantome.classes.SampleGroups import SampleGroups
-from metaquantome.util.constants import P_COLNAME, P_CORR_COLNAME
-from metaquantome.util.stat_io import read_expanded_table, write_test
+from metaquantome.util.utils import P_COLNAME, P_CORR_COLNAME
+from metaquantome.util.stat_io import read_expanded_table, write_stat
 
 
 def stat(infile, sinfo, paired, parametric, ontology, mode, outfile):
@@ -33,7 +33,7 @@ def stat(infile, sinfo, paired, parametric, ontology, mode, outfile):
     df_test = test_norm_intensity(df, samp_grps, paired, parametric)
     # write out
     if outfile:
-        write_test(df_test, samp_grps=samp_grps, ontology=ontology, mode=mode, outfile=outfile)
+        write_stat(df_test, samp_grps=samp_grps, ontology=ontology, mode=mode, outfile=outfile)
     # return
     return df_test
 

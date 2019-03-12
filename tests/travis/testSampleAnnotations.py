@@ -4,7 +4,7 @@ import pandas as pd
 from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 from metaquantome.classes.SampleAnnotations import SampleAnnotations
 from metaquantome.classes.SampleGroups import SampleGroups
-from metaquantome.util.constants import TEST_DIR
+from metaquantome.util.utils import TEST_DIR
 
 
 class TestSampleAnnotations(unittest.TestCase):

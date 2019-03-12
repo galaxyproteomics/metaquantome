@@ -2,7 +2,7 @@ import unittest
 
 from metaquantome.util.testutils import testfile, TTEST_SINFO
 from metaquantome.util import stat_io
-from metaquantome.util.constants import TEST_DIR
+from metaquantome.util.utils import TEST_DIR
 from metaquantome.classes.SampleGroups import SampleGroups
 from metaquantome.modules.filter import run_filter
 from metaquantome.modules.expand import expand

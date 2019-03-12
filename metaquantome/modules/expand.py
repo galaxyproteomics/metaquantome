@@ -126,5 +126,3 @@ def calc_means(df, samp_grps):
             df[samp_grps.mean_names[i]] = np.log2(df[samples_in_grp])
 
     return df
-
-
