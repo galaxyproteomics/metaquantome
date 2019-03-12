@@ -8,7 +8,7 @@ from metaquantome.classes.SampleGroups import SampleGroups
 import metaquantome.modules.stat as stat
 from metaquantome.util import testutils as tu
 from metaquantome.util.testutils import testfile, TTEST_SINFO
-from metaquantome.util.constants import TEST_DIR
+from metaquantome.util.utils import TEST_DIR
 
 
 class TestStatUtils(unittest.TestCase):

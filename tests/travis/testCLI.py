@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 import numpy as np
 
-from metaquantome.util.constants import TEST_DIR
+from metaquantome.util.utils import TEST_DIR
 from metaquantome.util.testutils import testfile, TTEST_SINFO
 
 

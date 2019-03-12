@@ -6,7 +6,7 @@ from metaquantome.databases import GeneOntologyDb as godb
 import metaquantome.modules.expand as expand
 from metaquantome.classes.SampleGroups import SampleGroups
 from metaquantome.util.testutils import testfile
-from metaquantome.util.constants import TEST_DIR
+from metaquantome.util.utils import TEST_DIR
 
 
 class TestExpandUtils(unittest.TestCase):

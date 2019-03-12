@@ -6,7 +6,7 @@ from metaquantome.classes.AnnotationHierarchy import AnnotationHierarchy
 from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 from metaquantome.databases.GeneOntologyDb import GeneOntologyDb
 from metaquantome.databases.EnzymeDb import EnzymeDb
-from metaquantome.util.constants import TEST_DIR
+from metaquantome.util.utils import TEST_DIR
 
 
 class TestAnnotationHierarchyNcbi(unittest.TestCase):

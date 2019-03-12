@@ -1,8 +1,9 @@
 import metaquantome.modules.expand
+import metaquantome.util.utils
 from metaquantome.databases.GeneOntologyDb import GeneOntologyDb
 from metaquantome.databases.cog import cogCat
 import metaquantome.databases.EnzymeDb as ec
-from metaquantome.util import utils, funcutils
+from metaquantome.util import utils
 
 
 def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir):
@@ -101,9 +102,9 @@ def clean_function_df(data_dir, df, func_colname, ontology, slim_down):
             db = ec.EnzymeDb(data_dir)
         # reduce df to non-redundant functional terms
         # todo: add sep to args (if desired at some point)
-        red_df = funcutils.reduce_func_df(db=db, df=df, func_colname=func_colname, sep=',')
+        red_df = metaquantome.util.utils.reduce_func_df(db=db, df=df, func_colname=func_colname, sep=',')
     else:
         red_df = df
     # normalize df, so each row has one functional term
-    norm_df = utils.split_func_list(red_df, sep=',', func_colname=func_colname)
+    norm_df = utils.tidy_split(red_df, column=func_colname, sep=',')
     return db, norm_df

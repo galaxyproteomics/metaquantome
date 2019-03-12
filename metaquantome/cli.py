@@ -12,9 +12,11 @@ from metaquantome.modules.stat import stat
 from metaquantome.modules.run_viz import run_viz
 from metaquantome.modules.db_download_handler import db_download_handler
 
+
 def cli():
     """
     Command line interface; main entry point to metaQuantome
+
     :return: exit code
     """
     # initialize logger

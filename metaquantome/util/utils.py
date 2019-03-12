@@ -5,13 +5,20 @@ from urllib import request
 
 BASE_DIR = pkg_resources.resource_filename('metaquantome', '/')
 DATA_DIR = os.path.join(BASE_DIR, 'data')
-GO_SUBDIR = 'go'
-EC_SUBDIR = 'enzyme'
-TAX_SUBDIR = 'ncbi'
+MISSING_VALUES = ["", "0", "NA", "NaN", "0.0"]
+ONTOLOGIES = ['cog', 'go', 'ec']
+P_COLNAME = 'p'
+P_CORR_COLNAME = 'corrected_p'
+TEST_DIR = os.path.join(DATA_DIR, 'test')
 
 
 def stream_to_file_from_url(url, tar):
-    # todo: doc
+    """
+    uses the urllib library to open a URL and write the contents
+    :param url: url of remote file to read
+    :param tar: target local file
+    :return: None
+    """
     f = request.urlopen(url)
     data = f.read()
     with open(tar, 'wb') as tarfile:
@@ -19,36 +26,20 @@ def stream_to_file_from_url(url, tar):
     f.close()
 
 
-def define_ontology_data_dir(ontology):
-    # todo: doc
-    # todo: check this with latest data structure
-    dir = ""
-    base_ddir = DATA_DIR
-    if ontology == "go":
-        dir = GO_SUBDIR
-    elif ontology == "ec":
-        dir = EC_SUBDIR
-    elif ontology == "taxonomy":
-        dir = TAX_SUBDIR
-    elif ontology == "cog":
-        return base_ddir
-    full_ddir = os.path.join(base_ddir, dir)
-    return full_ddir
+def safe_cast_to_list(string):
+    """
+    this is used to cast a string object to a length-one list,
+    which is needed for some pandas operations.
+    it also detects if something is already a list,
+    and then does nothing (as to avoid a double list)
 
-
-def safe_cast_to_list(obj):
-    # todo: doc
-    if not isinstance(obj, list):
-        return [obj]
+    :param string: string
+    :return: either the string itself or a list comprising the string
+    """
+    if not isinstance(string, list):
+        return [string]
     else:
-        return obj
-
-
-def split_func_list(df, sep, func_colname):
-    # todo: doc
-    # replace old func colname with reduced
-    new_df = tidy_split(df, func_colname, sep=sep, keep=False)
-    return new_df
+        return string
 
 
 def tidy_split(df, column, sep='|', keep=False):
@@ -117,3 +108,38 @@ def filter_df(db, annot_colname, norm_df):
     is_in_db = norm_df[annot_colname].apply(db.is_in_db)
     df_clean = norm_df.loc[is_not_nan & is_in_db].copy(deep=True)  # copy() avoids setting with copy warning
     return df_clean
+
+
+def reduce_func(db, funclist, sep):
+    """
+    Take a set of functional terms and return only the
+     terms that are not the ancestor of any
+    other term in the set.
+
+    :param db: reference database
+    :param funclist: string that contains functional terms separated by <sep>
+    :param sep: character separating the terms in the list
+    :return:
+    """
+    split = set(funclist.split(sep))
+    reduced = split.copy()
+    for goid in split:
+        ancestors = db.get_ancestors(goid)
+        reduced.difference_update(ancestors)
+    pasted = sep.join(reduced)
+    return pasted
+
+
+def reduce_func_df(db, df, func_colname, sep):
+    """
+    Replace the old functional column with a nonredundant functional column
+
+    :param df: Combined df
+    :param func_colname: String, name of the functional column
+    :param sep: String that separates the list of terms in the functional column
+    :return: pandas DataFrame with nonredundant functional column
+    """
+    orig_func_col = df[func_colname]
+    new_func_col = orig_func_col.apply(lambda x: reduce_func(db, x, sep))
+    df[func_colname] = new_func_col
+    return df

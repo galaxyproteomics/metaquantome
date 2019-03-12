@@ -1,7 +1,7 @@
 import unittest
 
 from metaquantome.databases import GeneOntologyDb as godb
-from metaquantome.util.constants import TEST_DIR
+from metaquantome.util.utils import TEST_DIR
 
 
 class TestGeneOntologyDb(unittest.TestCase):

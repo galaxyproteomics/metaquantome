@@ -4,9 +4,8 @@ import pandas as pd
 import numpy as np
 
 import metaquantome.databases.NCBITaxonomyDb as td
-from metaquantome.util.utils import DATA_DIR
+from metaquantome.util.utils import DATA_DIR, TEST_DIR
 from metaquantome.util.testutils import testfile
-from metaquantome.util.constants import TEST_DIR
 
 
 class TestTaxonomyDatabase(unittest.TestCase):

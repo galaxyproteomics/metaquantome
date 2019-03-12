@@ -1,23 +1,24 @@
 import pandas as pd
 
 from metaquantome.util.check_args import function_check, tax_check
-from metaquantome.util.constants import MISSING_VALUES
+from metaquantome.util.utils import MISSING_VALUES
 
 
 def read_and_join_files(mode, pep_colname_int, pep_colname_func, pep_colname_tax, samp_grps, int_file, tax_file=None,
                         func_file=None, func_colname=None, tax_colname=None):
     """
-    todo: doc
-    :param pep_colname_func:
-    :param pep_colname_tax:
-    :param mode:
-    :param pep_colname_int:
-    :param samp_grps:
-    :param int_file:
-    :param tax_file:
-    :param func_file:
-    :param func_colname:
-    :param tax_colname:
+    Reads in intensity, function, and/or taxonomy files, and joins all on the peptide column.
+
+    :param pep_colname_func: name of the peptide column in the function file
+    :param pep_colname_tax: name of the peptide column in the taxonomy file
+    :param pep_colname_int: name of the peptide column in the intensity file
+    :param mode: analysis mode - either 'f', 't', or 'ft'
+    :param samp_grps: SampleGroups() object
+    :param int_file: path to intensity file
+    :param tax_file: path to taxonomy file. required for 't' and 'ft' modes
+    :param func_file: path to function file. required for 'f' and 'ft' modes
+    :param func_colname: column name of functional annotation in function file
+    :param tax_colname: column name of taxonomic annotation in taxonomy file
     :return: joined dataframe; missing intensities as 0.
     """
 
@@ -34,17 +35,18 @@ def read_and_join_files(mode, pep_colname_int, pep_colname_func, pep_colname_tax
         function_check(func_file, func_colname)
         func = read_function_table(func_file, pep_colname_func, func_colname)
         dfs.append(func)
-
+    # join all
     dfs_joined = join_on_peptide(dfs)
     return dfs_joined
 
 
 def read_intensity_table(file, samp_grps, pep_colname_int):
     """
+    read the file containing peptide intensities to a pandas dataframe.
 
-    :param file:
-    :param samp_grps:
-    :param pep_colname_int:
+    :param file: path to intensity file. must be tab-separated
+    :param samp_grps: SampleGroups object
+    :param pep_colname_int: name of peptide column in intensity table
     :return: intensity table; missing values as 0
     """
     # read in data
@@ -66,8 +68,8 @@ def read_intensity_table(file, samp_grps, pep_colname_int):
 def read_taxonomy_table(file, pep_colname_tax, tax_colname):
     """
     read taxonomy table, such as Unipept output.
-    Peptides with no annotation are kept, and assigned 32644 (ncbi id for unassigned)
-    :param data_dir:
+    Peptides with no annotation are dropped.
+
     :param file: path to taxonomy file
     :param pep_colname_tax: string, peptide sequence column name
     :param tax_colname: string, taxonomy identifier column name
@@ -86,10 +88,13 @@ def read_taxonomy_table(file, pep_colname_tax, tax_colname):
 
 def read_function_table(file, pep_colname_func, func_colname):
     """
-    todo:doc
-    :param file:
-    :param pep_colname_func:
-    :return:
+    read functional annotation table to Pandas dataframe. Peptides
+    with no annotation are dropped.
+
+    :param file: path to tab-separated function file
+    :param pep_colname_func: name of peptide column in function column
+    :param func_colname: name of functional annotation column in function table
+    :return: pandas dataframe where index is peptide sequence and single column is associated functional annotation.
     """
     df = pd.read_table(file, sep="\t", index_col=pep_colname_func,
                        na_values=MISSING_VALUES)
@@ -99,8 +104,24 @@ def read_function_table(file, pep_colname_func, func_colname):
     return df_new
 
 
+def join_on_peptide(dfs):
+    """
+    Inner join a list of dataframes on the index.
+
+    :param dfs: list of pandas dataframes
+    :return: joined dataframe.
+    """
+    # join inner means that only peptides present in all dfs will be kept
+    df_all = dfs.pop(0)
+    while len(dfs) > 0:
+        df_other = dfs.pop(0)
+        df_all = df_all.join(df_other, how="inner")
+    return df_all
+
+
 def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None):
     """
+    Read in a pre-joined table (rather than 3 separate tables)
 
     :param file: file with intensity and functional or taxonomic terms
     :param mode: f, tax, or ft
@@ -119,6 +140,9 @@ def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None)
     # change remaining missing intensities to 0, for arithmetic (changed back to NA for export)
     values = {x: 0 for x in samp_grps.all_intcols}
     df.fillna(values, inplace=True)
+
+    # drop rows where function is missing (for mode 'f'), taxonomy is missing (mode 't'),
+    # or both function and taxonomy are missing (mode 'ft')
     sub = list()
     if mode == 'f':
         sub = [func_colname]
@@ -126,26 +150,21 @@ def read_nopep_table(file, mode, samp_grps, func_colname=None, tax_colname=None)
         sub = [tax_colname]
     elif mode == 'ft':
         sub = [func_colname, tax_colname]
-
     df.dropna(how='all', subset=sub, inplace=True)
-
-    # type_change = {col: object for col in sub}
-    # df_new = df.astype(dtype=type_change)
     return df
 
 
-def join_on_peptide(dfs):
-    # todo: doc
-    # join inner means that only peptides present in all dfs will be kept
-    df_all = dfs.pop(0)
-    while len(dfs) > 0:
-        df_other = dfs.pop(0)
-        df_all = df_all.join(df_other, how="inner")
-    return df_all
-
-
 def write_out_general(df, outfile, cols):
-    # todo: doc
+    """
+    Write a pandas dataframe as a tab-separated file.
+    Keeps header, does not write index; missing
+    values are represented as NA
+
+    :param df: dataframe
+    :param outfile: path to output file
+    :param cols: columns to be written, in desired order
+    :return: None
+    """
     df.to_csv(outfile,
               columns=cols,
               sep="\t",
@@ -155,7 +174,14 @@ def write_out_general(df, outfile, cols):
 
 
 def define_outfile_cols_expand(samp_grps, ontology, mode):
-    # todo: doc
+    """
+    define columns for writing the expand output file
+
+    :param samp_grps: SampleGroups object
+    :param ontology: functional ontology. only required for 'f' or 'ft' modes
+    :param mode: f, t, or ft
+    :return: a list of relevant columns in the correct order
+    """
     int_cols = []
     int_cols += samp_grps.mean_names + samp_grps.all_intcols
     node_cols = []
