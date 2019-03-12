@@ -58,19 +58,20 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
                                              ontology=ontology, slim_down=slim_down, tax_colname=tax_colname,
                                              samp_grps=samp_grps, ft_tar_rank=ft_tar_rank, data_dir=data_dir)
     else:
-        raise ValueError("Invalid mode. Expected one of: %s" % ['f', 't', 'ft'])
+        raise ValueError('Invalid mode. Expected one of "f", "t", or "ft"')
 
     # set up written output
     if outfile:
         cols = expand_io.define_outfile_cols_expand(samp_grps, ontology, mode)
         expand_io.write_out_general(results, outfile=outfile, cols=cols)
-    # whether writing out or not, return result data frame
+    # whether writing out or not, return result data frame (mostly for testing)
     return results
 
 
 def common_hierarchical_analysis(db, df, annot_colname, samp_grps, hierarchical=True):
     """
     Create hierarchies from original dataframe
+
     :param db: reference database
     :param df: original dataframe.
     :param annot_colname: column name containing either the functional or taxonomic annotations
@@ -98,8 +99,8 @@ def common_hierarchical_analysis(db, df, annot_colname, samp_grps, hierarchical=
     # take log of intensities for return
     int_w_means[samp_grps.all_intcols] = np.log2(int_w_means[samp_grps.all_intcols])
 
+    # define an "id" column using the index
     int_w_means['id'] = int_w_means.index
-
     return int_w_means
 
 
@@ -110,13 +111,12 @@ def calc_means(df, samp_grps):
     :param samp_grps: SampleGroups() object
     :return: dataframe with a mean column, which is the log of the mean of the group-specific intensities
     """
-
     for i in range(samp_grps.ngrps):
         grp_name = samp_grps.grp_names[i]
         samples_in_grp = samp_grps.sample_names[grp_name]
         if len(samples_in_grp) > 1:
             sample = df[samples_in_grp]
-            means = np.mean(sample, axis = 1)
+            means = np.mean(sample, axis=1)
             means[means == 0] = np.nan
             logs = np.log2(means)
             df[samp_grps.mean_names[i]] = logs
@@ -126,3 +126,5 @@ def calc_means(df, samp_grps):
             df[samp_grps.mean_names[i]] = np.log2(df[samples_in_grp])
 
     return df
+
+

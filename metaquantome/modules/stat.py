@@ -10,6 +10,7 @@ from metaquantome.util.stat_io import read_expanded_table, write_test
 def stat(infile, sinfo, paired, parametric, ontology, mode, outfile):
     """
     Module function that tests differential expression between 2 experimental conditions
+
     :param infile: path to filtered file
     :param sinfo: path to experimental design file or JSON string
     :param paired: Whether or not the sample should be analyzed as paired samples
@@ -53,7 +54,7 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
     # change any zeros back to NaN
     df.replace(0, np.nan, inplace=True)
 
-    # make copy, so df isn't changed by code
+    # make copy, so df isn't changed by this function
     test_df = df.copy()
 
     # test, using logged df
@@ -76,7 +77,7 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
                                          axis=1)
 
     # append fold changes to df
-    df_means = fold_change(df, samp_grps, log=True)
+    df_means = log2_fold_change(df, samp_grps)
 
     # p values, uncorrected for multiple comparisons
     df_means[P_COLNAME] = test_results
@@ -89,21 +90,17 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
     return df_means
 
 
-def fold_change(df, samp_grps, log=False):
+def log2_fold_change(df, samp_grps):
     """
-    calculate fold change
+    calculate fold change - fixed as samp_grps.mean_names[0] over samp_grps.mean_names[1],
+    where the mean names are sorted alphabetically. The log has already been taken,
+    so the L2FC is calculated as mean0 - mean1
+
     :param df: expanded and/or filtered dataframe
     :param samp_grps: SampleGroups() object
-    :param log: whether or not the intensities have already been logged. If so, the fold change is
-    calculated by subtracting one from the other. If not, the log-fold change is
-    calculated as log2(ratio_of_means)
     :return: dataframe with fold change column appended, with name as in samp_grps.fc_name
     """
     mean1 = samp_grps.mean_names[0]
     mean2 = samp_grps.mean_names[1]
-    if log:
-        fc = df[mean1] - df[mean2]
-    else:
-        fc = np.log2(df[mean1]/df[mean2])
-    df[samp_grps.fc_name] = fc
+    df[samp_grps.fc_name] = df[mean1] - df[mean2]
     return df

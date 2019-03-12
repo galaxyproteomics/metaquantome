@@ -1,7 +1,6 @@
 import metaquantome.modules.expand
 from metaquantome.databases.GeneOntologyDb import GeneOntologyDb
 from metaquantome.databases.cog import cogCat
-from metaquantome.databases.cog import take_first_cog
 import metaquantome.databases.EnzymeDb as ec
 from metaquantome.util import utils, funcutils
 
@@ -9,6 +8,7 @@ from metaquantome.util import utils, funcutils
 def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir):
     """
     Expand functional terms and aggregate intensities.
+
     :param df: A DataFrame. Missing values are 0. There may be multiple
     functional terms in each row.
     :param func_colname: The name of the column with functional terms.
@@ -23,30 +23,30 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
 
     if ontology == "go":
         # filter to only those in full GO and non-missing
-        df_clean = filter_func_df(db, func_colname, norm_df)
+        df_clean = utils.filter_df(db, func_colname, norm_df)
         if slim_down:
             # map full GO terms to slims
             df_clean = slim_down_df(db, df_clean, func_colname)
         # expand
-        results = metaquantome.modules.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
-        # todo: replace hard coded column names in utils
+        results = metaquantome.modules.expand.\
+            common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
         gos = [db.gofull[x] for x in results['id']]
         results['name'] = [x.name for x in gos]
         results['namespace'] = [x.namespace for x in gos]
     elif ontology == "ec":
         # filter to only those in Enzyme database and non-missing
-        df_clean = filter_func_df(db, func_colname, norm_df)
-        results = metaquantome.modules.expand.common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
+        df_clean = utils.filter_df(db, func_colname, norm_df)
+        results = metaquantome.modules.expand.\
+            common_hierarchical_analysis(db, df_clean, func_colname, samp_grps)
         # use ec database to get term descriptions
         results['description'] = [db.ecdb[term]['descript'] for term in results.index]
     elif ontology == "cog":
-        # assumption: if multiple COGs are listed for a given peptide, than we take the first one.
-        cog_df = take_first_cog(df, func_colname)
-        cog_sum_df = cog_df[[func_colname] + samp_grps.all_intcols].\
+        cog_sum_df = norm_df[[func_colname] + samp_grps.all_intcols].\
             groupby(func_colname).\
             sum()
-        results = metaquantome.modules.expand.common_hierarchical_analysis('cog', cog_sum_df, func_colname, samp_grps,
-                                                                           hierarchical=False)
+        results = metaquantome.modules.expand.\
+            common_hierarchical_analysis('cog', cog_sum_df, func_colname, samp_grps,
+                                         hierarchical=False)
         results['description'] = [cogCat[x] for x in results.index]
     else:
         raise ValueError("the desired ontology is not supported. " +
@@ -77,20 +77,6 @@ def slim_down_df(godb, df_clean, go_colname):
     return df_loc
 
 
-def filter_func_df(db, func_colname, norm_df):
-    """
-    Filter DataFrame to non-missing and valid terms
-    :param db: Relevant database
-    :param func_colname: Name of column with functional terms
-    :param norm_df: Dataframe with one functional term per row
-    :return: DataFrame with only non-missing terms and those present in the database
-    """
-    is_not_nan = ~norm_df[func_colname].isnull()
-    is_in_db = norm_df[func_colname].apply(db.is_in_db)
-    df_clean = norm_df.loc[is_not_nan & is_in_db].copy(deep=True)  # copy() avoids setting with copy warning
-    return df_clean
-
-
 def clean_function_df(data_dir, df, func_colname, ontology, slim_down):
     """
     make functional terms nonredundant and normalize dataframe so there's only one functional
@@ -105,7 +91,7 @@ def clean_function_df(data_dir, df, func_colname, ontology, slim_down):
     """
     # db data dir
     if not data_dir:
-        data_dir = utils.define_ontology_data_dir(ontology)
+        data_dir = utils.DATA_DIR
     # assign db
     db = None
     if ontology in {"go", "ec"}:
@@ -114,7 +100,7 @@ def clean_function_df(data_dir, df, func_colname, ontology, slim_down):
         elif ontology == "ec":
             db = ec.EnzymeDb(data_dir)
         # reduce df to non-redundant functional terms
-        # todo: add sep to args
+        # todo: add sep to args (if desired at some point)
         red_df = funcutils.reduce_func_df(db=db, df=df, func_colname=func_colname, sep=',')
     else:
         red_df = df

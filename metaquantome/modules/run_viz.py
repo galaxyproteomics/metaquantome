@@ -16,10 +16,10 @@ def run_viz(plottype, img, infile, strip=None,
     """
     Wrapper script for the command-line R visualizations
     The documentation for each of the arguments is in cli.py
-    :return:
+
+    :return: None
     """
     r_script_path = os.path.join(BASE_DIR, 'modules', 'viz.R')
-    FNULL = open(os.devnull, 'w')
     cmd = ['Rscript', '--vanilla', r_script_path, plottype, img, infile]
     if plottype == "bar":
         cmd += [mode, meancol, nterms, width, height, target_rank, barcol, tabfile]
@@ -39,8 +39,11 @@ def run_viz(plottype, img, infile, strip=None,
         cmd += [whichway, name, id, meancol, nterms, width, height,
                 target_rank, target_onto, barcol, tabfile]
     else:
-        ValueError("Wrong plot type. Must be bar, volcano, heatmap, or pca.")
+        ValueError("Wrong plot type. Must be bar, volcano, heatmap, ft_dist, or pca.")
+    # ensure that all elements are strings (even booleans, etc)
     cmd_string = [str(elem) for elem in cmd]
-    subprocess.run(cmd_string, stdout=FNULL, check=True)
-    FNULL.close()
+
+    # run the visualizations, suppressing any output to stdout
+    with open(os.devnull, 'w') as fnull:
+        subprocess.run(cmd_string, stdout=fnull, check=True)
 
