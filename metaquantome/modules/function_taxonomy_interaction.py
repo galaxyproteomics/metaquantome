@@ -49,7 +49,7 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_dow
     # ---- get rank of lca ----- #
     # resolve data dir
     if not data_dir:
-        data_dir = utils.define_ontology_data_dir('taxonomy')
+        data_dir = utils.DATA_DIR
     # load ncbi database
     ncbi = NCBITaxonomyDb(data_dir)
     # see if names. if so, convert to taxid

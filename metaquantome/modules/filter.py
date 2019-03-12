@@ -8,6 +8,7 @@ def run_filter(expanded_file, sinfo, ontology, mode,
                min_pep_nsamp, outfile=None):
     """
     Filter expanded dataframe to rows that satisfy filtering conditions.
+
     :param expanded_file: path to expanded file
     :param sinfo: Path to experimental design file
     :param ontology: relevant for f and ft modes. Either 'go', 'ec', or 'cog'

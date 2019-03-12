@@ -102,3 +102,18 @@ def sniff_tax_names(df, tax_colname):  # todo: move to NCBI database
         return False  # if any entries contain numbers, assume taxids (already converted missings to NA)
     else:
         return True  # else names
+
+
+def filter_df(db, annot_colname, norm_df):
+    """
+    Filter DataFrame to non-missing and valid terms
+
+    :param db: Relevant database
+    :param annot_colname: Name of column with terms (NCBI, GO, or EC)
+    :param norm_df: Dataframe with one term per row
+    :return: DataFrame with only non-missing terms and those present in the database
+    """
+    is_not_nan = ~norm_df[annot_colname].isnull()
+    is_in_db = norm_df[annot_colname].apply(db.is_in_db)
+    df_clean = norm_df.loc[is_not_nan & is_in_db].copy(deep=True)  # copy() avoids setting with copy warning
+    return df_clean
