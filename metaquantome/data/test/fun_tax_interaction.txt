@@ -1,3 +1,0 @@
-peptide	cog	genus	int1	int2	int3	int4	int5	int6
-A	M, O	Streptococcus	103	101	102	2	1	3
-B	J	Streptococcus	1	2	3	101	102	103
