@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
-VERSION='0.99.3'
-URL='https://github.com/galaxyproteomics/metaquantome'
+VERSION = '0.99.4a0'
+URL = 'https://github.com/galaxyproteomics/metaquantome'
 AUTHOR = 'Caleb Easterly'
 AUTHOR_EMAIL = 'caleb.easterly@gmail.com'
 setup(
@@ -13,7 +13,7 @@ setup(
     license='Apache License 2.0',
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
-    description='Quantitative microbiome modules',
+    description='Quantitative metaproteomics analysis',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: Apache Software License',
