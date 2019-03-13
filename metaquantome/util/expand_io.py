@@ -37,6 +37,7 @@ def read_and_join_files(mode, pep_colname_int, pep_colname_func, pep_colname_tax
         dfs.append(func)
     # join all
     dfs_joined = join_on_peptide(dfs)
+    dfs_joined.index.name = 'peptide'
     return dfs_joined
 
 

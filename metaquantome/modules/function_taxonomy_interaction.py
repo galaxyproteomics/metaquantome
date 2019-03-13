@@ -41,11 +41,13 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_dow
     godb, norm_df = fa.clean_function_df(data_dir, df, func_colname, ontology, slim_down)
     if slim_down:
         norm_df = fa.slim_down_df(godb, norm_df, func_colname)
-    # remove peptide/go-term duplicates
+    # remove peptide/go-term duplicates (in the case that different GO term annotations
+    # for the same peptide are mapped to the same slim GO term)
+    # index is named peptide
     dedup_df = norm_df.\
         reset_index().\
-        drop_duplicates(subset=[pep_colname, func_colname], keep='first').\
-        set_index(pep_colname)
+        drop_duplicates(subset=['peptide', func_colname], keep='first').\
+        set_index('peptide')
     # ---- get rank of lca ----- #
     # resolve data dir
     if not data_dir:
@@ -63,7 +65,7 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_dow
     dedup_df = dedup_df.loc[is_not_nan & is_in_db]
 
     dedup_df['des_rank'] = dedup_df[tax_colname].apply(lambda x: des_rank_mapper(ft_tar_rank, x, ncbi))
-    # filter out peptides that are less specific than query rank
+    # filter out peptides that are less specific than query rank (which have a taxid of 0)
     dedup_df = dedup_df[dedup_df['des_rank'] > 0]
 
     # ---- group by go and new des_rank column, then sum intensity ---- #
@@ -75,7 +77,8 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_dow
     # group by both cog and lca and add
     grouped = df_int.groupby(by=[func_colname, 'des_rank']).sum(axis=1)
     # get groupwise counts (i.e., unique peptides)
-    counts = df_counts.groupby(by=[func_colname, 'des_rank']).sum(axis=1)
+    # multiply by 1 to convert any single booleans (True) to 1
+    counts = df_counts.groupby(by=[func_colname, 'des_rank']).sum(axis=1) * 1
     ints_and_counts = grouped.join(counts, rsuffix='_n_peptide')
 
     # ---- output prep ---- #
@@ -97,6 +100,8 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_dow
     results['tax_id'] = taxids
     results['rank'] = [ncbi.get_rank(int(elem)) for elem in taxids]
     results['taxon_name'] = ncbi.convert_taxid_to_name(taxids)
+    # drop des_rank column
+    results.drop('des_rank', axis=1, inplace=True)
     return results
 
 
@@ -114,5 +119,3 @@ def des_rank_mapper(des_rank, taxid, ncbi):
         return dict_mapper[des_rank]
     else:
         return 0
-
-
