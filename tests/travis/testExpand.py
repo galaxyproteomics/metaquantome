@@ -179,5 +179,16 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         self.assertGreaterEqual(ints[1301], ints[1305])
 
 
+class TestFunctionTaxonomyAnalysis(unittest.TestCase):
+    def testDifferentNames(self):
+        tax = testfile('ft_tax.tab')
+        func = testfile('ft_func.tab')
+        int = testfile('ft_int.tab')
+        ft = expand.expand('ft', sinfo='{"A": ["int"]}', int_file=int, pep_colname_int='Sequence',
+                           pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=TEST_DIR, tax_file=tax,
+                           tax_colname='lca', func_file=func, func_colname="go")
+        self.assertIn("A_mean", list(ft))
+
+
 if __name__=='__main__':
     unittest.main()
