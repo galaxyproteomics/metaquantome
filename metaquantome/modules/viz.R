@@ -262,7 +262,7 @@ heatmap_cli <- function(args){
 
     # get color mapping
     colSideColors <- get_colors_from_groups(args[5], all_intcols)
-    filter_to_sig <- (args[6] == "True")
+    filter_to_sig <- (args[6] != "None")
     alpha <- as.numeric(args[7])
     width <- as.numeric(args[8])
     height <- as.numeric(args[9])
