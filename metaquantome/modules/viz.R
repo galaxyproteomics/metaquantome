@@ -160,7 +160,7 @@ barplot_cli <- function(args){
     df <- read_result(infile)
     mode <- args[4]
     meancol <- args[5]
-    nterms <- args[6]
+    nterms <- as.numeric(args[6])
     width <- as.numeric(args[7])
     height <- as.numeric(args[8])
     target_rank <- args[9]
