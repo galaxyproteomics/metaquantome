@@ -54,6 +54,7 @@ def cli():
                 flip_fc=args.flip_fc,
                 gosplit=args.gosplit,
                 sinfo=args.samps,
+                filter_to_sig=args.filter_to_sig,
                 alpha=args.alpha,
                 whichway=args.whichway,
                 name=args.name,

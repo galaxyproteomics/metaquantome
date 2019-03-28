@@ -201,11 +201,13 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     if (filter_to_sig){
         pvals <- df$corrected_p
         if (is.null(pvals)) {
-            stop("the dataset does not have a column named 'corrected_p'. did you run metaquantome stat?")
+            stop("the dataset does not have a column named 'corrected_p'. did you run metaquantome stat?",
+                 call. = FALSE)
         }
         df <- df[df$corrected_p < alpha, ]
         if (nrow(df) == 0) {
-            stop("after filtering to provided value of alpha, no rows remain. please increase alpha")
+            stop("after filtering to provided value of alpha, no rows remain. please increase alpha",
+                 call. = FALSE)
         }
     }
 
@@ -266,7 +268,7 @@ heatmap_cli <- function(args){
 
     # get color mapping
     colSideColors <- get_colors_from_groups(args[5], all_intcols)
-    filter_to_sig <- (args[6] != "None")
+    filter_to_sig <- (args[6] == "True")
     alpha <- as.numeric(args[7])
     width <- as.numeric(args[8])
     height <- as.numeric(args[9])
