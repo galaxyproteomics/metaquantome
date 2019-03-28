@@ -54,6 +54,13 @@ class TestRunViz(unittest.TestCase):
                 sinfo=TTEST_SINFO,
                 calculate_sep=False)
 
+    def testPCABig(self):
+        infile = testfile('tax_filt_out.tab')
+        sampfile = testfile('rudney_samples.tab')
+        run_viz('pca', self.img, infile,
+                sinfo=sampfile,
+                calculate_sep=True)
+
     def testFtDist(self):
         infile = testfile('ft_out.tab')
         run_viz('ft_dist', self.img, infile,
