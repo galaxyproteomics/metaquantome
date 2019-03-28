@@ -70,6 +70,28 @@ class TestCLI(unittest.TestCase):
         ])
         test_status = subprocess.call(cmd, shell=True)
         self.assertEqual(test_status, 0)
+        cmd2 = ' '.join([
+            'python3 metaquantome/cli.py viz -m f --ontology ec --plottype heatmap',
+            '--infile', infile,
+            '--img', imgfile,
+            "--samps '", TTEST_SINFO, "'"
+        ])
+        test_status2 = subprocess.call(cmd2, shell=True)
+        self.assertEqual(test_status2, 0)
+
+    def testPCABig(self):
+        infile = testfile('tax_filt_out.tab')
+        sampfile = testfile('rudney_samples.tab')
+        imgfile = testfile('cli_pca_viz.png')
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m t --plottype pca',
+            '--infile', infile,
+            '--img', imgfile,
+            "--samps", sampfile,
+            '--calculate_sep'
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
 
 
 if __name__ == '__main__':
