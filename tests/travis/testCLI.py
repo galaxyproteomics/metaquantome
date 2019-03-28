@@ -43,6 +43,20 @@ class TestCLI(unittest.TestCase):
         self.assertTrue(test_df['corrected_p']['C'] > 0.05)
         self.assertTrue(test_df['corrected_p'][['N','D']].le(0.05).all())
 
+    def testViz(self):
+        infile = testfile('taxonomy_write_simple.tab')
+        imgfile = testfile('cli_bar_viz.png')
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m t --plottype bar --infile',
+            infile,
+            '--img',
+            imgfile,
+            """--samps '{"samp1": ["int"]}'""",
+            '--nterms 2 --meancol samp1_mean --target_rank genus'
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
