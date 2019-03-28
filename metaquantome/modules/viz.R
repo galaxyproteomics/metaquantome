@@ -301,7 +301,7 @@ sep_n <- function(clust){
         dists[i] <- sum((means[[comb[1]]] - means[[comb[2]]])^2)
     }
     avg_dist <- mean(dists)
-    within_variance <- sapply(1:nclust, function(i) mean((clust[[i]] - means[[i]])^2))
+    within_variance <- sapply(1:nclust, function(i) mean(data.matrix((clust[[i]] - means[[i]])^2)))
     avg_dist / sum(within_variance)
 }
 
