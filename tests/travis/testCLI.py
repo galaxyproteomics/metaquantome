@@ -57,6 +57,20 @@ class TestCLI(unittest.TestCase):
         test_status = subprocess.call(cmd, shell=True)
         self.assertEqual(test_status, 0)
 
+    def testHeatmapViz(self):
+        infile = testfile('ec_ttest_tested.tab')
+        imgfile = testfile('cli_heatmap_viz.png')
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m f --ontology ec --plottype heatmap',
+            '--infile', infile,
+            '--img', imgfile,
+            "--samps '", TTEST_SINFO, "'",
+            '--filter_to_sig',
+            '--alpha 0.5'
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
