@@ -199,6 +199,10 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     # colSide colors is a vector of colors for the groups. Must be in the same order as samp_columns
     # filter to sig
     if (filter_to_sig){
+        pvals <- df$corrected_p
+        if (is.null(pvals)) {
+            stop("the dataset does not have a column named 'corrected_p'. did you run metaquantome stat?")
+        }
         df <- df[df$corrected_p < alpha, ]
         if (nrow(df) == 0) {
             stop("after filtering to provided value of alpha, no rows remain. please increase alpha")
