@@ -2,6 +2,9 @@
 metaquantome/data/test/taxa.sqlite
 metaquantome/data/test/taxa.sqlite.traverse.pkl
 
+# sometimes ggplot makes empty Rplots.pdf
+Rplots.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
