@@ -96,10 +96,7 @@ class GeneOntologyDb:
         :param goid: query GO term
         :return: True if GO is present in GO database; False otherwise
         """
-        if goid in self.gofull.keys():
-            return True
-        else:
-            return False
+        return goid in self.gofull.keys()
 
     def map_set_to_slim(self, sample_set):
         """
