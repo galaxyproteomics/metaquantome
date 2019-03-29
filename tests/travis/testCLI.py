@@ -2,6 +2,7 @@ import subprocess
 import unittest
 import pandas as pd
 import numpy as np
+import os
 
 from metaquantome.util.utils import TEST_DIR
 from metaquantome.util.testutils import testfile, TTEST_SINFO
@@ -56,6 +57,24 @@ class TestCLI(unittest.TestCase):
         ])
         test_status = subprocess.call(cmd, shell=True)
         self.assertEqual(test_status, 0)
+
+    def testVizTabfile(self):
+        infile = testfile('taxonomy_write_simple.tab')
+        imgfile = testfile('cli_bar_viz2.png')
+        tabfile = testfile("tmp")
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m t --plottype bar --infile',
+            infile,
+            '--img', imgfile,
+            """--samps '{"samp1": ["int"]}'""",
+            '--nterms 2 --meancol samp1_mean --target_rank genus',
+            '--tabfile', tabfile,
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
+        nline = subprocess.run(['wc', '-l', tabfile], stdout=subprocess.PIPE)
+        self.assertEqual(b'3', nline.stdout.strip().split()[0])
+        os.remove(tabfile)
 
     def testHeatmapViz(self):
         infile = testfile('ec_ttest_tested.tab')
