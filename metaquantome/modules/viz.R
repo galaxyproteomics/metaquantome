@@ -16,6 +16,8 @@ suppressMessages(library(stringr))
 grp_color_values <- c("dodgerblue", "darkorange",
     "yellow2", "red2", "darkviolet", "black")
 
+X_AXIS_ROT <- 60
+
 ####### ==================== #######
 #         UTILITY FUNCTIONS        #
 ####### ==================== #######
@@ -133,7 +135,7 @@ mq_barplot <- function(df, img, mode, meancol,
                     y = as.name(meancol)), stat = "identity", fill = barcol, col = "black") +
       theme_bw() +
       labs(x = xlab, y = "Total Peptide Intensity") +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(axis.text.x = element_text(angle = X_AXIS_ROT, hjust = 1))
     ggsave(img, height = height, width = width, units = "in")
 
     # write tabfile
@@ -558,7 +560,7 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
                       y = as.name("props")), stat = "identity", fill = barcol, col = "black") +
         theme_bw() +
         labs(x = xlab, y = "Proportion of Peptide Intensity") +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        theme(axis.text.x = element_text(angle = X_AXIS_ROT, hjust = 1))
     ggsave(img, height = height, width = width, units = "in")
 
     # write tabular data
