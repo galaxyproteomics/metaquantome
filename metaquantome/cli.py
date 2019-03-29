@@ -61,7 +61,8 @@ def cli():
                 id=args.id,
                 target_onto=args.target_onto,
                 width=args.width,
-                height=args.height)
+                height=args.height,
+                tabfile=args.tabfile)
     else:
         ValueError('incorrect mode. please provide one of "db", "expand", "filter", "stat", or "viz".')
     sys.exit(0)
