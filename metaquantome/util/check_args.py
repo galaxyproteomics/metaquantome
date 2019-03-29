@@ -30,6 +30,6 @@ def tax_check(tax_file, tax_colname):
     if not tax_file:
         raise IOError('Taxonomy tabular file not provided (--tax_file)')
     if not os.path.exists(tax_file):
-        raise FileNotFoundError('func_file does not exist. Please check filename')
+        raise FileNotFoundError('tax_file does not exist. Please check filename')
     if not tax_colname:
         raise ValueError('tax_colname=None. Please provide a taxonomy column name (--tax_colname)')
