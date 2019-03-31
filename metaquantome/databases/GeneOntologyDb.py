@@ -96,10 +96,7 @@ class GeneOntologyDb:
         :param goid: query GO term
         :return: True if GO is present in GO database; False otherwise
         """
-        if goid in self.gofull.keys():
-            return True
-        else:
-            return False
+        return goid in self.gofull.keys()
 
     def map_set_to_slim(self, sample_set):
         """
@@ -142,10 +139,9 @@ class GeneOntologyDb:
             potential_closest = set()
             # get term parents
             ancestors = list(ancestor_set)
-            in_slim = [full_id in slim_ids for full_id in ancestors]
-            for i in range(0, len(ancestors)):
-                if in_slim[i]:
-                    potential_closest.update(safe_cast_to_list(ancestors[i]))
+            for full_id in ancestors:
+                if full_id in slim_ids:
+                    potential_closest.update(safe_cast_to_list(full_id))
             # no potential closest
             if len(potential_closest) == 0:
                 # new ancestors are the parents of the old ancestors
