@@ -98,12 +98,31 @@ check_ranks <- function(df, target_rank) {
     }
 }
 
+short_onto_to_long <- c("bp" = "biological_process",
+                        "mf"="molecular_function",
+                        "cc"="cellular_component")
+
+filter_to_desired_onto <- function(df, target_onto) {
+    if (is.null(target_onto)) {
+        stop('must provide target ontology for function or function-taxonomy mode',
+             call. = FALSE)
+    }
+    long_onto <- short_onto_to_long[target_onto]
+    df <- df[df[, "namespace"] == long_onto, ]
+    # also, remove any bp, cc, or mf rows
+    df <- df[!(df[, "name"] %in% short_onto_to_long), ]
+    if (nrow(df) == 0) {
+        stop(paste0("No terms in the dataframe come from the desired ontology (", target_onto, ")"))
+    }
+    return(df)
+}
+
 ####### ==================== #######
 #              BARPLOT             #
 ####### ==================== #######
 mq_barplot <- function(df, img, mode, meancol,
-                       nterms, width, height, target_rank, int_barcol,
-                       tabfile){
+                       nterms, width, height, target_rank, target_onto,
+                       int_barcol, tabfile){
     if (!(meancol %in% names(df))){
         stop('Mean column name not found in dataframe. Check spelling and try again.',
              call. = FALSE)
@@ -114,8 +133,12 @@ mq_barplot <- function(df, img, mode, meancol,
         # filter
         df <- df[df[, "rank"] == target_rank, ]
     }
+    if (mode == "f") {
+        df <- filter_to_desired_onto(df, target_onto)
+    }
     # exponentiate
     df[, meancol] <- 2^df[, meancol]
+
     # reorder, for taking the top N terms
     reord <- df[order(df[, meancol], decreasing=TRUE), ]
     # take top N terms or number of rows, whichever is less
@@ -132,7 +155,7 @@ mq_barplot <- function(df, img, mode, meancol,
 
     ggplot(sub_reord) +
       geom_bar(aes_(x = reorder(sub_reord[, barnamecol], -sub_reord[, meancol]),
-                    y = as.name(meancol)), stat = "identity", fill = barcol, col = "black") +
+                    y = as.name(meancol)), stat = "identity", fill = barcol, col = "black", position = "dodge") +
       theme_bw() +
       labs(x = xlab, y = "Total Peptide Intensity") +
       theme(axis.text.x = element_text(angle = X_AXIS_ROT, hjust = 1))
@@ -166,14 +189,18 @@ barplot_cli <- function(args){
     width <- as.numeric(args[7])
     height <- as.numeric(args[8])
     target_rank <- args[9]
-    barcol <- as.numeric(args[10])
-    tabfile <- args[11]
+    if (target_rank == "None") target_rank <- NULL
+    target_onto <- args[10]
+    if (target_onto == "None") target_onto <- NULL
+    barcol <- as.numeric(args[11])
+    tabfile <- args[12]
     if (tabfile == "None") tabfile <- NULL
     plt <- mq_barplot(df, img=img, mode=mode,
                       meancol=meancol,
                       nterms=nterms,
                       height=height, width=width,
-                      target_rank=target_rank, int_barcol=barcol,
+                      target_rank=target_rank, target_onto = target_onto,
+                      int_barcol=barcol,
                       tabfile=tabfile)
 }
 
@@ -475,10 +502,6 @@ volcano_cli <- function(args){
 ####### ==================== #######
 #              FT DIST             #
 ####### ==================== #######
-short_onto_to_long <- c("bp" = "biological_process",
-                        "mf"="molecular_function",
-                        "cc"="cellular_component")
-
 mq_ft_dist <- function(df, img, whichway, name, id, meancol,
                        nterms, width, height, target_rank, target_onto,
                        int_barcol, tabfile){
@@ -515,13 +538,7 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
         check_ranks(df, target_rank)
         df <- df[df[, "rank"] == target_rank, ]
     } else if (whichway == "f_dist"){
-        long_onto <- short_onto_to_long[target_onto]
-        df <- df[df[, "namespace"] == long_onto, ]
-        # also, remove any bp, cc, or mf rows
-        df <- df[!(df[, "name"] %in% short_onto_to_long), ]
-        if (nrow(df) == 0) {
-            stop(paste0("No terms in the dataframe come from the desired ontology (", target_onto, ")"))
-        }
+        df <- filter_to_desired_onto(df, target_onto)
     } else {
     	stop("Wrong whichway - should be t_dist or f_dist.")
     }

@@ -76,6 +76,22 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(b'3', nline.stdout.strip().split()[0])
         os.remove(tabfile)
 
+    def testFuncBar(self):
+        infile = testfile('eggnog_out.tab')
+        imgfile = testfile('test_eggnog_viz.png')
+        samps = testfile('rudney_samples.tab')
+        tabfile = testfile("eggnog_viz_file.tab")
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m f --plottype bar '
+            '--infile', infile,
+            '--img', imgfile,
+            '--samps', samps,
+            '--nterms 20 --meancol NS_mean --target_onto bp',
+            '--tabfile', tabfile
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
+
     def testHeatmapViz(self):
         infile = testfile('ec_ttest_tested.tab')
         imgfile = testfile('cli_heatmap_viz.png')
