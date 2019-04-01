@@ -57,8 +57,8 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
         self.assertEqual(go_df.loc["GO:0008152"]['int'], np.log2(100))
 
     def testMultipleInt(self):
-        func=testfile('multiple_func.tab')
-        int=testfile('multiple_int.tab')
+        func = testfile('multiple_func.tab')
+        int = testfile('multiple_int.tab')
         go_df = expand.expand('f', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, pep_colname_int='peptide',
                               pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=TEST_DIR, func_file=func,
                               func_colname='go', ontology='go')
@@ -84,10 +84,11 @@ class TestFunctionalAnalysisExpand(unittest.TestCase):
     def testSlimDown(self):
         func=testfile('func_eggnog.tab')
         int=testfile('int_eggnog.tab')
+        outfile=testfile('eggnog_out.tab')
         sinfo='{"NS": ["int737NS", "int852NS", "int867NS"], "WS": ["int737WS", "int852WS", "int867WS"]}'
         go_df = expand.expand('f', sinfo=sinfo, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
                               pep_colname_tax='peptide', data_dir=TEST_DIR, func_file=func, func_colname='go', ontology='go',
-                              slim_down=True)
+                              slim_down=True, outfile=outfile)
         # test that all go terms are in slim
         # load slim
         returned_gos = set(go_df['id'])
