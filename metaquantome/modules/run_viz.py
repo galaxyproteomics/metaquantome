@@ -22,7 +22,7 @@ def run_viz(plottype, img, infile, strip=None,
     r_script_path = os.path.join(BASE_DIR, 'modules', 'viz.R')
     cmd = ['Rscript', '--vanilla', r_script_path, plottype, img, infile]
     if plottype == "bar":
-        cmd += [mode, meancol, nterms, width, height, target_rank, barcol, tabfile]
+        cmd += [mode, meancol, nterms, width, height, target_rank, target_onto, barcol, tabfile]
     elif plottype == "volcano":
         cmd += [str(textannot), fc_name, flip_fc, gosplit, width, height, tabfile]
     elif plottype == "heatmap":

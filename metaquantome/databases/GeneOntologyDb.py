@@ -4,6 +4,9 @@ import logging
 
 from metaquantome.util.utils import safe_cast_to_list, stream_to_file_from_url
 
+FULL_OBO_URL = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
+SLIM_OBO_URL = 'http://current.geneontology.org/ontology/subsets/goslim_metagenomics.obo'
+
 
 class GeneOntologyDb:
     # the three "namespaces", or "ontologies"
@@ -59,13 +62,11 @@ class GeneOntologyDb:
             logging.info('GO files exist in specified directory ' +
                          'and --update was not provided. Doing nothing.')
         else:
-            full_obo_url = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
-            logging.info('Downloading full GO obo file from ' + full_obo_url + ' to ' + obo_path)
-            stream_to_file_from_url(full_obo_url, obo_path)
+            logging.info('Downloading full GO obo file from ' + FULL_OBO_URL + ' to ' + obo_path)
+            stream_to_file_from_url(FULL_OBO_URL, obo_path)
 
-            slim_obo_url = 'http://current.geneontology.org/ontology/subsets/goslim_metagenomics.obo'
-            logging.info('Downloading generic slim GO obo file from ' + slim_obo_url + ' to ' + slim_path)
-            stream_to_file_from_url(slim_obo_url, slim_path)
+            logging.info('Downloading generic slim GO obo file from ' + SLIM_OBO_URL + ' to ' + slim_path)
+            stream_to_file_from_url(SLIM_OBO_URL, slim_path)
 
     @staticmethod
     def _load_go_db(data_dir, slim_down):
