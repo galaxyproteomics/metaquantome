@@ -2,6 +2,7 @@ import subprocess
 import unittest
 import pandas as pd
 import numpy as np
+import os
 
 from metaquantome.util.utils import TEST_DIR
 from metaquantome.util.testutils import testfile, TTEST_SINFO
@@ -42,6 +43,90 @@ class TestCLI(unittest.TestCase):
         # make sure false is > 0.05 and trues are less than 0.05
         self.assertTrue(test_df['corrected_p']['C'] > 0.05)
         self.assertTrue(test_df['corrected_p'][['N','D']].le(0.05).all())
+
+    def testViz(self):
+        infile = testfile('taxonomy_write_simple.tab')
+        imgfile = testfile('cli_bar_viz.png')
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m t --plottype bar --infile',
+            infile,
+            '--img',
+            imgfile,
+            """--samps '{"samp1": ["int"]}'""",
+            '--nterms 2 --meancol samp1_mean --target_rank genus'
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
+
+    def testVizTabfile(self):
+        infile = testfile('taxonomy_write_simple.tab')
+        imgfile = testfile('cli_bar_viz2.png')
+        tabfile = testfile("tmp")
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m t --plottype bar --infile',
+            infile,
+            '--img', imgfile,
+            """--samps '{"samp1": ["int"]}'""",
+            '--nterms 2 --meancol samp1_mean --target_rank genus',
+            '--tabfile', tabfile,
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
+        nline = subprocess.run(['wc', '-l', tabfile], stdout=subprocess.PIPE)
+        self.assertEqual(b'3', nline.stdout.strip().split()[0])
+        os.remove(tabfile)
+
+    def testFuncBar(self):
+        infile = testfile('eggnog_out.tab')
+        imgfile = testfile('test_eggnog_viz.png')
+        samps = testfile('rudney_samples.tab')
+        tabfile = testfile("eggnog_viz_file.tab")
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m f --plottype bar '
+            '--infile', infile,
+            '--img', imgfile,
+            '--samps', samps,
+            '--nterms 20 --meancol NS_mean --target_onto bp',
+            '--tabfile', tabfile
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
+
+    def testHeatmapViz(self):
+        infile = testfile('ec_ttest_tested.tab')
+        imgfile = testfile('cli_heatmap_viz.png')
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m f --ontology ec --plottype heatmap',
+            '--infile', infile,
+            '--img', imgfile,
+            "--samps '", TTEST_SINFO, "'",
+            '--filter_to_sig',
+            '--alpha 0.5'
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
+        cmd2 = ' '.join([
+            'python3 metaquantome/cli.py viz -m f --ontology ec --plottype heatmap',
+            '--infile', infile,
+            '--img', imgfile,
+            "--samps '", TTEST_SINFO, "'"
+        ])
+        test_status2 = subprocess.call(cmd2, shell=True)
+        self.assertEqual(test_status2, 0)
+
+    def testPCABig(self):
+        infile = testfile('tax_filt_out.tab')
+        sampfile = testfile('rudney_samples.tab')
+        imgfile = testfile('cli_pca_viz.png')
+        cmd = ' '.join([
+            'python3 metaquantome/cli.py viz -m t --plottype pca',
+            '--infile', infile,
+            '--img', imgfile,
+            "--samps", sampfile,
+            '--calculate_sep'
+        ])
+        test_status = subprocess.call(cmd, shell=True)
+        self.assertEqual(test_status, 0)
 
 
 if __name__ == '__main__':

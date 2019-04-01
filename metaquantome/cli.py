@@ -54,13 +54,15 @@ def cli():
                 flip_fc=args.flip_fc,
                 gosplit=args.gosplit,
                 sinfo=args.samps,
+                filter_to_sig=args.filter_to_sig,
                 alpha=args.alpha,
                 whichway=args.whichway,
                 name=args.name,
                 id=args.id,
                 target_onto=args.target_onto,
                 width=args.width,
-                height=args.height)
+                height=args.height,
+                tabfile=args.tabfile)
     else:
         ValueError('incorrect mode. please provide one of "db", "expand", "filter", "stat", or "viz".')
     sys.exit(0)
@@ -242,6 +244,9 @@ def parse_args_cli():
                           ' heatmap and PCA plot, so the colors can be tweaked to match. ')
     bar.add_argument('--target_rank',
                      help="(Tax bar and FT dist). Taxonomic rank to restrict to in the plot. ")
+    bar.add_argument('--target_onto', choices=["mf", "bp", "cc"],
+                     help="(Function and FT dist bar only) " +
+                          "Ontology to restrict to, for function distribution.")
     bar.add_argument("--whichway", choices=["f_dist", "t_dist"],
                      help="(FT dist only) " +
                           "Which distribution - functional distribution for a taxon (f_dist) or " +
@@ -252,9 +257,6 @@ def parse_args_cli():
     bar.add_argument("--id",
                      help="(FT dist bar only) " +
                           "Taxonomic or functional term id - either a NCBI taxID or a GO term id (GO:XXXXXXX)")
-    bar.add_argument('--target_onto', choices=["mf", "bp", "cc"],
-                     help="(FT dist bar only) " +
-                          "Ontology to restrict to, for function distribution.")
 
     volc = parser_viz.add_argument_group('Volcano Plot')
     volc.add_argument('--fc_name',
