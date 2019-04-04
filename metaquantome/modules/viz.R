@@ -218,9 +218,8 @@ hclust.ward <- function(x) {
 }
 
 
-# from brewer.pal(name = 'PuBu', n = 9)
-heatmap_colors <- c("#FFF7FB", "#ECE7F2", "#D0D1E6", "#A6BDDB", "#74A9CF",
-                    "#3690C0", "#0570B0", "#045A8D", "#023858")
+library(scico)
+heatmap_colors <- scico(30, palette = 'berlin')
 
 mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height, strip){
     # df is the output from either expand, stat, or filter
