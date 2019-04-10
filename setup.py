@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.99.5'
+VERSION = '1.0a0'
 URL = 'https://github.com/galaxyproteomics/metaquantome'
 AUTHOR = 'Caleb Easterly'
 AUTHOR_EMAIL = 'caleb.easterly@gmail.com'
