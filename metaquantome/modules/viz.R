@@ -462,7 +462,7 @@ mq_volcano <- function(df, img, fc_name, flip_fc, width, height, textannot, gosp
         volcano_colors +
         scale_x_continuous(limits = c(xmin, xmax)) +
         scale_y_continuous(limits = c(ymin, ymax)) +
-        labs(x = "Log2 Fold Change", y = "-Log10 P Value")
+        labs(x = "Log2 Fold Change", y = "-Log10 FDR-Corrected P Value")
     vplt
     ggsave(file=img, width=width, height=height, units="in", dpi=300)
 
