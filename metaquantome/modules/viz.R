@@ -219,7 +219,7 @@ hclust.ward <- function(x) {
 
 
 library(scico)
-heatmap_colors <- scico(30, palette = 'berlin')
+heatmap_colors <- scico(30, palette = 'vik')
 
 mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height, strip){
     # df is the output from either expand, stat, or filter
