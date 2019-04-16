@@ -157,7 +157,7 @@ mq_barplot <- function(df, img, mode, meancol,
       geom_bar(aes_(x = reorder(sub_reord[, barnamecol], -sub_reord[, meancol]),
                     y = as.name(meancol)), stat = "identity", fill = barcol, col = "black", position = "dodge") +
       theme_bw() +
-      labs(x = xlab, y = "Total Peptide Intensity") +
+      labs(x = xlab, y = "Total Peptide Abundance") +
       theme(axis.text.x = element_text(angle = X_AXIS_ROT, hjust = 1))
     ggsave(img, height = height, width = width, units = "in")
 
@@ -575,7 +575,7 @@ mq_ft_dist <- function(df, img, whichway, name, id, meancol,
         geom_bar(aes_(x = reorder(sub_reord[, barnamecol], -sub_reord[, "props"]),
                       y = as.name("props")), stat = "identity", fill = barcol, col = "black") +
         theme_bw() +
-        labs(x = xlab, y = "Proportion of Peptide Intensity") +
+        labs(x = xlab, y = "Proportion of Peptide Abundance") +
         theme(axis.text.x = element_text(angle = X_AXIS_ROT, hjust = 1))
     ggsave(img, height = height, width = width, units = "in")
 
