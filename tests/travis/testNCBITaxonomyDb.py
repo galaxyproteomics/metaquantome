@@ -23,7 +23,9 @@ class TestTaxonomyDatabase(unittest.TestCase):
         # not contained in FULL_TAXONOMY_TREE
         tax = testfile('unipept_sample7_taxonomy.tab')
         df = pd.read_csv(tax, sep='\t')
-        num_ids = self.ncbi.convert_name_to_taxid(df['lca'])
+        num_ids = np.array(self.ncbi.convert_name_to_taxid(df['lca']))
+        # filter out nans - this happens in the code
+        num_ids = num_ids[~np.isnan(num_ids)]
         for i in num_ids:
             self.ncbi.map_id_to_desired_ranks(td.BASIC_TAXONOMY_TREE, i)
 
