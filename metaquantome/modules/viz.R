@@ -438,7 +438,7 @@ mq_volcano <- function(df, img, fc_name, flip_fc, width, height, textannot, gosp
     ymax <- max(df$neglog10p) * 1.2
     ymin <- 0
     volcano_colors <- scale_color_manual(values = c("grey50", "seagreen3"), guide=FALSE)
-    if (gosplit & goterm){
+    if (gosplit){
         vplt <- ggplot(df, aes(x = fc, y = neglog10p)) +
             geom_point(aes(color = de)) +
             facet_grid(namespace~.)
