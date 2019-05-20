@@ -479,19 +479,21 @@ volcano_cli <- function(args){
     # 4. name of text annotation column
     # 5. name of fold change column
     # 6. whether to flip fc
-    # 7. whether to split GO by ontology/namespace
-    # 8. image width (default 5)
-    # 9. image height (default 5)
+    # 7. ontology
+    # 8. whether to split GO by ontology/namespace
+    # 9. image width (default 5)
+    # 10. image height (default 5)
     img <- args[2]
     infile <- args[3]
     df <- read_result(infile)
     textannot <- args[4]
     fc_name <- args[5]
     flip_fc <- (args[6] == "True")
-    gosplit <- (args[7] == "True")
-    width <- as.numeric(args[8])
-    height <- as.numeric(args[9])
-    tabfile <- args[10]
+    ontology <- args[7]
+    gosplit <- (args[8] == "True" & ontology == "go")
+    width <- as.numeric(args[9])
+    height <- as.numeric(args[10])
+    tabfile <- args[11]
     if (tabfile == "None") tabfile <- NULL
     plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name,
                       flip_fc=flip_fc, gosplit=gosplit, width=width, height=height,
