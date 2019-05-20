@@ -43,6 +43,7 @@ def cli():
                 img=args.img,
                 infile=args.infile,
                 mode=args.mode,
+                ontology=args.ontology,
                 meancol=args.meancol,
                 nterms=args.nterms,
                 strip=args.strip,

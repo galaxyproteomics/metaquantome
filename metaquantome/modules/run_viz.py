@@ -8,7 +8,7 @@ from metaquantome.classes.SampleGroups import SampleGroups
 
 def run_viz(plottype, img, infile, strip=None,
             mode=None, meancol=None, nterms='5', target_rank=None, barcol=6,  # barplot
-            textannot=None, fc_name=None, flip_fc=False, gosplit=False,  # volcano
+            textannot=None, fc_name=None, flip_fc=False, gosplit=False, ontology=None, # volcano
             sinfo=None, filter_to_sig=False, alpha='0.05',  # heatmap
             calculate_sep=False,  # pca
             whichway=None, name=None, id=None, target_onto=None, # ft_dist
@@ -24,7 +24,7 @@ def run_viz(plottype, img, infile, strip=None,
     if plottype == "bar":
         cmd += [mode, meancol, nterms, width, height, target_rank, target_onto, barcol, tabfile]
     elif plottype == "volcano":
-        cmd += [str(textannot), fc_name, flip_fc, gosplit, width, height, tabfile]
+        cmd += [str(textannot), fc_name, flip_fc, ontology, gosplit, width, height, tabfile]
     elif plottype == "heatmap":
         samp_grps = SampleGroups(sinfo)
         all_intcols_str = ','.join(samp_grps.all_intcols)
