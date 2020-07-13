@@ -32,7 +32,8 @@ class SampleGroups:
 
         # name of experimental groups
         # sort alphabetically, so it's deterministic
-        self.grp_names = sorted(list(sample_names.keys()))
+        #self.grp_names = sorted(list(sample_names.keys()))
+        self.grp_names = list(sample_names.keys())
 
         # when calculating means, column names for means
         # same order as grp names

@@ -37,7 +37,7 @@ def cli():
                    min_pep_nsamp=args.min_pep_nsamp, outfile=args.outfile)
     elif args.command == "stat":
         stat(infile=args.file, sinfo=args.samps, paired=args.paired, parametric=args.parametric, ontology=args.ontology,
-             mode=args.mode, outfile=args.outfile)
+             mode=args.mode, outfile=args.outfile, control_group=args.control_group)
     elif args.command == "viz":
         run_viz(plottype=args.plottype,
                 img=args.img,
@@ -51,6 +51,7 @@ def cli():
                 textannot=args.textannot,
                 calculate_sep=args.calculate_sep,
                 fc_name=args.fc_name,
+                fc_corr_p=args.fc_corr_p,
                 flip_fc=args.flip_fc,
                 gosplit=args.gosplit,
                 sinfo=args.samps,
@@ -62,7 +63,9 @@ def cli():
                 target_onto=args.target_onto,
                 width=args.width,
                 height=args.height,
-                tabfile=args.tabfile)
+                tabfile=args.tabfile,
+                feature_cluster_size=args.feature_cluster_size,
+                sample_cluster_size=args.sample_cluster_size)
     else:
         ValueError('incorrect mode. please provide one of "db", "expand", "filter", "stat", or "viz".')
     sys.exit(0)
@@ -214,7 +217,9 @@ def parse_args_cli():
                                   'then a Wilcoxon test is performed.')
     parser_stat.add_argument('--paired', action='store_true',
                              help='Perform paired tests.')
-
+    parser_stat.add_argument('--control_group', required=True,
+                             help='Sample group name of control samples (will be used as denominator for fold change).')
+    
     # ---- METAQUANTOME VIZ ---- #
     parser_viz.add_argument('--plottype', '-p', required=True, choices=['bar', 'volcano', 'heatmap', 'pca', 'ft_dist'],
                             help="Select the type of plot to generate.")
@@ -226,11 +231,13 @@ def parse_args_cli():
                             help="Height of the image in inches. Defaults vary by plot type.")
     parser_viz.add_argument('--infile', '-i', required=True,
                             help="Input file from stat or filter.")
-    parser_viz.add_argument('--strip',
+    parser_viz.add_argument('--strip', default=None,
                             help="Text to remove from column names for plotting.")
     parser_viz.add_argument('--tabfile', default=None,
                             help="Optional. File to write plot table to.")
-
+    parser_viz.add_argument('--fc_corr_p', default=None,
+                            help="Name of the corrected p-value column in the stat dataframe. Used while generating volcano plot and while using filter_to_sig in heatmap")
+                      
     bar = parser_viz.add_argument_group('Arguments for barplots - both total taxonomy peptide intensity ("bar") and ' +
                                         'function-taxonomy interaction distributions ("ft_dist")')
     bar.add_argument('--meancol',
@@ -274,6 +281,10 @@ def parse_args_cli():
                       help="Flag. Only plot significant terms? Necessitates use of results from `test`.")
     heat.add_argument('--alpha', default='0.05',
                       help="If filter_to_sig, the q-value significance level.")
+    heat.add_argument('--feature_cluster_size', default='2',
+                      help="Number of clusters 'k' to cut the feature dendrogram tree. Default = 2")
+    heat.add_argument('--sample_cluster_size', default='2',
+                      help="Number of clusters 'k' to cut the sample dendrogram tree. Default = 2")
 
     pca = parser_viz.add_argument_group('Principal Components Analysis')
     pca.add_argument("--calculate_sep", action="store_true",
