@@ -4,8 +4,11 @@ options(stringsAsFactors = FALSE, message=FALSE, warnings=FALSE)
 ####### ==================== #######
 #              LIBRARIES           #
 ####### ==================== #######
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
 suppressWarnings(suppressMessages(library(ggplot2)))
 suppressMessages(library(gplots))
+suppressMessages(library(RColorBrewer))
 suppressMessages(library(jsonlite))
 suppressMessages(library(stringr))
 
@@ -657,6 +660,84 @@ ft_dist_cli <- function(args){
     				  int_barcol=barcol, tabfile=tabfile)
 }
 
+####### ==================== #######
+#           STACKED BAR            #
+####### ==================== #######
+
+mq_stacked <- function(img, df, all_intcols, json_dump, nterms, target_rank, width, height, tabfile){
+  # df is the dataframe after stat
+  # nterms is the number of taxa to show
+  
+  grp_list <- fromJSON(json_dump)
+  
+  grp_df <- grp_list %>% 
+    as.data.frame() %>% 
+    pivot_longer(cols = 1:ncol(.), names_to = "samplegroup", values_to = "sample")
+  
+  # parse out sample groups, exponentiate, calculate relative abundance
+  dat <- df %>% 
+    pivot_longer(all_intcols, names_to = "sample", values_to = "abundance") %>% 
+    full_join(grp_df) %>% 
+    mutate(replicate = str_replace(string = sample, pattern = samplegroup, replacement = "")) %>% 
+    replace_na(list(abundance = 0)) %>%
+    mutate(abundance = 2^abundance) %>%
+    select(sample, samplegroup, replicate, id, name, rank, abundance) %>% 
+    filter(rank == target_rank) %>% 
+    group_by(sample) %>% 
+    mutate(abundance = 100*abundance/sum(abundance))
+  
+  # reorder taxa levels for plotting
+  taxa_levels <- names(sort(tapply(dat$abundance, dat$name, sum)))
+  
+  # collapse less abundang terms into "Other" if terms exceed desired terms
+  if(length(unique(dat$name))>nterms){
+    topn <- tail(taxa_levels, nterms)
+    dat<-dat %>%
+      mutate(name = factor(ifelse(name %in% topn, name, "Other"))) %>% 
+      group_by(sample, samplegroup, replicate, name) %>% 
+      summarise(abundance = sum(abundance)) %>% 
+      group_by(sample)
+    taxa_levels <- names(sort(tapply(dat$abundance, dat$name, sum)))
+    # reorder taxa levels for plotting, to have "Other" on top
+    other_index <- as.numeric(which(taxa_levels == "Other"))
+    taxa_levels <- c("Other", taxa_levels[1:(other_index-1)], taxa_levels[(other_index+1):length(taxa_levels)])
+  }
+  
+  # make stacked bar plot
+  fig <- dat %>%     
+    ggplot(aes(x=replicate, y=abundance, fill=factor(name, levels = taxa_levels)))+
+    geom_bar(position="stack", stat = "identity") +
+    facet_grid(cols = vars(samplegroup)) +
+    labs(x= "Sample", y="Relative Abundance")+
+    scale_fill_brewer(name="Taxa", palette = "Set1")
+  
+  # write tabular file
+  write.table(x = dat, file = tabfile, quote = FALSE, row.names = FALSE)
+
+  # save plot
+  ggsave(file=img, width=width, height=height, units="in", dpi=300)
+  
+}
+
+stacked_cli <- function(args){
+  
+  img <- args[2]
+  infile <- args[3]
+  df <- read_result(infile)
+  
+  # split all_intcols from SampleGroups(), for samp_columns vector
+  all_intcols <- unlist(strsplit(get_all_intcols(args[4]), split=","))
+  
+  # other args
+  json_dump <- args[5]
+  nterms <- as.numeric(args[6])
+  target_rank <- toString(args[7])
+  width <- as.numeric(args[8])
+  height <- as.numeric(args[9])
+  tabfile <- args[10]
+  
+  mq_stacked(img, df, all_intcols, json_dump, nterms, target_rank, width, height, tabfile)
+}
 
 ####### ==================== #######
 #              MAIN                #
