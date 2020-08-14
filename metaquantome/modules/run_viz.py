@@ -7,8 +7,8 @@ from metaquantome.classes.SampleGroups import SampleGroups
 
 
 def run_viz(plottype, img, infile, strip=None,
-            mode=None, meancol=None, nterms='5', target_rank=None, barcol=6,  # barplot
-            textannot=None, fc_name=None, fc_corr_p=None,flip_fc=False, gosplit=False,  # volcano
+            mode=None, meancol=None, nterms='5', target_rank=None, barcol=6,  # barplot, stacked_bar
+            textannot=None, fc_name=None, fc_corr_p=None, flip_fc=False, gosplit=False,  # volcano
             sinfo=None, filter_to_sig=False, alpha='0.05',  # heatmap
             calculate_sep=False,  # pca
             whichway=None, name=None, id=None, target_onto=None, # ft_dist
@@ -35,11 +35,16 @@ def run_viz(plottype, img, infile, strip=None,
         all_intcols_str = ','.join(samp_grps.all_intcols)
         json_dump = json.dumps(samp_grps.sample_names)
         cmd += [all_intcols_str, json_dump, calculate_sep, width, height, strip]
-    if plottype == "ft_dist":
+    elif plottype == "ft_dist":
         cmd += [whichway, name, id, meancol, nterms, width, height,
                 target_rank, target_onto, barcol, tabfile]
+    if plottype == "stacked_bar":
+        samp_grps = SampleGroups(sinfo)
+        all_intcols_str = ','.join(samp_grps.all_intcols)
+        json_dump = json.dumps(samp_grps.sample_names)
+        cmd += [all_intcols_str, json_dump, nterms, target_rank, width, height, tabfile]
     else:
-        ValueError("Wrong plot type. Must be bar, volcano, heatmap, ft_dist, or pca.")
+        ValueError("Wrong plot type. Must be bar, volcano, heatmap, ft_dist, stacked_bar, or pca.")
     # ensure that all elements are strings (even booleans, etc)
     cmd_string = [str(elem) for elem in cmd]
 
