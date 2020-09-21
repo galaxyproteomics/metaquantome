@@ -20,7 +20,7 @@ def read_expanded_table(file, samp_grps):
     return df
 
 
-def write_stat(df, outfile, samp_grps, ontology, mode):
+def write_stat(df, outfile, samp_grps, ontology, mode, fc_new_cols):
     """
     write the output of stat
 
@@ -31,6 +31,8 @@ def write_stat(df, outfile, samp_grps, ontology, mode):
     :param mode: f, t, or ft
     :return: None
     """
+    #cols = expand_io.define_outfile_cols_expand(samp_grps, ontology, mode) +\
+    #       [samp_grps.fc_name, P_COLNAME, P_CORR_COLNAME]
     cols = expand_io.define_outfile_cols_expand(samp_grps, ontology, mode) +\
-           [samp_grps.fc_name, P_COLNAME, P_CORR_COLNAME]
+            fc_new_cols
     expand_io.write_out_general(df, outfile=outfile, cols=cols)
