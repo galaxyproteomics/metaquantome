@@ -4,8 +4,11 @@ options(stringsAsFactors = FALSE, message=FALSE, warnings=FALSE)
 ####### ==================== #######
 #              LIBRARIES           #
 ####### ==================== #######
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
 suppressWarnings(suppressMessages(library(ggplot2)))
 suppressMessages(library(gplots))
+suppressMessages(library(RColorBrewer))
 suppressMessages(library(jsonlite))
 suppressMessages(library(stringr))
 
@@ -221,12 +224,17 @@ hclust.ward <- function(x) {
 library(scico)
 heatmap_colors <- scico(30, palette = 'vik')
 
-mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height, strip){
+mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height, strip, feature_cluster_size, sample_cluster_size, fc_corr_p, infilename){
     # df is the output from either expand, stat, or filter
     # samp_columns is a vector of all columns with the term intensities
     # colSide colors is a vector of colors for the groups. Must be in the same order as samp_columns
     # filter to sig
     if (filter_to_sig){
+        if (fc_corr_p == "None"){
+            stop("corrected p-value column not defined. did you run metaquantome stat?",
+                 call. = FALSE)
+        }
+        df$corrected_p <- df[, fc_corr_p]
         pvals <- df$corrected_p
         if (is.null(pvals)) {
             stop("the dataset does not have a column named 'corrected_p'. did you run metaquantome stat?",
@@ -256,7 +264,13 @@ mq_heatmap <- function(img, df, all_intcols, colSideColors, filter_to_sig, alpha
     # build dendrograms
     feature.dend <- as.dendrogram(hclust.ward(cor.dist(datmat.scale)))
     sample.dend <- as.dendrogram(hclust.ward(cor.dist(t(datmat.scale))))
-
+    
+    # Output cluster file for features and samples
+    feature_cluster = cutree(hclust.ward(cor.dist(datmat.scale)),k=feature_cluster_size);
+    write.table(feature_cluster, file = paste("feature_cluster_",infilename,'.txt', sep=""), sep = "\t", col.names=FALSE, quote=FALSE)
+    sample_cluster = cutree(hclust.ward(cor.dist(t(datmat.scale))),k=sample_cluster_size);
+    write.table(sample_cluster, file = paste("sample_cluster_",infilename,'.txt', sep=""), sep = "\t", col.names=FALSE, quote=FALSE)
+    
     # write plot to img path
     png(filename=img, width=width, height=height, res=300, units="in")
     par(mar = rep(5, 4))
@@ -286,11 +300,14 @@ heatmap_cli <- function(args){
     # 7. alpha - significance level
     # 8. image width (default 5)
     # 9. image height (default 5)
+    
 
     img <- args[2]
     infile <- args[3]
     df <- read_result(infile)
-
+    
+    infilename = basename(infile)
+    
     # split all_intcols from SampleGroups(), for samp_columns vector
     all_intcols <- get_all_intcols(args[4])
 
@@ -301,7 +318,11 @@ heatmap_cli <- function(args){
     width <- as.numeric(args[8])
     height <- as.numeric(args[9])
     strip <- args[10]
-    mq_heatmap(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height, strip)
+    feature_cluster_size = args[11]
+    sample_cluster_size = args[12]
+    fc_corr_p <- args[13]
+    
+    mq_heatmap(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height, strip, feature_cluster_size, sample_cluster_size, fc_corr_p, infilename)
 }
 
 ####### ==================== #######
@@ -333,15 +354,20 @@ sep_n <- function(clust){
     avg_dist / sum(within_variance)
 }
 
-mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, width, height, strip){
+mq_prcomp <- function(img, df, all_intcols, json_dump, colors, calculate_sep, width, height, strip, infilename){
     # function(img, df, all_intcols, colSideColors, filter_to_sig, alpha, width, height)
     # df is the result from filter
     # samp_columns is a vector of all intensity column names
     # cols is a vector of group colors
     mat <- impute(data.matrix(df[, all_intcols]))
     pr <- prcomp(mat, scale=TRUE, center=TRUE)
-
-
+    
+    
+    # write PC1 and PC2 rotation data to file
+    pc_data = pr$rotation[,1:2]
+    pc_data = data.frame("Samples"=rownames(pc_data), "PC1"=pc_data[,1], "PC2"=pc_data[,2])
+    write.table(pc_data, file = paste("PC_data_",infilename,'.txt', sep=""), sep = "\t", quote=FALSE, row.names=FALSE)
+    
     # calculate separation
     # make list of indices
     if (calculate_sep){
@@ -405,6 +431,9 @@ prcomp_cli <- function(args){
     img <- args[2]
     infile <- args[3]
     df <- read_result(infile)
+    
+    infilename = basename(infile)
+    
     # split all_intcols from SampleGroups(), for samp_columns vector
     all_intcols <- get_all_intcols(args[4])
     # get color mapping
@@ -416,14 +445,14 @@ prcomp_cli <- function(args){
     strip <- args[9]
     mq_prcomp(img=img, df=df, all_intcols=all_intcols, json_dump=json_dump,
         colors=colors, calculate_sep=calculate_sep, width=width, height=height,
-        strip=strip)
+        strip=strip, infilename)
 }
 
 
 ####### ==================== #######
 #              VOLCANO             #
 ####### ==================== #######
-mq_volcano <- function(df, img, fc_name, flip_fc, width, height, textannot, gosplit, tabfile){
+mq_volcano <- function(df, img, fc_name, fc_corr_p, flip_fc, width, height, textannot, gosplit, tabfile){
     # df is the dataframe after stat
     # fc_name is the name of the column with the fold change data
     # textcol is the name of the column with the text describing the term
@@ -431,7 +460,9 @@ mq_volcano <- function(df, img, fc_name, flip_fc, width, height, textannot, gosp
     if (flip_fc){
         df$fc <- (-1)*df$fc
     }
-    df$neglog10p <- -log10(df[, "corrected_p"])
+    df$corrected_p <- df[, fc_corr_p]
+    #df$neglog10p <- -log10(df[, "corrected_p"])
+    df$neglog10p <- -log10(df$corrected_p)
     df$de <- abs(df$fc) > 1 & df$corrected_p < 0.05
     xmax <- max(df$fc) * 1.2
     xmin <- min(df$fc) * 1.2
@@ -478,24 +509,27 @@ volcano_cli <- function(args){
     # 3. input tabular file
     # 4. name of text annotation column
     # 5. name of fold change column
-    # 6. whether to flip fc
-    # 7. whether to split GO by ontology/namespace
-    # 8. image width (default 5)
-    # 9. image height (default 5)
+    # 6. name of corrected p-value column
+    # 7. whether to flip fc
+    # 8. whether to split GO by ontology/namespace
+    # 9. image width (default 5)
+    # 10. image height (default 5)
+    
     img <- args[2]
     infile <- args[3]
     df <- read_result(infile)
     textannot <- args[4]
     fc_name <- args[5]
-    flip_fc <- (args[6] == "True")
-    gosplit <- (args[7] == "True")
-    width <- as.numeric(args[8])
-    height <- as.numeric(args[9])
-    tabfile <- args[10]
+    fc_corr_p <- args[6]
+    flip_fc <- (args[7] == "True")
+    gosplit <- (args[8] == "True")
+    width <- as.numeric(args[9])
+    height <- as.numeric(args[10])
+    tabfile <- args[11]
     if (tabfile == "None") tabfile <- NULL
     plt <- mq_volcano(df, img=img, textannot=textannot, fc_name=fc_name,
-                      flip_fc=flip_fc, gosplit=gosplit, width=width, height=height,
-                      tabfile=tabfile)
+                      fc_corr_p=fc_corr_p, flip_fc=flip_fc, gosplit=gosplit, width=width,
+                      height=height, tabfile=tabfile)
 }
 
 ####### ==================== #######
@@ -626,6 +660,84 @@ ft_dist_cli <- function(args){
     				  int_barcol=barcol, tabfile=tabfile)
 }
 
+####### ==================== #######
+#           STACKED BAR            #
+####### ==================== #######
+
+mq_stacked <- function(img, df, all_intcols, json_dump, nterms, target_rank, width, height, tabfile){
+  # df is the dataframe after stat
+  # nterms is the number of taxa to show
+  
+  grp_list <- fromJSON(json_dump)
+  
+  grp_df <- grp_list %>% 
+    as.data.frame() %>% 
+    pivot_longer(cols = 1:ncol(.), names_to = "samplegroup", values_to = "sample")
+  
+  # parse out sample groups, exponentiate, calculate relative abundance
+  dat <- df %>% 
+    pivot_longer(all_intcols, names_to = "sample", values_to = "abundance") %>% 
+    full_join(grp_df) %>% 
+    mutate(replicate = str_replace(string = sample, pattern = samplegroup, replacement = "")) %>% 
+    replace_na(list(abundance = 0)) %>%
+    mutate(abundance = 2^abundance) %>%
+    select(sample, samplegroup, replicate, id, name, rank, abundance) %>% 
+    filter(rank == target_rank) %>% 
+    group_by(sample) %>% 
+    mutate(abundance = 100*abundance/sum(abundance))
+  
+  # reorder taxa levels for plotting
+  taxa_levels <- names(sort(tapply(dat$abundance, dat$name, sum)))
+  
+  # collapse less abundang terms into "Other" if terms exceed desired terms
+  if(length(unique(dat$name))>nterms){
+    topn <- tail(taxa_levels, nterms)
+    dat<-dat %>%
+      mutate(name = factor(ifelse(name %in% topn, name, "Other"))) %>% 
+      group_by(sample, samplegroup, replicate, name) %>% 
+      summarise(abundance = sum(abundance)) %>% 
+      group_by(sample)
+    taxa_levels <- names(sort(tapply(dat$abundance, dat$name, sum)))
+    # reorder taxa levels for plotting, to have "Other" on top
+    other_index <- as.numeric(which(taxa_levels == "Other"))
+    taxa_levels <- c("Other", taxa_levels[1:(other_index-1)], taxa_levels[(other_index+1):length(taxa_levels)])
+  }
+  
+  # make stacked bar plot
+  fig <- dat %>%     
+    ggplot(aes(x=replicate, y=abundance, fill=factor(name, levels = taxa_levels)))+
+    geom_bar(position="stack", stat = "identity") +
+    facet_grid(cols = vars(samplegroup)) +
+    labs(x= "Sample", y="Relative Abundance")+
+    scale_fill_brewer(name="Taxa", palette = "Set1")
+  
+  # write tabular file
+  write.table(x = dat, file = tabfile, quote = FALSE, row.names = FALSE)
+
+  # save plot
+  ggsave(file=img, width=width, height=height, units="in", dpi=300)
+  
+}
+
+stacked_cli <- function(args){
+  
+  img <- args[2]
+  infile <- args[3]
+  df <- read_result(infile)
+  
+  # split all_intcols from SampleGroups(), for samp_columns vector
+  all_intcols <- unlist(strsplit(get_all_intcols(args[4]), split=","))
+  
+  # other args
+  json_dump <- args[5]
+  nterms <- as.numeric(args[6])
+  target_rank <- toString(args[7])
+  width <- as.numeric(args[8])
+  height <- as.numeric(args[9])
+  tabfile <- args[10]
+  
+  mq_stacked(img, df, all_intcols, json_dump, nterms, target_rank, width, height, tabfile)
+}
 
 ####### ==================== #######
 #              MAIN                #

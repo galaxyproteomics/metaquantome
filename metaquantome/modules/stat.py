@@ -7,7 +7,7 @@ from metaquantome.util.utils import P_COLNAME, P_CORR_COLNAME
 from metaquantome.util.stat_io import read_expanded_table, write_stat
 
 
-def stat(infile, sinfo, paired, parametric, ontology, mode, outfile):
+def stat(infile, sinfo, paired, parametric, ontology, mode, outfile, control_group):
     """
     Module function that tests differential expression between 2 experimental conditions
 
@@ -27,13 +27,44 @@ def stat(infile, sinfo, paired, parametric, ontology, mode, outfile):
     # read in
     df = read_expanded_table(infile, samp_grps)
 
-    if samp_grps.ngrps != 2:
-        ValueError('testing is only available for 2 experimental conditions.')
+    #if samp_grps.ngrps != 2:
+    #    raise ValueError('testing is only available for 2 experimental conditions.')
+    
+    ###################
+    # Addition by Praveen to enable pairwise stat while inputting multiple sample groups
+    ###################
+    ctrl_grp = control_group
+    if ctrl_grp not in samp_grps.grp_names:
+        raise ValueError('Control sample group incorrect/missing.')
+    #    print(samp_grps.grp_names)
+    
+    df_test = df.copy()
+    
+    case_grps = samp_grps.grp_names
+    ctrl_grp = ctrl_grp
+    case_grps.remove(ctrl_grp)
+    fc_new_cols = []
+    for each_case in case_grps:
+        tmp_samp_json = '{"'+str(each_case.strip())+'":'+str(samp_grps.sample_names[each_case]).replace("'","\"")+', "'+ str(ctrl_grp.strip()) +'":'+str(samp_grps.sample_names[str(ctrl_grp.strip())]).replace("'","\"")+'}'
+        tmp_samp_grps = SampleGroups(tmp_samp_json)
+        
+        # run test for each pair of groups
+        df_tmp = test_norm_intensity(df, tmp_samp_grps, paired, parametric)
+        
+        df_test[tmp_samp_grps.fc_name] = df_tmp[tmp_samp_grps.fc_name].tolist()
+        df_test[P_COLNAME+"_"+tmp_samp_grps.fc_name.replace("log2fc_","")] = df_tmp[P_COLNAME+"_"+tmp_samp_grps.fc_name.replace("log2fc_","")].tolist()
+        df_test[P_CORR_COLNAME+"_"+tmp_samp_grps.fc_name.replace("log2fc_","")] = df_tmp[P_CORR_COLNAME+"_"+tmp_samp_grps.fc_name.replace("log2fc_","")].tolist()
+        
+        fc_new_cols = fc_new_cols + [tmp_samp_grps.fc_name, P_COLNAME+"_"+tmp_samp_grps.fc_name.replace("log2fc_",""), P_CORR_COLNAME+"_"+tmp_samp_grps.fc_name.replace("log2fc_","")]
+    ###################
+    
     # run test
-    df_test = test_norm_intensity(df, samp_grps, paired, parametric)
+    #df_test = test_norm_intensity(df, samp_grps, paired, parametric)
+    
     # write out
     if outfile:
-        write_stat(df_test, samp_grps=samp_grps, ontology=ontology, mode=mode, outfile=outfile)
+        #write_stat(df_test, samp_grps=samp_grps, ontology=ontology, mode=mode, outfile=outfile)
+        write_stat(df_tmp, samp_grps=samp_grps, ontology=ontology, mode=mode, outfile=outfile, fc_new_cols=fc_new_cols)
     # return
     return df_test
 
@@ -80,10 +111,12 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
     df_means = log2_fold_change(df, samp_grps)
 
     # p values, uncorrected for multiple comparisons
-    df_means[P_COLNAME] = test_results
+    #df_means[P_COLNAME] = test_results
+    df_means[P_COLNAME+"_"+samp_grps.fc_name.replace("log2fc_","")] = test_results
 
     # fdr correction
-    df_means[P_CORR_COLNAME] = mc.fdrcorrection0(test_results, method='indep')[1]
+    #df_means[P_CORR_COLNAME] = mc.fdrcorrection0(test_results, method='indep')[1]
+    df_means[P_CORR_COLNAME+"_"+samp_grps.fc_name.replace("log2fc_","")] = mc.fdrcorrection0(test_results, method='indep')[1]
 
     # reset the index to be 'id' - this is mostly for testing, and doesn't affect the output file
     df_means.set_index('id', drop=False, inplace=True)

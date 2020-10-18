@@ -34,15 +34,15 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(exp_status, 0)
 
         test_out = testfile('cli_mult_test_out.tab')
-        test_command = "python3 metaquantome/cli.py stat -m f --outfile " + test_out + ' --file ' + exp_out
+        test_command = "python3 metaquantome/cli.py stat -m f --outfile " + test_out + ' --file ' + exp_out + ' --control_group s2 ' 
         test_command += ''' --ontology cog ''' + " --samps '" + TTEST_SINFO + "'" + ' --parametric True '
         test_status = subprocess.call(test_command, shell=True)
         self.assertEqual(test_status, 0)
 
         test_df = pd.read_csv(test_out, sep="\t", index_col='id')
         # make sure false is > 0.05 and trues are less than 0.05
-        self.assertTrue(test_df['corrected_p']['C'] > 0.05)
-        self.assertTrue(test_df['corrected_p'][['N','D']].le(0.05).all())
+        self.assertTrue(test_df['corrected_p_s1_over_s2']['C'] > 0.05)
+        self.assertTrue(test_df['corrected_p_s1_over_s2'][['N','D']].le(0.05).all())
 
     def testViz(self):
         infile = testfile('taxonomy_write_simple.tab')
@@ -100,7 +100,8 @@ class TestCLI(unittest.TestCase):
             '--infile', infile,
             '--img', imgfile,
             "--samps '", TTEST_SINFO, "'",
-            '--filter_to_sig',
+            '--filter_to_sig', 'corrected_p_s1_over_s2',
+            '--fc_corr_p', ,
             '--alpha 0.5'
         ])
         test_status = subprocess.call(cmd, shell=True)
