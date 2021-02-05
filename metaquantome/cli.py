@@ -2,6 +2,7 @@ import sys
 import argparse
 import logging
 import os
+import pkg_resources
 
 # add metaquantome parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -88,6 +89,9 @@ def parse_args_cli():
     :return: parsed arguments
     """
     parser = argparse.ArgumentParser()
+    # parser.add_argument('--help', action=_HelpAction, help="Help")
+    parser.add_argument('-v', '--version', action='version',
+                         version=pkg_resources.require("metaquantome")[0].version)
 
     # split this into three submodules
     subparsers = parser.add_subparsers(title="commands", dest="command")
@@ -290,6 +294,9 @@ def parse_args_cli():
     pca.add_argument("--calculate_sep", action="store_true",
                      help="Flag. Calculate separation between groups and include in title?")
 
+    if len(sys.argv)==1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
     args = parser.parse_args()
     return args
 
