@@ -7,26 +7,78 @@
 
 Quantitative analysis of the function and taxonomy of microbiomes and their interaction.
 
+## Table of Contents
+- [Setup](#setup-)
+    - [BioConda](#bioconda-)
+    - [Local Development](#local-development-)
+- [Usage](#usage-)
+- [Tests](#tests-)
 
-# Developers
+## Setup [⤴](#table-of-contents)
 
-## Setup
+### BioConda
 
-The newest version of metaquantome should be downloaded from this site.
-The dependencies are most easily satisfied with conda, and the environment can
-be created and activated as follows:
+The easiest way to install metaQuantome with all the dependencies is by using Bioconda (provided you are on Mac or Linux, which are the only systems supported by Bioconda).
 
-```sh
-conda env update --file dev_environment.yml
-source activate metaquantome
+First, install the conda package manager, by downloading either Anaconda or Miniconda (see https://docs.anaconda.com/anaconda/install/). Then, the following commands will set up the necessary channels for Bioconda and metaQuantome. If needed, additional information on Bioconda is available at https://bioconda.github.io/.
+
+```
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
 ```
 
-Note that the bioconda and conda forge channels must be enabled,
-as described on [the bioconda website](https://bioconda.github.io/#set-up-channels).
+Then, run the following command to set up an environment named mqome, which will have metaQuantome (version 2.0.0) and all dependencies in it:
 
-## Tests
-To run unittests for the project, run the following from the root directory:
+```
+conda create -n mqome metaquantome=2.0.0
+```
+
+If the following prompt is seen at the command line, type `y`:
+```
+Proceeed ([y]/n)?
+```
+
+The create command only needs to be run once.
+
+Finally, we can activate the environment using the following command, which will make the `metaquantome` command available.
+```
+conda activate mqome
+```
+
+### Local Development
+
+To begin, ensure that you have Python3 installed. To check, issue this command to verify your python version:
+```
+python --version
+```
+
+If Python3 is not installed, please download it from [here](https://www.python.org/downloads/).
+
+Pip is the package installer for Python. It comes pre-packaged with Python. 
+
+To install your local version of metaQuantome, run the following in the root directory:
+```
+pip install .
+```
+
+## Usage [⤴](#table-of-contents)
+
+In-depth tutorials can be found [here](https://galaxyproteomics.github.io/metaquantome_mcp_analysis/) for the following:
+1. [metaQuantome command-line interface](https://galaxyproteomics.github.io/metaquantome_mcp_analysis/cli_tutorial/cli_tutorial.html)
+2. [metaQuantome Galaxy tool](https://galaxyproteomics.github.io/metaquantome_mcp_analysis/galaxy_tutorial/galaxy_tutorial.html)
+
+## Tests [⤴](#table-of-contents)
+Before running unittests for the project, you will need to install some databases as follows:
+```
+metaquantome db ncbi --dir ./metaquantome/data/test/
+```
+*Note: This step will take a few minutes to download*
+
+
+Once downloaded, run the following from the root directory:
 
 ```sh
 python -m unittest discover tests
 ```
+*Note: This step will take a few minutes to run*
