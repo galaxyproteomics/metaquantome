@@ -59,12 +59,12 @@ class TestTaxonomyDatabase(unittest.TestCase):
         # all descendants include 4 genuses/geni (9592, 9605, 9599, 9596)
         # and species:
         # gorilla species (499232, 9593)
-        # homo species (1425170, 9606)
+        # homo species (1425170, 9606, 2665953)
         # pan species (9597, 9598)
         # and pongo species (9601, 502961, 9600, 2051901, 9603)
         descendants_exp = {9592, 9605, 9599, 9596, 499232, 9593,
                            1425170, 9606, 9597, 9598,
-                           9601, 502961, 9600, 2051901, 9603}
+                           9601, 502961, 9600, 2051901, 9603, 2665953}
         self.assertSetEqual(self.ncbi.get_descendants(id), descendants_exp)
 
     def testGetParents(self):

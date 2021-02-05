@@ -100,13 +100,13 @@ class TestCLI(unittest.TestCase):
             '--infile', infile,
             '--img', imgfile,
             "--samps '", TTEST_SINFO, "'",
-            '--filter_to_sig', 'corrected_p_s1_over_s2',
-            '--fc_corr_p', ,
+            '--filter_to_sig', 
+            '--fc_corr_p', 'corrected_p_s1_over_s2',
             '--alpha 0.5'
         ])
         test_status = subprocess.call(cmd, shell=True)
         self.assertEqual(test_status, 0)
-        cmd2 = ' '.join([
+        cmd2 = ' '.join([ 
             'python3 metaquantome/cli.py viz -m f --ontology ec --plottype heatmap',
             '--infile', infile,
             '--img', imgfile,
