@@ -98,7 +98,6 @@ def parse_args_cli():
             "Run `metaquantome {db,expand,filter,stat,viz} -h` for more information on the individual modules. "
             "Any issues can be brought to attention here: https://github.com/galaxyproteomics/metaquantome/issues."
     )
-    # parser.add_argument('--help', action=_HelpAction, help="Help")
     parser.add_argument('-v', '--version', action='version',
                          version=pkg_resources.require("metaquantome")[0].version)
 

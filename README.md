@@ -5,7 +5,7 @@
 # metaQuantome
 
 
-Quantitative analysis of the function and taxonomy of microbiomes and their interaction.
+Quantitative analysis on the function and taxonomy of microbiomes and their interaction.
 
 ## Table of Contents
 - [Setup](#setup-)
@@ -75,8 +75,9 @@ metaquantome db ncbi --dir ./metaquantome/data/test/
 ```
 *Note: This step will take a few minutes to download*
 
+You will also need to set up a BioConda environment as specified [above](#bioconda-).
 
-Once downloaded, run the following from the root directory:
+Once set up, run the following from the root directory:
 
 ```sh
 python -m unittest discover tests
