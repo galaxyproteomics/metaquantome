@@ -53,6 +53,7 @@ class TestRunViz(unittest.TestCase):
         infile = testfile('cli_mult_test_out.tab')
         run_viz('volcano', self.img, infile,
                 textannot="id",
+                fc_corr_p="corrected_p_s1_over_s2",
                 fc_name="log2fc_s1_over_s2")
 
         # test tabfile
@@ -60,6 +61,7 @@ class TestRunViz(unittest.TestCase):
         run_viz('volcano', self.img, infile,
                 textannot="id",
                 fc_name="log2fc_s1_over_s2",
+                fc_corr_p="corrected_p_s1_over_s2",
                 tabfile=tabfile)
         self.assertTrue(os.path.exists(tabfile))
         os.remove(tabfile)
@@ -69,6 +71,7 @@ class TestRunViz(unittest.TestCase):
         run_viz('volcano', self.img, infile,
                 textannot="id",
                 fc_name="log2fc_s1_over_s2",
+                fc_corr_p="corrected_p_s1_over_s2",
                 gosplit=True)
 
     def testHeatmap(self):

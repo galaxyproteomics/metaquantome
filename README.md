@@ -69,13 +69,15 @@ In-depth tutorials can be found [here](https://galaxyproteomics.github.io/metaqu
 2. [metaQuantome Galaxy tool](https://galaxyproteomics.github.io/metaquantome_mcp_analysis/galaxy_tutorial/galaxy_tutorial.html)
 
 ## Tests [⤴](#table-of-contents)
+
+
+For testing, you will also need to set up a BioConda environment as specified [above](#bioconda-).
+
 Before running unittests for the project, you will need to install some databases as follows:
 ```
 metaquantome db ncbi --dir ./metaquantome/data/test/
 ```
 *Note: This step will take a few minutes to download*
-
-You will also need to set up a BioConda environment as specified [above](#bioconda-).
 
 Once set up, run the following from the root directory:
 

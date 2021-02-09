@@ -452,13 +452,17 @@ prcomp_cli <- function(args){
 ####### ==================== #######
 #              VOLCANO             #
 ####### ==================== #######
-mq_volcano <- function(df, img, fc_name, fc_corr_p, flip_fc, width, height, textannot, gosplit, tabfile){
+mq_volcano <- function(df, img, fc_name, fc_corr_p, flip_fc, gosplit, width, height, textannot, tabfile){
     # df is the dataframe after stat
     # fc_name is the name of the column with the fold change data
     # textcol is the name of the column with the text describing the term
     df$fc <- df[, fc_name]
     if (flip_fc){
         df$fc <- (-1)*df$fc
+    }
+    if (fc_corr_p == "None"){
+        stop("corrected p-value column not defined. did you run metaquantome stat?",
+                call. = FALSE)
     }
     df$corrected_p <- df[, fc_corr_p]
     #df$neglog10p <- -log10(df[, "corrected_p"])

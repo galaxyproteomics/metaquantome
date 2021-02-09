@@ -75,10 +75,10 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_dow
     df_counts = df_int.copy()
     df_counts.loc[:, samp_grps.all_intcols] = df_counts.loc[:, samp_grps.all_intcols] > 0
     # group by both cog and lca and add
-    grouped = df_int.groupby(by=[func_colname, 'des_rank']).sum(axis=1)
+    grouped = df_int.groupby(by=[func_colname, 'des_rank']).sum()
     # get groupwise counts (i.e., unique peptides)
     # multiply by 1 to convert any single booleans (True) to 1
-    counts = df_counts.groupby(by=[func_colname, 'des_rank']).sum(axis=1) * 1
+    counts = df_counts.groupby(by=[func_colname, 'des_rank']).sum() * 1
     ints_and_counts = grouped.join(counts, rsuffix='_n_peptide')
 
     # ---- output prep ---- #
