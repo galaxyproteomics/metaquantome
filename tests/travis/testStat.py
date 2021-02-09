@@ -65,6 +65,7 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         df_tst = stat.stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='go', mode='f', control_group='s2',
                            outfile=test_write)
         # make sure false is > 0.05 and trues are less than 0.05
+        df_tst.set_index('id', inplace=True)
         self.assertTrue(df_tst['p_s1_over_s2']['GO:0008152'] > 0.05)
         self.assertTrue(df_tst['p_s1_over_s2'][['GO:0022610','GO:0000003','GO:0032505']].le(0.05).all())
 
@@ -78,6 +79,7 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         cog_tst = stat.stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='cog', mode='f', control_group='s2',
                             outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
+        cog_tst.set_index('id', inplace=True)
         self.assertTrue(cog_tst['p_s1_over_s2']['C'] > 0.05)
         self.assertTrue(cog_tst['p_s1_over_s2'][['N', 'D']].le(0.05).all())
 
@@ -92,6 +94,7 @@ class TestFunctionalAnalysisTest(unittest.TestCase):
         ec_tst = stat.stat(expandfile, sinfo=TTEST_SINFO, paired=False, parametric=True, ontology='ec', mode='f', control_group='s2',
                            outfile=tested_file)
         # make sure false is > 0.05 and trues are less than 0.05
+        ec_tst.set_index('id', inplace=True)
         self.assertTrue(ec_tst['p_s1_over_s2']['3.4.11.-'] > 0.05)
         self.assertTrue(ec_tst['p_s1_over_s2'][['3.4.21.70', '1.2.-.-']].le(0.05).all())
 
@@ -103,9 +106,10 @@ class TestTaxonomyAnalysisTest(unittest.TestCase):
         expanded = testfile('expand_taxttest.tab')
         tax_df = expand.expand('t', sinfo=TTEST_SINFO, int_file=int, pep_colname_int='peptide', pep_colname_func='peptide',
                                pep_colname_tax='peptide', data_dir=TEST_DIR, outfile=expanded, tax_file=tax, tax_colname='lca')
-        tax_tst = stat.stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=False, ontology=None, mode=None, control_group='s2'
+        tax_tst = stat.stat(expanded, sinfo=TTEST_SINFO, paired=False, parametric=False, ontology=None, mode=None, control_group='s2',
                             outfile=None)
         # make sure false is > 0.05 and trues are less than 0.05
+        tax_tst.set_index('id', inplace=True)
         self.assertTrue(tax_tst['p_s1_over_s2'][210] > 0.05)
         self.assertTrue(tax_tst['p_s1_over_s2'][[1496,1870884]].le(0.05).all())
         # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae

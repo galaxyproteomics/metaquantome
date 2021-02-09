@@ -2,6 +2,7 @@ import sys
 import argparse
 import logging
 import os
+import pkg_resources
 
 # add metaquantome parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -87,15 +88,70 @@ def parse_args_cli():
     parse the command line arguments
     :return: parsed arguments
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description="metaQuantome is a tool that performs quantitative analysis"
+            " on the function and taxonomy of microbomes and their interactions. "
+            "For more background information, please read the associated manuscript: https://doi.org/10.1074/mcp.ra118.001240. "
+            "For a more hands-on tutorial, please visit the following page: https://galaxyproteomics.github.io/metaquantome_mcp_analysis/cli_tutorial/cli_tutorial.html.\n\n"
+            "The metaQuantome workflow is as follows: db → expand → filter → stat → viz.\n\n" 
+            "Run `metaquantome {db,expand,filter,stat,viz} -h` for more information on the individual modules. "
+            "Any issues can be brought to attention here: https://github.com/galaxyproteomics/metaquantome/issues."
+    )
+    parser.add_argument('-v', '--version', action='version',
+                         version=pkg_resources.require("metaquantome")[0].version)
 
     # split this into three submodules
     subparsers = parser.add_subparsers(title="commands", dest="command")
-    parser_db = subparsers.add_parser('db')
-    parser_expand = subparsers.add_parser('expand')
-    parser_filter = subparsers.add_parser('filter')
-    parser_stat = subparsers.add_parser('stat')
-    parser_viz = subparsers.add_parser('viz')
+    parser_db = subparsers.add_parser('db',
+        formatter_class=argparse.RawTextHelpFormatter,
+        description="metaQuantome uses freely available bioinformatic databases to expand your set of direct annotations. For most cases, all 3 databases can be downloaded (the default).\n"
+                    "The databases are:\n"
+                    "1. NCBI taxonomy database. This contains a list of all currently identified taxa and the relationships between them.\n"
+                    "2. Gene Ontology (GO) term database. metaQuantome uses the OBO format of the database. Specifically, two files are used: the go-basic.obo file, which is a simplified version of the GO database that is guaranteed to be acyclic, and the metagenomics slim GO, which is a subset of the full GO that is useful for microbiome research. More details are available at http://geneontology.org/docs/download-ontology/\n"
+                    "3. ENZYME database with Enzyme Classification (EC) numbers. This database classifies enzymes and organizes the relationships between them.\n"
+                    "This module downloads the most recent releases of the specified databases and stores them in a single file, which can then be accessed by the rest of the metaQuantome modules. For reference, the taxonomy database is the largest (~500 Mb), while the GO and EC databases are smaller: ~34 Mb and ~10Mb, respectively."
+                    )
+    parser_expand = subparsers.add_parser('expand', 
+        formatter_class=argparse.RawTextHelpFormatter,
+        description='The expand module is the first analysis step in the metaQuantome analysis workflow, and can be run to analyze function, taxonomy, or function and taxonomy together.\n'
+                    'To prepare to run this module, you must create your samples file (tabular file with `group` and `colnames` columns with each row as a sample group) and download the necessary databases with `metaquantome db`.\n'
+                    'Some example analysis workflows are:\n'
+                    '1. Get the functional, taxonomic, or functional-taxonomic distribution: run expand, filter, and viz.\n'
+                    '2. Cluster analysis: run expand, filter, and viz. The viz module has heatmaps and PCA plots for cluster analysis.\n'
+                    '3. Differential expression: run expand, filter, stat, and viz.\n\n'
+                    'The following information is required for all 3 analysis modes (function, taxonomy, and function-taxonomy).\n'
+                    '- experimental design information.\n'
+                    '- a tab-separated peptide intensity file.\n'
+                    '- the name of the peptide column in the intensity file.\n\n'
+                    'Function mode\n'
+                    'In function mode, the following information is required:\n'
+                    '- the ontology being used: Gene Ontology (GO), Clusters of Orthologous Groups (COG), or Enzyme Commission (EC) numbers.\n'
+                    '- a tab-separated functional annotation file, with a peptide column and a functional annotation column. An entry in the functional annotation column may contain multiple functional annotations separated by commas.\n'
+                    '- the name of the peptide column in the functional annotation file.\n'
+                    '- the name of the functional annotation column in the functional annotation file.\n\n'
+                    'Taxonomy mode\n'
+                    'In taxonomy mode, the following information is required:\n'
+                    '- a tab-separated taxonomy annotation file, with a peptide column and a taxonomy annotation column. The taxonomic annotations should be the lowest common ancestor (LCA) for each peptide, preferably given as NCBI taxonomy IDs.\n'
+                    '- the name of the peptide column in the taxonomic annotation file.\n'
+                    '- the name of the taxonomy annotation column in the taxonomy annotation file.\n\n'
+                    'Function-Taxonomy mode\n'
+                    'In the combined mode, all of the above must be provided. In addition, the "target rank" must be provided, which is the desired taxonomic rank at which to summarize the function/taxonomy results.')
+    parser_filter = subparsers.add_parser('filter',
+        formatter_class=argparse.RawTextHelpFormatter, 
+        description="The filter module is the second step in the metaQuantome analysis workflow. The purpose of the filter module is to filter expanded terms to those that are representative and well-supported by the data. "
+                "Please see the manuscript (https://doi.org/10.1074/mcp.ra118.001240) for further details about filtering.")
+    parser_stat = subparsers.add_parser('stat', 
+        formatter_class=argparse.RawTextHelpFormatter, 
+        description="The stat module is the third step in the metaQuantome analysis workflow."
+                    " The purpose of the stat module is to perform differential expression analysis between 2 experimental conditions."
+                    " metaQuantome offers paired and unpaired tests, as well as parametric and non-parametric options.")
+    parser_viz = subparsers.add_parser('viz', 
+        formatter_class=argparse.RawTextHelpFormatter, 
+        description="The viz module is the final step in the metaQuantome analysis workflow."
+            " The available visualizations are:\n"
+                "-bar plot\n-volcano plot\n-heatmap\n-PCA plot\n"
+                "Please consult the manuscript (https://doi.org/10.1074/mcp.ra118.001240.) for full details on each of these plots.")
 
     # db download
     parser_db.add_argument('dbs', type=str, nargs='+', choices=['ncbi', 'go', 'ec'],
@@ -290,6 +346,9 @@ def parse_args_cli():
     pca.add_argument("--calculate_sep", action="store_true",
                      help="Flag. Calculate separation between groups and include in title?")
 
+    if len(sys.argv)==1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
     args = parser.parse_args()
     return args
 
