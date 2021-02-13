@@ -14,7 +14,7 @@ Quantitative analysis on the function and taxonomy of microbiomes and their inte
 - [Usage](#usage-)
 - [Tests](#tests-)
 
-## Setup [⤴](#table-of-contents)
+## Setup (#table-of-contents)
 
 ### BioConda
 
@@ -28,10 +28,10 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 ```
 
-Then, run the following command to set up an environment named mqome, which will have metaQuantome (version 2.0.0) and all dependencies in it:
+Then, run the following command to set up an environment named mqome, which will have metaQuantome (version 2.0.1) and all dependencies in it:
 
 ```
-conda create -n mqome metaquantome=2.0.0
+conda create -n mqome metaquantome=2.0.1
 ```
 
 If the following prompt is seen at the command line, type `y`:
@@ -62,13 +62,13 @@ To install your local version of metaQuantome, run the following in the root dir
 pip install .
 ```
 
-## Usage [⤴](#table-of-contents)
+## Usage (#table-of-contents)
 
 In-depth tutorials can be found [here](https://galaxyproteomics.github.io/metaquantome_mcp_analysis/) for the following:
 1. [metaQuantome command-line interface](https://galaxyproteomics.github.io/metaquantome_mcp_analysis/cli_tutorial/cli_tutorial.html)
 2. [metaQuantome Galaxy tool](https://galaxyproteomics.github.io/metaquantome_mcp_analysis/galaxy_tutorial/galaxy_tutorial.html)
 
-## Tests [⤴](#table-of-contents)
+## Tests (#table-of-contents)
 
 
 For testing, you will also need to set up a BioConda environment as specified [above](#bioconda-).
