@@ -80,7 +80,7 @@ and change the directory to metaquantome
 cd metaquantome
 ```
 
-Please run the following commands within the metaQuantome directory.
+Run the following commands within the metaQuantome directory.
 
 For testing metaQuantome, you will also need to set up a BioConda environment as specified [above](#bioconda-).
 
