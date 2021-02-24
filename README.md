@@ -73,7 +73,6 @@ In-depth tutorials can be found [here](https://galaxyproteomics.github.io/metaqu
 For testing purposes, clone the github repository
 ```
 git clone https://github.com/galaxyproteomics/metaquantome.git 
-
 ```
 and change the directory to metaquantome
 
