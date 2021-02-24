@@ -70,7 +70,18 @@ In-depth tutorials can be found [here](https://galaxyproteomics.github.io/metaqu
 
 ## Tests (#table-of-contents)
 
-For testing purposes, clone the github repository and run the following commands.
+For testing purposes, clone the github repository
+```
+git clone https://github.com/galaxyproteomics/metaquantome.git 
+
+```
+and change the directory to metaquantome
+
+```
+cd metaquantome
+```
+
+Now run the following commands from inside the metaQuantome directory.
 
 For testing metaQuantome, you will also need to set up a BioConda environment as specified [above](#bioconda-).
 
