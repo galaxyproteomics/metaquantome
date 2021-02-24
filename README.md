@@ -70,8 +70,9 @@ In-depth tutorials can be found [here](https://galaxyproteomics.github.io/metaqu
 
 ## Tests (#table-of-contents)
 
+For testing purposes, clone the github repository and run the following commands.
 
-For testing, you will also need to set up a BioConda environment as specified [above](#bioconda-).
+For testing metaQuantome, you will also need to set up a BioConda environment as specified [above](#bioconda-).
 
 Before running unittests for the project, you will need to install some databases as follows:
 ```
