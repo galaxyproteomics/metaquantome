@@ -82,7 +82,7 @@ cd metaquantome
 
 Run the following commands within the metaQuantome directory.
 
-**For testing metaQuantome, you will also need to set up a BioConda environment as specified [above](#bioconda-).**
+**_For testing metaQuantome, you will also need to set up a BioConda environment as specified [above](#bioconda-)._**
 
 Before running unittests for the project, you will need to install some databases as follows:
 ```
