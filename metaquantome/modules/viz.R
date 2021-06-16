@@ -26,7 +26,7 @@ X_AXIS_ROT <- 60
 ####### ==================== #######
 # read tab-separated file
 read_result <- function(file){
-    df <- read.delim(file, sep="\t", stringsAsFactors=FALSE)
+    df <- read.delim(file, sep="\t", stringsAsFactors=FALSE, check.names=FALSE)
     return(df)
 }
 
