@@ -28,10 +28,10 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 ```
 
-Then, run the following command to set up an environment named mqome, which will have metaQuantome (version 2.0.1) and all dependencies in it:
+Then, run the following command to set up an environment named mqome, which will have metaQuantome (version 2.0.2) and all dependencies in it:
 
 ```
-conda create -n mqome metaquantome=2.0.1
+conda create -n mqome metaquantome=2.0.2
 ```
 
 If the following prompt is seen at the command line, type `y`:
