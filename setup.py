@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-VERSION = '2.0.1'
+VERSION = '2.0.2'
 URL = 'https://github.com/galaxyproteomics/metaquantome'
 AUTHOR = 'Caleb Easterly'
 AUTHOR_EMAIL = 'caleb.easterly@gmail.com'
