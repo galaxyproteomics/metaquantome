@@ -19,7 +19,7 @@ class GeneOntologyDb:
                      "molecular_function": 'GO:0003674',
                      "cellular_component": 'GO:0005575'}
 
-    def __init__(self, data_dir, slim_down=False):
+    def __init__(self, data_dir, slim_down=False, load_obsolete_go=False):
         """
         create GeneOntologyDb object
 
@@ -27,7 +27,7 @@ class GeneOntologyDb:
         :param slim_down: whether slim will be used in the analysis. If False, the slim db is not loaded
         (self.goslim = None)
         """
-        gofull, goslim = self._load_go_db(data_dir, slim_down)
+        gofull, goslim = self._load_go_db(data_dir, slim_down, load_obsolete_go)
         self.gofull = gofull
         self.goslim = goslim
         self.slim_down = slim_down
@@ -69,7 +69,7 @@ class GeneOntologyDb:
             stream_to_file_from_url(SLIM_OBO_URL, slim_path)
 
     @staticmethod
-    def _load_go_db(data_dir, slim_down):
+    def _load_go_db(data_dir, slim_down, load_obsolete_go):
         """
         Load GO databases using goatools.oboparser. Always
         loads the full GO, and loads the metagenomics slim GO if slim_down = True
@@ -83,9 +83,9 @@ class GeneOntologyDb:
             logging.error('GO files not found in specified directory.\n' +
                           'Please use the command >metaquantome db ...  to download the files.')
         # read gos
-        go_dag = obo_parser.GODag(obo_path)
+        go_dag = obo_parser.GODag(obo_path, load_obsolete=load_obsolete_go)
         if slim_down:
-            go_dag_slim = obo_parser.GODag(slim_path)
+            go_dag_slim = obo_parser.GODag(slim_path, load_obsolete=load_obsolete_go)
         else:
             go_dag_slim = None
         return go_dag, go_dag_slim
