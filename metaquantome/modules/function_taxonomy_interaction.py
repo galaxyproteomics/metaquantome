@@ -7,7 +7,7 @@ from metaquantome.databases.NCBITaxonomyDb import NCBITaxonomyDb
 
 
 def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_down, tax_colname, samp_grps, ft_tar_rank,
-                               data_dir):
+                               data_dir, load_obsolete_go):
     # todo: add normalization module for ft modules
     # choose bp, cc, or mf
     # don't return bp, cc, or mf themselves
@@ -38,7 +38,7 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_dow
         ValueError('ontology must be "go" for function-taxonomy modules')
 
     # ---- reduce, normalize, (optionally) slim ---- #
-    godb, norm_df = fa.clean_function_df(data_dir, df, func_colname, ontology, slim_down)
+    godb, norm_df = fa.clean_function_df(data_dir, df, func_colname, ontology, slim_down, load_obsolete_go)
     if slim_down:
         norm_df = fa.slim_down_df(godb, norm_df, func_colname)
     # remove peptide/go-term duplicates (in the case that different GO term annotations

@@ -10,7 +10,7 @@ from metaquantome.classes.SampleGroups import SampleGroups
 
 def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname_tax, data_dir=None, outfile=None,
            func_file=None, func_colname=None, ontology='go', slim_down=False, tax_file=None, tax_colname=None,
-           nopep=False, nopep_file=None, ft_tar_rank='genus'):
+           nopep=False, nopep_file=None, ft_tar_rank='genus', load_obsolete_go=False):
     """
     Expand the directly annotated hierarchy to one with all ancestors.
 
@@ -31,6 +31,7 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
     :param nopep_file: path to file without peptides
     :param data_dir: path to parent directory of database files
     :param ft_tar_rank: in ft mode, all taxonomy are mapped to this rank if possible.
+    :param load_obsolete_go: Boolean. Whether to load obsolete GO terms.
     :return: returns a dataframe of functional or taxonomic terms with associated intensities.
     Missing values are represented as 0.
     """
@@ -50,13 +51,14 @@ def expand(mode, sinfo, int_file, pep_colname_int, pep_colname_func, pep_colname
     # run modules based on modes
     if mode == 'f':
         results = functional_analysis(df=df, func_colname=func_colname, samp_grps=samp_grps, ontology=ontology,
-                                      slim_down=slim_down, data_dir=data_dir)
+                                      slim_down=slim_down, data_dir=data_dir, load_obsolete_go=load_obsolete_go)
     elif mode == 't':
         results = taxonomy_analysis(df=df, samp_grps=samp_grps, data_dir=data_dir, tax_colname=tax_colname)
     elif mode == 'ft':
         results = function_taxonomy_analysis(df=df, func_colname=func_colname, pep_colname=pep_colname_int,
                                              ontology=ontology, slim_down=slim_down, tax_colname=tax_colname,
-                                             samp_grps=samp_grps, ft_tar_rank=ft_tar_rank, data_dir=data_dir)
+                                             samp_grps=samp_grps, ft_tar_rank=ft_tar_rank, data_dir=data_dir,
+                                             load_obsolete_go=load_obsolete_go)
     else:
         raise ValueError('Invalid mode. Expected one of "f", "t", or "ft"')
 

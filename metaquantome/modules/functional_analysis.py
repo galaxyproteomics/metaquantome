@@ -6,7 +6,7 @@ import metaquantome.databases.EnzymeDb as ec
 from metaquantome.util import utils
 
 
-def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir):
+def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_dir, load_obsolete_go):
     """
     Expand functional terms and aggregate intensities.
 
@@ -17,10 +17,11 @@ def functional_analysis(df, func_colname, samp_grps, ontology, slim_down, data_d
     :param ontology: Functional ontology. Either 'go', 'ec', or 'cog'
     :param slim_down: Boolean. Whether to map terms to slim or not.
     :param data_dir: Directory to contain functional database files (ex. go-basic.obo)
+    :param load_obsolete_go: Boolean. Whether to load obsolete GO terms.
     :return: A dataframe with a functional term and its associated sample-specific intensity in each
     row
     """
-    db, norm_df = clean_function_df(data_dir, df, func_colname, ontology, slim_down)
+    db, norm_df = clean_function_df(data_dir, df, func_colname, ontology, slim_down, load_obsolete_go)
 
     if ontology == "go":
         # filter to only those in full GO and non-missing
@@ -78,7 +79,7 @@ def slim_down_df(godb, df_clean, go_colname):
     return df_loc
 
 
-def clean_function_df(data_dir, df, func_colname, ontology, slim_down):
+def clean_function_df(data_dir, df, func_colname, ontology, slim_down, load_obsolete_go):
     """
     make functional terms nonredundant and normalize dataframe so there's only one functional
     term per row
@@ -97,7 +98,7 @@ def clean_function_df(data_dir, df, func_colname, ontology, slim_down):
     db = None
     if ontology in {"go", "ec"}:
         if ontology == "go":
-            db = GeneOntologyDb(data_dir, slim_down)
+            db = GeneOntologyDb(data_dir, slim_down, load_obsolete_go)
         elif ontology == "ec":
             db = ec.EnzymeDb(data_dir)
         # reduce df to non-redundant functional terms
