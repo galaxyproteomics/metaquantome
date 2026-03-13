@@ -1,9 +1,9 @@
 import re
-import pkg_resources
+import importlib.resources
 import os
 from urllib import request
 
-BASE_DIR = pkg_resources.resource_filename('metaquantome', '/')
+BASE_DIR = importlib.resources.files('metaquantome')
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 MISSING_VALUES = ["", "0", "NA", "NaN", "0.0"]
 ONTOLOGIES = ['cog', 'go', 'ec']
