@@ -472,7 +472,7 @@ mq_volcano <- function(df, img, fc_name, fc_corr_p, flip_fc, gosplit, width, hei
     xmin <- min(df$fc) * 1.2
     ymax <- max(df$neglog10p) * 1.2
     ymin <- 0
-    volcano_colors <- scale_color_manual(values = c("grey50", "seagreen3"), guide=FALSE)
+    volcano_colors <- scale_color_manual(values = c("grey50", "seagreen3"), guide="none")
     if (gosplit){
         vplt <- ggplot(df, aes(x = fc, y = neglog10p)) +
             geom_point(aes(color = de)) +

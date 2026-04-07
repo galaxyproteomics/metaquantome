@@ -19,7 +19,9 @@ def stream_to_file_from_url(url, tar):
     :param tar: target local file
     :return: None
     """
-    f = request.urlopen(url)
+    version = importlib.metadata.version('metaquantome')
+    req = request.Request(url, headers={'User-Agent': f'metaQuantome/{version}'})
+    f = request.urlopen(req)
     data = f.read()
     with open(tar, 'wb') as tarfile:
         tarfile.write(data)

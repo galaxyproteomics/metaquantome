@@ -113,7 +113,7 @@ class TestTaxonomyAnalysisTest(unittest.TestCase):
         self.assertTrue(tax_tst['p_s1_over_s2'][210] > 0.05)
         self.assertTrue(tax_tst['p_s1_over_s2'][[1496,1870884]].le(0.05).all())
         # also, make sure firmicutes phylum is sum of c difficile and clostridiaceae
-        self.assertEqual(tax_tst['int1'][1239], np.log2(1020))
+        self.assertTrue(np.isclose(tax_tst['int1'][1239], np.log2(1020), rtol=0, atol=1e-14))
 
 
 if __name__ == '__main__':

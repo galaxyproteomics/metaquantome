@@ -4,8 +4,8 @@ import logging
 
 from metaquantome.util.utils import safe_cast_to_list, stream_to_file_from_url
 
-FULL_OBO_URL = 'http://purl.obolibrary.org/obo/go/go-basic.obo'
-SLIM_OBO_URL = 'http://current.geneontology.org/ontology/subsets/goslim_metagenomics.obo'
+FULL_OBO_URL = 'https://current.geneontology.org/ontology/go-basic.obo'
+SLIM_OBO_URL = 'https://current.geneontology.org/ontology/subsets/goslim_metagenomics.obo'
 
 
 class GeneOntologyDb:

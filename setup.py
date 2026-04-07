@@ -30,7 +30,8 @@ setup(
         'goatools',
         'numpy',
         'statsmodels',
-        'biopython'
+        'biopython',
+        'legacy-cgi'
     ],
     python_requires='>=3.10',
     entry_points={

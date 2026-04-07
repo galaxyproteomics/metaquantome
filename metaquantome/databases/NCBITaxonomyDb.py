@@ -16,6 +16,7 @@ BASIC_TAXONOMY_TREE = ["phylum",
 # taxonomy tree (in order) with the full ranks as returned by Unipept
 # this should capture most of the ranks from most software
 FULL_TAXONOMY_TREE = ['no rank',
+                      'domain',
                       'superkingdom', 'kingdom', 'subkingdom',
                       'superphylum', 'phylum', 'subphylum',
                       'superclass', 'class', 'subclass', 'infraclass',

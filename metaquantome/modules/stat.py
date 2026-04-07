@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy import stats as sps
 from statsmodels.sandbox.stats import multicomp as mc
 
@@ -91,8 +92,8 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
     # test, using logged df
     if parametric:
         # don't need to split into paired/unpaired, because both are available in ttest_ind
-        test_results = test_df.apply(lambda x: sps.stats.ttest_ind(x[grp1_intcols].dropna(),
-                                                                   x[grp2_intcols].dropna(),
+        test_results = test_df.apply(lambda x: sps.ttest_ind(pd.to_numeric(x[grp1_intcols].dropna()),
+                                                                   pd.to_numeric(x[grp2_intcols].dropna()),
                                                                    equal_var=paired).pvalue,
                                      axis=1)
     else:

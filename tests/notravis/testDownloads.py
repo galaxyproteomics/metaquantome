@@ -22,7 +22,7 @@ class TestDownloads(unittest.TestCase):
                 self.assertTrue(os.path.exists(content))
             # make sure parsed correctly
             # this is from enzyme.dat
-            self.assertEqual(enzyme_db.ecdb['1.2.3.4']['descript'], 'Oxalate oxidase.')
+            self.assertEqual(enzyme_db.ecdb['1.2.3.4']['descript'], 'oxalate oxidase.')
 
             # from enzclass.txt
             self.assertEqual(enzyme_db.ecdb['6.1.-.-']['descript'], 'Forming carbon-oxygen bonds.')
