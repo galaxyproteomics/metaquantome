@@ -445,7 +445,7 @@ prcomp_cli <- function(args){
     strip <- args[9]
     mq_prcomp(img=img, df=df, all_intcols=all_intcols, json_dump=json_dump,
         colors=colors, calculate_sep=calculate_sep, width=width, height=height,
-        strip=strip, infilename)
+        strip=strip, infilename=infilename)
 }
 
 
