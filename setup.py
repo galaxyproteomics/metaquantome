@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-VERSION = '2.0.3'
+VERSION = '2.0.4'
 URL = 'https://github.com/galaxyproteomics/metaquantome'
 AUTHOR = 'Caleb Easterly'
 AUTHOR_EMAIL = 'caleb.easterly@gmail.com'
@@ -30,9 +30,10 @@ setup(
         'goatools',
         'numpy',
         'statsmodels',
-        'biopython'
+        'biopython',
+        'legacy-cgi'
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.10',
     entry_points={
         'console_scripts': ['metaquantome=metaquantome.cli:cli'],
     },

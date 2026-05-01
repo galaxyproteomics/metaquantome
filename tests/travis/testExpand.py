@@ -151,14 +151,14 @@ class TestTaxonomyAnalysisExpand(unittest.TestCase):
         tax_df = expand.expand('t', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=int, pep_colname_int='peptide',
                                pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=TEST_DIR, tax_file=tax,
                                tax_colname='lca')
-        self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0], np.log2(70))
+        self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Campylobacterota'")['int3'].values[0], np.log2(70))
 
     def testNopep(self):
         nopep=testfile('nopep.tab')
         tax_df = expand.expand('t', sinfo='{"s1": ["int1", "int2", "int3"]}', int_file=None, pep_colname_int='peptide',
                                pep_colname_func='peptide', pep_colname_tax='peptide', data_dir=TEST_DIR, tax_colname='lca',
                                nopep=True, nopep_file=nopep)
-        self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Proteobacteria'")['int3'].values[0],
+        self.assertEqual(tax_df.query("rank == 'phylum' and taxon_name == 'Campylobacterota'")['int3'].values[0],
                          np.log2(70))
 
     def testParentIntensityHigher(self):

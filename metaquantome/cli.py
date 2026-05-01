@@ -2,7 +2,7 @@ import sys
 import argparse
 import logging
 import os
-import pkg_resources
+import importlib.metadata
 
 # add metaquantome parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -99,7 +99,7 @@ def parse_args_cli():
             "Any issues can be brought to attention here: https://github.com/galaxyproteomics/metaquantome/issues."
     )
     parser.add_argument('-v', '--version', action='version',
-                         version=pkg_resources.require("metaquantome")[0].version)
+                         version=importlib.metadata.version('metaquantome'))
 
     # split this into three submodules
     subparsers = parser.add_subparsers(title="commands", dest="command")

@@ -72,7 +72,7 @@ def function_taxonomy_analysis(df, func_colname, pep_colname, ontology, slim_dow
     # select columns for adding purposes
     df_int = dedup_df[samp_grps.all_intcols + [func_colname, 'des_rank']]
     # do counts
-    df_counts = df_int.copy()
+    df_counts = df_int.copy().astype('object')
     df_counts.loc[:, samp_grps.all_intcols] = df_counts.loc[:, samp_grps.all_intcols] > 0
     # group by both cog and lca and add
     grouped = df_int.groupby(by=[func_colname, 'des_rank']).sum()

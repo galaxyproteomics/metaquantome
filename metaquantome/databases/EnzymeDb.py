@@ -54,9 +54,9 @@ class EnzymeDb:
             logging.info('Using ENZYME files in ' + data_dir)
         else:
             logging.info('Downloading enzyme files from ftp.expasy.org to ' + data_dir)
-            enz_dat_url = 'ftp://ftp.expasy.org/databases/enzyme/enzyme.dat'
+            enz_dat_url = 'https://ftp.expasy.org/databases/enzyme/enzyme.dat'
             stream_to_file_from_url(enz_dat_url, dat_path)
-            enz_class_url = 'ftp://ftp.expasy.org/databases/enzyme/enzclass.txt'
+            enz_class_url = 'https://ftp.expasy.org/databases/enzyme/enzclass.txt'
             stream_to_file_from_url(enz_class_url, class_path)
             # create a simpler file from enzyme.dat
             EnzymeDb._create_ec_num_enzyme_name_association_file(dat_path, dat_json)
