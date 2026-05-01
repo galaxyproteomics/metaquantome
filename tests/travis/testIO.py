@@ -13,7 +13,7 @@ class TestIO(unittest.TestCase):
         taxin = os.path.join(DATA_DIR, 'test', 'unipept_a_thaliana_result_w_pep.tab')
         df = metaquantome.util.expand_io.read_taxonomy_table(taxin, 'peptide', 'lca')
         # the first peptide is assigned to 'root'
-        self.assertEqual(df['lca'][0], 'root')
+        self.assertEqual(df['lca'].iloc[0], 'root')
 
     def testFunctionIn(self):
         funcin = os.path.join(DATA_DIR, 'test', 'multiple_func.tab')
