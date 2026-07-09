@@ -17,7 +17,7 @@ def stat(infile, sinfo, paired, parametric, ontology, mode, outfile, control_gro
     :param paired: Whether or not the sample should be analyzed as paired samples
     :param parametric: whether or not parameteric tests should be used
     :param ontology: for function, is either 'go', 'ec', or 'cog'
-    :param mode: 't', 'f', or 'taxf'
+    :param mode: 't', 'f', or 'ft'
     :param outfile: path to write to
     :return: original dataframe with p value and fold change columns appended
     """
@@ -119,8 +119,6 @@ def test_norm_intensity(df, samp_grps, paired, parametric):
     #df_means[P_CORR_COLNAME] = mc.fdrcorrection0(test_results, method='indep')[1]
     df_means[P_CORR_COLNAME+"_"+samp_grps.fc_name.replace("log2fc_","")] = mc.fdrcorrection0(test_results, method='indep')[1]
 
-    # reset the index to be 'id' - this is mostly for testing, and doesn't affect the output file
-    df_means.set_index('id', drop=False, inplace=True)
     return df_means
 
 
